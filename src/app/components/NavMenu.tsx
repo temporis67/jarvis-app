@@ -28,6 +28,11 @@ function AuthButton() {
 
 export default function NavMenu() {
   const pathname = usePathname();
+
+
+
+
+
   return (
     <div>
       <AuthButton />

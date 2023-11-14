@@ -1,8 +1,6 @@
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials"
-import {z} from 'zod';
-import type {User} from '@/app/lib/definitions';
 
 async function getUser(name: string, password: string): Promise<Response> {
     try {
@@ -25,23 +23,8 @@ async function getUser(name: string, password: string): Promise<Response> {
 
         return response;
 
-        /*
-                console.log("API fetched User: " + data['name'] + " ## " + JSON.stringify(response))
-                logResponseData(data)
-
-                for (const key in data) {
-                    console.log("2");
-                    if (data.hasOwnProperty(key)) {
-                        console.log(`${key}: ${data[key]}`);
-                    }
-                }
-
-
-        */
-
-
     } catch (error) {
-        console.error('Failed to fetch user:', error);
+        console.error('API Host down? - Failed to fetch user in /app/api/auth.../route.ts/getUser() :', error);
         throw new Error('Failed to fetch user.');
     }
 
@@ -76,18 +59,20 @@ export const authOptions = {
                 // You can also use the `req` object to obtain additional parameters
                 // (i.e., the request IP address)
 
-                console.log("credentials: " + JSON.stringify(credentials))
+                // console.log("credentials: " + JSON.stringify(credentials))
                 //@ts-ignore
                 const res = await getUser(credentials.username, credentials.password);
                 const user = await res.json()
-                console.log("user: " + JSON.stringify(user))
+
 
 
                 // If no error and we have user data, return it
                 if (res.ok && user) { //
+                    console.log("user authorized: " + JSON.stringify(user))
                     return user
                 }
                 // Return null if user data could not be retrieved
+                console.log("user not authorized.")
                 return null
             }
         })
