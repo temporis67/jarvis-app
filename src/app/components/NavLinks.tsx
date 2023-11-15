@@ -18,7 +18,7 @@ import {signIn, signOut, useSession} from "next-auth/react";
 const links = [
     {name: 'Home', href: '/', icon: HomeIcon},
     {name: 'Questions', href: '/dashboard/questions', icon: ChatBubbleBottomCenterTextIcon},
-    {name: 'ListSort', href: '/dashboard/listsort', icon: DocumentDuplicateIcon},
+    {name: 'Fetch', href: '/dashboard/testFetch', icon: DocumentDuplicateIcon},
     {name: 'Dashboard', href: '/dashboard', icon: UserGroupIcon},
 
 ];
