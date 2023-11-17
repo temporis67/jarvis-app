@@ -7,12 +7,7 @@ import {useSession} from "next-auth/react";
 
 function Page() {
 
-    let user_uuid = "";
-
-    useEffect(() => {
-      // Perform localStorage action
-        user_uuid = localStorage.getItem("user_uuid");
-    }, [])
+    let user_uuid = sessionStorage.getItem("user_uuid");
 
     console.log("questions/pages.tsx start UUID: #" , user_uuid,"#")
 

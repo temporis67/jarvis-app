@@ -29,7 +29,7 @@ export default function Layout({children}: { children: React.ReactNode }) {
             })
             const data = await response.json()
             console.log("API fetched User Dashboard: " + data['name'] + " ## " + data['uuid'])
-            localStorage.setItem("user_uuid", data['uuid']);
+            sessionStorage.setItem("user_uuid", data['uuid']);
 
         } catch (error) {
             console.error('API Host down? - Failed to fetch user in /app/api/auth.../route.ts/getUser() :', error);

@@ -32,7 +32,7 @@ const NewQuestionForm:React.FC<MyPropType> = ({user_uuid, questionsItems, setQue
             tags: [],
         }
         //@ts-ignore
-        newQuestionFull.creatorUuid = localStorage.getItem("user_uuid");
+        newQuestionFull.creatorUuid = sessionStorage.getItem("user_uuid");
         console.log("newQuestionFull.creatorUuid: " + newQuestionFull.creatorUuid);
 
         newQuestionFull.title = newQuestion;
