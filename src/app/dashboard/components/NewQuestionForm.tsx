@@ -1,11 +1,12 @@
 import React, {Dispatch, SetStateAction} from "react";
 
 type MyPropType = {
+    user_uuid:string
     questionsItems: object
     setQuestionItems:  Dispatch<SetStateAction<{ uuid: string; creator: string; title: string; content: string; dateCreated: string; dateUpdated: string; tags: string[]; }[]>>
 }
 
-const NewQuestionForm:React.FC<MyPropType> = ({questionsItems, setQuestionItems}) => {
+const NewQuestionForm:React.FC<MyPropType> = ({user_uuid, questionsItems, setQuestionItems}) => {
 
     // handler for new question
     const [newQuestion, setNewQuestion] = React.useState("");
@@ -22,13 +23,23 @@ const NewQuestionForm:React.FC<MyPropType> = ({questionsItems, setQuestionItems}
 
         const newQuestionFull = {
             id: Object.keys(questionsItems).length + 1,
-            creator: 'Peter',
-            title: 'Wo liegt New York?',
-            content: `Ich möchte die Freiheitsstatue besuchen. Besonders interessiert mich der Central Park.`,
-            dateCreated: '2023-10-15T15:22:56.000Z',
-            dateUpdated: '2023-12-15T15:22:56.000Z',
-            tags: ['New York', 'Freiheitsstatue', 'Central Park'],
+            creator: '',
+            creatorUuid: '',
+            title: '',
+            content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse ...`,
+            dateCreated: '',
+            dateUpdated: '',
+            tags: [],
         }
+        //@ts-ignore
+        newQuestionFull.creatorUuid = localStorage.getItem("user_uuid");
+        console.log("newQuestionFull.creatorUuid: " + newQuestionFull.creatorUuid);
+
+        newQuestionFull.title = newQuestion;
+        newQuestionFull.dateCreated = new Date().toISOString();
+        newQuestionFull.dateUpdated = new Date().toISOString();
+
+
         // @ts-ignore
         const _questionsItems = [...questionsItems];
         _questionsItems.unshift(newQuestionFull);

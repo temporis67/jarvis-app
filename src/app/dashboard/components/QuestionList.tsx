@@ -5,16 +5,17 @@ import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
 
 type MyPropType = {
+    user_uuid:string
     questionsItems: object
     setQuestionItems:  Dispatch<SetStateAction<{ uuid: string; creator: string; title: string; content: string; dateCreated: string; dateUpdated: string; tags: string[]; }[]>>
 }
 
 
-const QuestionList:React.FC<MyPropType> = ({questionsItems, setQuestionItems}) => {
+const QuestionList:React.FC<MyPropType> = ({user_uuid, questionsItems, setQuestionItems}) => {
 
-    console.log("@/app/dashboard/components/QuestionList start")
+    console.log("@/app/dashboard/components/QuestionList start - UUID: " + user_uuid )
     Moment.locale('de');
-    const {data: session, status} = useSession(); // now we have a 'session' and 'status'
+    const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
 
 
     // fetch data *****************************************************************************************************
@@ -23,7 +24,7 @@ const QuestionList:React.FC<MyPropType> = ({questionsItems, setQuestionItems}) =
     const api_url = (api_host + "/questions");
     let formData = new FormData();
     //@ts-ignore
-    formData.append("email", session?.user?.email);
+    formData.append("user_uuid", user_uuid);
 
     const fetchData = async () => {
         console.log("questions/page/fetchData() start")
@@ -38,7 +39,16 @@ const QuestionList:React.FC<MyPropType> = ({questionsItems, setQuestionItems}) =
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            setQuestionItems(Object.values(data)); // Wandelt das Objekt in ein Array von Werten um
+            const out_items = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
+            for (let q of out_items) {
+                console.log("Question: " + q);
+                // @ts-ignore
+                q['creator'] = session?.user?.name;
+
+            }
+            // @ts-ignore
+            setQuestionItems(out_items);
+
             console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
 
         } catch (error) {

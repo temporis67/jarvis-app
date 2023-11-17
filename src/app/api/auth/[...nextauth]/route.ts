@@ -3,8 +3,9 @@ import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials"
 
 async function getUser(name: string, password: string): Promise<Response> {
+
     try {
-        const api_host = process.env.JARVIS_API_HOST;
+        const api_host = "http://127.0.0.1:5000/api";
         const api_url = (api_host + "/user");
 
         let formData = new FormData();
@@ -68,7 +69,8 @@ export const authOptions = {
 
                 // If no error and we have user data, return it
                 if (res.ok && user) { //
-                    console.log("user authorized: " + JSON.stringify(user))
+
+                    console.log("user authorized: ", JSON.stringify(user), " ## ", JSON.stringify(user.uuid))
                     return user
                 }
                 // Return null if user data could not be retrieved
