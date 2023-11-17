@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 function Page() {
-    const [my_info, setMyInfo] = useState(null);
+    const [dataEntries, setDataEntries] = useState([]);
 
     let formData = new FormData();
     formData.append("email", "test@irgendwo.de");
@@ -17,21 +17,41 @@ function Page() {
                 body: formData,
                 mode: 'cors',
             });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
             const data = await response.json();
-            // setMyInfo(data.title);
-            console.log("Response ready: ", data);
+            setDataEntries(Object.values(data)); // Wandelt das Objekt in ein Array von Werten um
+            console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
+
         } catch (error) {
-            console.log(error);
+            console.log("Error fetching data:", error);
         }
     };
 
-    console.log(" *************** Fetching from " + api_url);
-    fetchData();
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     return (
         <div>
-            <h2>Joke of the day:</h2>
-            {my_info && <p>{my_info}#</p>}
+            <h2>Fragen:</h2>
+            {dataEntries.length > 0 ? (
+                dataEntries.map(entry => (
+                    <div key={
+                        //@ts-ignore
+                        entry.uuid}>
+                        <h3>Titel: {
+                            //@ts-ignore
+                            entry.title}</h3>
+                        <p>{
+                            //@ts-ignore
+                            entry.content}</p>
+                    </div>
+                ))
+            ) : (
+                <p>Loading...</p>
+            )}
         </div>
     );
 }

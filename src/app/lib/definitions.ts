@@ -3,8 +3,18 @@
 // For simplicity of teaching, we're manually defining these types.
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 export type User = {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
+    id: string;
+    name: string;
+    email: string;
+    password: string;
 };
+
+export type Question = {
+    uuid: string;
+    creator: string;
+    title: string;
+    content: string;
+    dateCreated: string;
+    dateUpdated: string;
+    tags: string[];
+}
