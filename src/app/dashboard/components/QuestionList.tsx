@@ -195,7 +195,6 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
     return (
         <div>
             <h2>QuestionList2</h2>
-            {renderEditModal}
             {/*Questions*/}
 
             {
