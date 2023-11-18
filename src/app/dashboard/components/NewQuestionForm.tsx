@@ -1,4 +1,5 @@
 import React, {Dispatch, SetStateAction} from "react";
+import {useSession} from "next-auth/react";
 
 type MyPropType = {
     user_uuid: string
@@ -8,6 +9,9 @@ type MyPropType = {
 
 
 const NewQuestionForm: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuestionItems}) => {
+
+    // now we have a 'session' and 'status'
+    const {data: session, status} = useSession();
 
     // handler for new question
     const [newTitle, setNewTitle] = React.useState("");
@@ -38,9 +42,14 @@ const NewQuestionForm: React.FC<MyPropType> = ({user_uuid, questionsItems, setQu
             const data = await response.json();
             console.log("New Question API fetch() data OK: ", data);
 
-            const out_items = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
-            console.log("New Question API fetch() out_items: ", out_items);
+            let out_items = {};
+            Object.keys(data).forEach(key => {
+                out_items[key] = data[key];
+            });
 
+            out_items['creator'] = session.user.name;
+
+            console.log("New Question API fetch() out_items: ", out_items);
 
             return out_items;
 
@@ -65,12 +74,19 @@ const NewQuestionForm: React.FC<MyPropType> = ({user_uuid, questionsItems, setQu
     // handle new item addition
     const handleNewQuestion = () => {
 
-        const out_items = new_question();
+        new_question().then((out_items) => {
+            console.log("XXXX New Question Items: ", out_items);
 
-        // the new item to be added to the list with the name 'out_items' is empty when unshifted to the list
-        const _questionsItems = [...questionsItems];
-        _questionsItems.unshift(out_items);
-        setQuestionItems(_questionsItems);
+            // Überprüfen, ob out_items nicht null oder undefined ist, bevor es zu _questionsItems hinzugefügt wird
+            if (out_items) {
+                console.log("XXXX New Question Items: ", out_items[0]);
+                const _questionsItems = [...questionsItems];
+                _questionsItems.unshift(out_items);
+                setQuestionItems(_questionsItems);
+            }
+        }).catch((error) => {
+            console.error("Error in handleNewQuestion: ", error);
+        });
     };
 
 
