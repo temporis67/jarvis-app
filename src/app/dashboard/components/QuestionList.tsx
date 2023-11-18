@@ -3,6 +3,7 @@ import clsx from "clsx";
 import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon} from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
+import Dialog from "@/app/components/Dialog";
 
 type MyPropType = {
     user_uuid: string
@@ -18,16 +19,16 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
     const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
     const api_host = "http://127.0.0.1:5000/api";
 
-    const customStyles = {
-        content: {
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            marginRight: '-50%',
-            transform: 'translate(-50%, -50%)',
-        },
-    };
+
+    // handle Dialog for update_question
+    function onClose() {
+        console.log("Modal has closed")
+    }
+
+    function onOk() {
+
+        console.log("Ok was clicked")
+    }
 
 
 
@@ -195,6 +196,12 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
     return (
         <div>
             <h2>QuestionList2</h2>
+
+            <Dialog title="Example Modal" onClose={onClose} onOk={onOk}>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam eligendi odio ipsa nostrum dolores voluptas architecto tempore nulla voluptatibus vel, placeat explicabo exercitationem id officia laborum doloremque blanditiis earum accusamus.</p>
+            </Dialog>
+
+
             {/*Questions*/}
 
             {
