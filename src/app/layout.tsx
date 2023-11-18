@@ -20,10 +20,9 @@ export default async function RootLayout({
 }) {
     const session = await getServerSession();
 
-
     return (
         <html lang="en">
-        <body className={`${inter.className} antialiased`}>
+        <body className={`${inter.className} antialiased`} id="root">
         <SessionProvider session={session}>
 
             <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">

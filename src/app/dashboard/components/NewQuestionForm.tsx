@@ -44,9 +44,10 @@ const NewQuestionForm: React.FC<MyPropType> = ({user_uuid, questionsItems, setQu
 
             let out_items = {};
             Object.keys(data).forEach(key => {
+                // @ts-ignore
                 out_items[key] = data[key];
             });
-
+            // @ts-ignore
             out_items['creator'] = session.user.name;
 
             console.log("New Question API fetch() out_items: ", out_items);
@@ -79,7 +80,9 @@ const NewQuestionForm: React.FC<MyPropType> = ({user_uuid, questionsItems, setQu
 
             // Überprüfen, ob out_items nicht null oder undefined ist, bevor es zu _questionsItems hinzugefügt wird
             if (out_items) {
+                // @ts-ignore
                 console.log("XXXX New Question Items: ", out_items[0]);
+                // @ts-ignore
                 const _questionsItems = [...questionsItems];
                 _questionsItems.unshift(out_items);
                 setQuestionItems(_questionsItems);
