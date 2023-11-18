@@ -1,9 +1,12 @@
-import React, {Dispatch, SetStateAction, useEffect} from "react";
+import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import clsx from "clsx";
 import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon} from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
-import Dialog from "@/app/components/Dialog";
+import ModalDialog from "@/app/components/ModalDialog";
+import {useSearchParams} from 'next/navigation'
+
+
 
 type MyPropType = {
     user_uuid: string
@@ -14,23 +17,30 @@ type MyPropType = {
 
 const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuestionItems}) => {
 
+
+    // Zustand für das Anzeigen des Dialogs
+    const [showDialog, setShowDialog] = useState(false);
+
+    const handleUpdateQuestion = (questionId: string) => {
+        console.log("handleUpdateQuestion start for question ID: ", questionId);
+        setShowDialog(true); // ModalDialog anzeigen
+    }
+
+    const onClose = () => {
+        console.log("Modal has closed")
+        setShowDialog(false); // ModalDialog schließen
+    }
+
+    const onOk = () => {
+        console.log("Ok was clicked")
+        setShowDialog(false); // ModalDialog schließen
+    }
+
+
     console.log("@/app/dashboard/components/QuestionList start - UUID: " + user_uuid)
     Moment.locale('de');
     const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
     const api_host = "http://127.0.0.1:5000/api";
-
-
-    // handle Dialog for update_question
-    function onClose() {
-        console.log("Modal has closed")
-    }
-
-    function onOk() {
-
-        console.log("Ok was clicked")
-    }
-
-
 
     const update_question = async (questionId: string) => {
         console.log("Update Question API fetch() start");
@@ -168,10 +178,6 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
         setQuestionItems(_questionsItems);
     };
 
-    const handleUpdateQuestion = (questionId: string) => {
-        console.log("handleUpdateQuestion start for question ID: ", questionId);
-
-    }
     const handleDeleteQuestion = (questionId: string) => {
         // Bestätigungsdialog
         const isConfirmed = window.confirm("Sind Sie sicher, dass Sie diese Frage löschen möchten?");
@@ -197,9 +203,50 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
         <div>
             <h2>QuestionList2</h2>
 
-            <Dialog title="Example Modal" onClose={onClose} onOk={onOk}>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam eligendi odio ipsa nostrum dolores voluptas architecto tempore nulla voluptatibus vel, placeat explicabo exercitationem id officia laborum doloremque blanditiis earum accusamus.</p>
-            </Dialog>
+            {/********* ModalDialog Popup *********/}
+            {showDialog && (
+                <ModalDialog
+                    title="Frage bearbeiten"
+                    onClose={onClose}
+                    onOk={onOk}
+                    showDialog={showDialog}
+                >
+
+                    <div className="col-span-full">
+                            <label htmlFor="about" className="block text-sm font-medium leading-6 text-gray-900">
+                                Frage:
+                            </label>
+                            <div className="mt-2">
+                                <textarea
+                                    id="title"
+                                    name="title"
+                                    rows={3}
+                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    defaultValue={''}
+                                />
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-gray-600">Einfach ... drauflosfragen.</p>
+                        </div>
+
+                    <div className="col-span-full">
+                            <label htmlFor="about" className="block text-sm font-medium leading-6 text-gray-900">
+                                Hintergrund:
+                            </label>
+                            <div className="mt-2">
+                                <textarea
+                                    id="content"
+                                    name="content"
+                                    rows={3}
+                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    defaultValue={''}
+                                />
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-gray-600">Wird später für LLM.context benutzt.</p>
+                        </div>
+
+
+                </ModalDialog>
+            )}
 
 
             {/*Questions*/}
