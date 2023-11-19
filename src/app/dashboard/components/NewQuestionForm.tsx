@@ -125,10 +125,9 @@ const NewQuestionForm = () => {
                             defaultValue="Was ist ein Ball?"
                         ></textarea>
                     </p>
-                    <p>
+                    <p className={"pt-3"}>
                         <label htmlFor="content"
-                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Neue
-                            Frage</label>
+                               className="block mb-2 text-xs font-medium text-gray-500 dark:text-white">Kontext</label>
                         <textarea
                             // @ts-ignore
                             onChange={handleContentChange}
@@ -136,7 +135,7 @@ const NewQuestionForm = () => {
                             // @ts-ignore
                             rows="4"
                             className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            defaultValue={"Ein rundes Objekt"}
+                            defaultValue={"Ein Ball ist ein Spielzeug, Sportgerät oder eine Veranstaltung"}
                             placeholder="Schreiben Sie hier..."></textarea>
                     </p>
                     <p className={'text-right mt-2'}>
