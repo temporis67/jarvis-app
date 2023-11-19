@@ -7,18 +7,28 @@ import {useEffect} from "react";
 export default function Layout({children}: { children: React.ReactNode }) {
 
     const {data: session, status} = useSession()
-    let email = session?.user?.email;
+
+    if(status === 'unauthenticated'){
+        redirect("/");
+    }
+
+
+    const email = session?.user?.email;
+    if (email === undefined || email === null) {
+        throw new Error('ERROR: user email not found in session - Not authorized?');
+    }
 
     const api_host = "http://127.0.0.1:5000/api";
     const api_url = (api_host + "/user");
 
-    let formData = new FormData();
-    formData.append("email", email);
 
-    const getUser = async () =>
-    {
+    const getUser = async () => {
 
         console.log("dashboard/layout/getUser() start ", email, api_url)
+
+        let formData = new FormData();
+        formData.append("email", email);
+
 
         try {
             const response = await fetch(api_url, {
@@ -28,7 +38,13 @@ export default function Layout({children}: { children: React.ReactNode }) {
 
             })
             const data = await response.json()
-            console.log("API fetched User Dashboard: " + data['name'] + " ## " + data['uuid'])
+            if (!response.ok) {
+                throw new Error('ERROR: Network response was not ok', await response.json());
+            }
+            if (data['uuid'] === undefined || data['uuid'] === null) {
+                throw new Error('ERROR: User not found / UUID null', await response.json());
+            }
+            console.log("dashboard/layout getting user.uuid by email from session SUCCESS: " + data['name'] + " ## " + data['uuid'])
             sessionStorage.setItem("user_uuid", data['uuid']);
 
         } catch (error) {

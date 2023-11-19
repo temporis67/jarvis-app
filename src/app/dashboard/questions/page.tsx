@@ -8,6 +8,9 @@ import {useSession} from "next-auth/react";
 function Page() {
 
     let user_uuid = sessionStorage.getItem("user_uuid");
+    if (user_uuid === null) {
+        throw new Error('ERROR: user_uuid not found in sessionStorage');
+    }
 
     console.log("questions/pages.tsx start UUID: #" , user_uuid,"#")
 
