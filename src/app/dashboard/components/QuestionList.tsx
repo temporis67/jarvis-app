@@ -7,48 +7,63 @@ import ModalDialog from "@/app/components/ModalDialog";
 import {useSearchParams} from 'next/navigation'
 
 
-
 type MyPropType = {
     user_uuid: string
     questionsItems: object
-    setQuestionItems: Dispatch<SetStateAction<{ uuid: string; creator: string; title: string; content: string; dateCreated: string; dateUpdated: string; tags: string[]; }[]>>
+    setQuestionItems: Dispatch<SetStateAction<{
+        uuid: string;
+        creator: string;
+        title: string;
+        content: string;
+        dateCreated: string;
+        dateUpdated: string;
+        tags: string[];
+    }[]>>
 }
 
 
 const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuestionItems}) => {
 
-
-    // Zustand für das Anzeigen des Dialogs
-    const [showDialog, setShowDialog] = useState(false);
-
-    const handleUpdateQuestion = (questionId: string) => {
-        console.log("handleUpdateQuestion start for question ID: ", questionId);
-        setShowDialog(true); // ModalDialog anzeigen
-    }
-
-    const onClose = () => {
-        console.log("Modal has closed")
-        setShowDialog(false); // ModalDialog schließen
-    }
-
-    const onOk = () => {
-        console.log("Ok was clicked")
-        setShowDialog(false); // ModalDialog schließen
-    }
-
-
+    // Initialisierung
     console.log("@/app/dashboard/components/QuestionList start - UUID: " + user_uuid)
     Moment.locale('de');
     const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
     const api_host = "http://127.0.0.1:5000/api";
 
-    const update_question = async (questionId: string) => {
-        console.log("Update Question API fetch() start");
-        // get title and content of the question to update
+
+    // Update Question ModalDialog *******************************************************************************
+    // Zustand für das Anzeigen des Dialogs
+    const [showDialog, setShowDialog] = useState(false);
+    const [modalTitle, setModalTitle] = useState(''); // Zustand für Modal-Titel
+    const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
+    const [currentQuestionId, setCurrentQuestionId] = useState('');
+
+
+    // handle title change
+    const handleModalTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setModalTitle(e.target.value);
+    };
+
+    // handle content change
+    const handleModalContentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setModalContent(e.target.value);
+    };
+
+
+    const handleUpdateQuestion = (questionId: string) => {
+        console.log("handleUpdateQuestion start for question ID: ", questionId);
         // @ts-ignore
-        let title = document.getElementById("title_" + questionId).value;
-        // @ts-ignore
-        let content = document.getElementById("content_" + questionId).value;
+        const question = questionsItems.find(q => q.uuid === questionId);
+        if (question) {
+            setModalTitle(question.title); // Setze den Titel der Frage
+            setModalContent(question.content); // Setze den Inhalt der Frage
+            setCurrentQuestionId(questionId); // Speichere die aktuelle Frage-ID
+        }
+        setShowDialog(true); // ModalDialog anzeigen
+    }
+
+    const update_question = async (questionId: string, title: string, content: string) => {
+        console.log("Update Question API fetch() start", questionId, " # ", title, " # ", content);
 
 
         let formData = new FormData();
@@ -76,6 +91,38 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
         }
 
     }
+
+    const onClose = () => {
+        console.log("Modal has closed")
+        setShowDialog(false); // ModalDialog schließen
+    }
+
+    const saveQuestion = () => {
+        console.log("saveQuestion was clicked: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
+
+        // update DB via API
+        update_question(currentQuestionId, modalTitle, modalContent);
+
+        // update displayed question
+        // Erstelle eine Kopie von questionsItems
+        let updatedQuestions = [...questionsItems];
+
+        // Finde den Index der zu aktualisierenden Frage
+        const questionIndex = updatedQuestions.findIndex(q => q.uuid === currentQuestionId);
+
+        if (questionIndex !== -1) {
+            // Aktualisiere den Titel und Inhalt der Frage
+            updatedQuestions[questionIndex].title = modalTitle;
+            updatedQuestions[questionIndex].content = modalContent;
+
+            // Aktualisiere den State mit der neuen Fragenliste
+            setQuestionItems(updatedQuestions);
+        }
+
+        setShowDialog(false); // ModalDialog schließen
+    }
+
+
     const delete_question = async (questionId: string) => {
         console.log("Delete Question API fetch() start")
 
@@ -107,10 +154,11 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
         }
     }
 
-    const fetchData = async () => {
+
+    const get_questions_by_user = async () => {
 
         const api_url = (api_host + "/questions");
-        console.log("questions/page/fetchData() start")
+        console.log("questions/page/get_questions_by_user() start")
 
         let formData = new FormData();
         //@ts-ignore
@@ -145,9 +193,9 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
     };
 
 
-    // execute fetch data on page load
+    // execute get_questions_by_user on page load
     useEffect(() => {
-        fetchData();
+        get_questions_by_user();
     }, []);
     // console.log("API fetched Questions Ende: ")
 
@@ -208,41 +256,43 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
                 <ModalDialog
                     title="Frage bearbeiten"
                     onClose={onClose}
-                    onOk={onOk}
+                    onOk={saveQuestion}
                     showDialog={showDialog}
                 >
 
                     <div className="col-span-full">
-                            <label htmlFor="about" className="block text-sm font-medium leading-6 text-gray-900">
-                                Frage:
-                            </label>
-                            <div className="mt-2">
+                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6 text-gray-900">
+                            Frage:
+                        </label>
+                        <div className="mt-2">
                                 <textarea
-                                    id="title"
-                                    name="title"
+                                    id="modal-title"
+                                    name="modal-title"
+                                    onChange={handleModalTitleChange}
                                     rows={3}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    defaultValue={''}
+                                    defaultValue={modalTitle}
                                 />
-                            </div>
-                            <p className="mt-3 text-sm leading-6 text-gray-600">Einfach ... drauflosfragen.</p>
                         </div>
+                        <p className="mt-3 text-sm leading-6 text-gray-600">Einfach ... drauflosfragen.</p>
+                    </div>
 
                     <div className="col-span-full">
-                            <label htmlFor="about" className="block text-sm font-medium leading-6 text-gray-900">
-                                Hintergrund:
-                            </label>
-                            <div className="mt-2">
+                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6 text-gray-900">
+                            Hintergrund:
+                        </label>
+                        <div className="mt-2">
                                 <textarea
-                                    id="content"
-                                    name="content"
+                                    id="modal-content"
+                                    name="modal-content"
+                                    onChange={handleModalContentChange}
                                     rows={3}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    defaultValue={''}
+                                    defaultValue={modalContent}
                                 />
-                            </div>
-                            <p className="mt-3 text-sm leading-6 text-gray-600">Wird später für LLM.context benutzt.</p>
                         </div>
+                        <p className="mt-3 text-sm leading-6 text-gray-600">Wird später für LLM.context benutzt.</p>
+                    </div>
 
 
                 </ModalDialog>
