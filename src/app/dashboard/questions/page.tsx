@@ -2,6 +2,7 @@
 import 'moment/locale/de';
 import React, {useEffect} from "react";
 import QuestionList from "@/app/dashboard/components/QuestionList";
+import AnswerList from "@/app/dashboard/components/AnswerList";
 import NewQuestionForm from "@/app/dashboard/components/NewQuestionForm";
 import {useSession} from "next-auth/react";
 import useUserStore from "@/app/store/userStore";
@@ -71,11 +72,8 @@ function Page() {
                 </div>
                 {/*Questions*/}
                 <div className={"flex flex-row"}>
-                <QuestionList/>
-                    <div>
-                        <h1>Antworten</h1>
-                        <QuestionList/>
-                    </div>
+                    <QuestionList/>
+                    <AnswerList/>
                 </div>
 
                 <NewQuestionForm/>
