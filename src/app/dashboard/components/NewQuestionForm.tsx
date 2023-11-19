@@ -1,17 +1,22 @@
 import React, {Dispatch, SetStateAction} from "react";
 import {useSession} from "next-auth/react";
-
-type MyPropType = {
-    user_uuid: string
-    questionsItems: object
-    setQuestionItems: Dispatch<SetStateAction<{ uuid: string; creator: string; title: string; content: string; dateCreated: string; dateUpdated: string; tags: string[]; }[]>>
-}
+import useQuestionStore from "@/app/store/questionStore";
+import useUserStore from "@/app/store/userStore";
 
 
-const NewQuestionForm: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuestionItems}) => {
+
+const NewQuestionForm = () => {
 
     // now we have a 'session' and 'status'
     const {data: session, status} = useSession();
+
+    // connect variables to zustand store
+    const user_uuid = useUserStore(state => state.userUuid);
+    // handle questionsItems via zustand store
+    const questionsItems = useQuestionStore(state => state.questionItems);
+    const setQuestionItems = useQuestionStore(state => state.setQuestionItems);
+
+
 
     // handler for new question
     const [newTitle, setNewTitle] = React.useState("");
@@ -76,15 +81,19 @@ const NewQuestionForm: React.FC<MyPropType> = ({user_uuid, questionsItems, setQu
     const handleNewQuestion = () => {
 
         new_question().then((out_items) => {
-            console.log("XXXX New Question Items: ", out_items);
+            console.log("New Question Items: ", out_items);
 
             // Überprüfen, ob out_items nicht null oder undefined ist, bevor es zu _questionsItems hinzugefügt wird
             if (out_items) {
                 // @ts-ignore
-                console.log("XXXX New Question Items: ", out_items[0]);
+                console.log("XXXX New Question Items: ", out_items);
                 // @ts-ignore
-                const _questionsItems = [...questionsItems];
+                const _questionsItems = questionsItems.slice();
                 _questionsItems.unshift(out_items);
+
+                  console.log("YY Result Items: ", _questionsItems);
+
+
                 setQuestionItems(_questionsItems);
             }
         }).catch((error) => {

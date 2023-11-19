@@ -5,30 +5,25 @@ import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
 import {useSearchParams} from 'next/navigation'
+import useUserStore from "@/app/store/userStore";
+import useQuestionStore from "@/app/store/questionStore";
 
 
-type MyPropType = {
-    user_uuid: string
-    questionsItems: object
-    setQuestionItems: Dispatch<SetStateAction<{
-        uuid: string;
-        creator: string;
-        title: string;
-        content: string;
-        dateCreated: string;
-        dateUpdated: string;
-        tags: string[];
-    }[]>>
-}
-
-
-const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuestionItems}) => {
+const QuestionList = () => {
 
     // Initialisierung
-    console.log("@/app/dashboard/components/QuestionList start - UUID: " + user_uuid)
     Moment.locale('de');
     const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
     const api_host = "http://127.0.0.1:5000/api";
+
+    // connect variables to zustand store
+    const user_uuid = useUserStore(state => state.userUuid);
+    const setUserUuid = useUserStore(state => state.setUserUuid);
+    console.log("@/app/dashboard/components/QuestionList start - UUID: " + user_uuid)
+
+    // handle questionsItems via zustand store
+    const questionsItems = useQuestionStore(state => state.questionItems);
+    const setQuestionItems = useQuestionStore(state => state.setQuestionItems);
 
 
     // Update Question ModalDialog *******************************************************************************
@@ -105,166 +100,182 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
 
         // update displayed question
         // Erstelle eine Kopie von questionsItems
-        let updatedQuestions = [...questionsItems];
+        let updatedQuestions = questionsItems;
+        console.log("updatedQuestions: ", updatedQuestions);
 
         // Finde den Index der zu aktualisierenden Frage
-        const questionIndex = updatedQuestions.findIndex(q => q.uuid === currentQuestionId);
+        for (let i = 0; i < updatedQuestions.length; i++) {
+            console.log("updatedQuestions[i].uuid: ", updatedQuestions[i], " # ", currentQuestionId);
 
-        if (questionIndex !== -1) {
-            // Aktualisiere den Titel und Inhalt der Frage
-            updatedQuestions[questionIndex].title = modalTitle;
-            updatedQuestions[questionIndex].content = modalContent;
-
-            // Aktualisiere den State mit der neuen Fragenliste
-            setQuestionItems(updatedQuestions);
+            if (updatedQuestions[i].uuid === currentQuestionId) {
+                console.log("Aktualisiere den Titel und Inhalt der Frage", modalTitle, modalContent);
+                updatedQuestions[i].title = modalTitle;
+                updatedQuestions[i].content = modalContent;
+                break; // Beende die Schleife, sobald das Element gefunden und aktualisiert wurde
+            }
         }
 
+
+        // Aktualisiere den State mit der neuen Fragenliste
+        setQuestionItems(updatedQuestions);
         setShowDialog(false); // ModalDialog schließen
     }
 
 
-    const delete_question = async (questionId: string) => {
-        console.log("Delete Question API fetch() start")
-
-        let formData = new FormData();
-        formData.append("user_uuid", user_uuid);
-        formData.append("question_uuid", questionId);
-
-        const api_url = (api_host + "/delete_question");
-
-        try {
-            const response = await fetch(api_url, {
-                method: "POST",
-                body: formData,
-                mode: 'cors',
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok', await response.json());
-            }
-            const data = await response.json();
-            console.log("Delete Question API fetch() data OK: ", data);
 
 
-            console.log("Delete Question API fetch() out_items: ");
 
-            return;
+const delete_question = async (questionId: string) => {
+    console.log("Delete Question API fetch() start")
 
-        } catch (error) {
-            console.log("Error fetching data:", error);
+    let formData = new FormData();
+    formData.append("user_uuid", user_uuid);
+    formData.append("question_uuid", questionId);
+
+    const api_url = (api_host + "/delete_question");
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: formData,
+            mode: 'cors',
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok', await response.json());
         }
+        const data = await response.json();
+        console.log("Delete Question API fetch() data OK: ", data);
+
+
+        console.log("Delete Question API fetch() out_items: ");
+
+        return;
+
+    } catch (error) {
+        console.log("Error fetching data:", error);
+    }
+}
+
+
+const get_questions_by_user = async (user_uuid2: string | null) => {
+
+    const api_url = (api_host + "/questions");
+    console.log("questions/page/get_questions_by_user() start", user_uuid2)
+
+    if (user_uuid2 === undefined || user_uuid2 === null) {
+        throw new Error('ERROR: dashboard/questions/page.tsx/get_questions_by_user(): user uuid not given:: ' + user_uuid2);
     }
 
-
-    const get_questions_by_user = async () => {
-
-        const api_url = (api_host + "/questions");
-        console.log("questions/page/get_questions_by_user() start")
-
-        let formData = new FormData();
-        //@ts-ignore
-        formData.append("user_uuid", user_uuid);
+    let formData = new FormData();
+    //@ts-ignore
+    formData.append("user_uuid", user_uuid2);
 
 
-        try {
-            const response = await fetch(api_url, {
-                method: "POST",
-                body: formData,
-                mode: 'cors',
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            const out_items = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
-            for (let q of out_items) {
-                console.log("Question: " + q);
-                // @ts-ignore
-                q['creator'] = session?.user?.name;
-
-            }
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: formData,
+            mode: 'cors',
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        const out_items = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
+        for (let q of out_items) {
+            console.log("Question: " + q);
             // @ts-ignore
-            setQuestionItems(out_items);
+            q['creator'] = session?.user?.name;
 
-            console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
-
-        } catch (error) {
-            console.log("Error fetching data:", error);
         }
-    };
-
-
-    // execute get_questions_by_user on page load
-    useEffect(() => {
-        get_questions_by_user();
-    }, []);
-    // console.log("API fetched Questions Ende: ")
-
-
-    // Drag & Drop Handling *******************************************************************************
-
-    // save reference for dragItem and dragOverItem
-    const dragItem = React.useRef<any>(null);
-    const dragOverItem = React.useRef<any>(null);
-
-    // const handle drag sorting
-    const handleSort = () => {
-        //duplicate items
         // @ts-ignore
-        let _questionsItems = [...questionsItems];
+        setQuestionItems(out_items);
 
-        //remove and save the dragged item content
-        const draggedItemContent = _questionsItems.splice(dragItem.current, 1)[0];
+        console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
 
-        //switch the position
-        _questionsItems.splice(dragOverItem.current, 0, draggedItemContent);
-
-        //reset the position ref
-        dragItem.current = null;
-        dragOverItem.current = null;
-
-        //update the actual array
-        setQuestionItems(_questionsItems);
-    };
-
-    const handleDeleteQuestion = (questionId: string) => {
-        // Bestätigungsdialog
-        const isConfirmed = window.confirm("Sind Sie sicher, dass Sie diese Frage löschen möchten?");
-
-        if (isConfirmed) {
-            console.log("handleDeleteQuestion start for question ID: ", questionId);
-            delete_question(questionId)
-                .then(() => {
-                    // @ts-ignore
-                    let _questionsItems = questionsItems.filter(question => question.uuid !== questionId);
-                    setQuestionItems(_questionsItems);
-                })
-                .catch(error => {
-                    console.error("Fehler beim Löschen der Frage: ", error);
-                });
-        } else {
-            console.log("Frage Löschung abgebrochen für ID: ", questionId);
-        }
+    } catch (error) {
+        console.log("Error fetching data:", error);
     }
+};
 
-    // Main Component *************************************************************************************************
-    return (
-        <div>
-            <h2>QuestionList2</h2>
 
-            {/********* ModalDialog Popup *********/}
-            {showDialog && (
-                <ModalDialog
-                    title="Frage bearbeiten"
-                    onClose={onClose}
-                    onOk={saveQuestion}
-                    showDialog={showDialog}
-                >
+// execute get_questions_by_user on page load
+useEffect(() => {
+    const user_uuid = useUserStore.getState().userUuid;
+    get_questions_by_user(user_uuid).then(r => {
+        console.log("useEffect get_questions_by_user() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
+    }).catch(e => {
+        console.error("useEffect get_questions_by_user() ERROR:: #", e, " # ", user_uuid)
+    });
+}, []);
+console.log("API fetched Questions Ende: ")
 
-                    <div className="col-span-full">
-                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6 text-gray-900">
-                            Frage:
-                        </label>
-                        <div className="mt-2">
+
+// Drag & Drop Handling *******************************************************************************
+
+// save reference for dragItem and dragOverItem
+const dragItem = React.useRef<any>(null);
+const dragOverItem = React.useRef<any>(null);
+
+// const handle drag sorting
+const handleSort = () => {
+    //duplicate items
+    // @ts-ignore
+    let _questionsItems = [...questionsItems];
+
+    //remove and save the dragged item content
+    const draggedItemContent = _questionsItems.splice(dragItem.current, 1)[0];
+
+    //switch the position
+    _questionsItems.splice(dragOverItem.current, 0, draggedItemContent);
+
+    //reset the position ref
+    dragItem.current = null;
+    dragOverItem.current = null;
+
+    //update the actual array
+    setQuestionItems(_questionsItems);
+};
+
+const handleDeleteQuestion = (questionId: string) => {
+    // Bestätigungsdialog
+    const isConfirmed = window.confirm("Sind Sie sicher, dass Sie diese Frage löschen möchten?");
+
+    if (isConfirmed) {
+        console.log("handleDeleteQuestion start for question ID: ", questionId);
+        delete_question(questionId)
+            .then(() => {
+                // @ts-ignore
+                let _questionsItems = questionsItems.filter(question => question.uuid !== questionId);
+                setQuestionItems(_questionsItems);
+            })
+            .catch(error => {
+                console.error("Fehler beim Löschen der Frage: ", error);
+            });
+    } else {
+        console.log("Frage Löschung abgebrochen für ID: ", questionId);
+    }
+}
+
+// Main Component *************************************************************************************************
+return (
+    <div>
+        <h2>QuestionList2</h2>
+
+        {/********* ModalDialog Popup *********/}
+        {showDialog && (
+            <ModalDialog
+                title="Frage bearbeiten"
+                onClose={onClose}
+                onOk={saveQuestion}
+                showDialog={showDialog}
+            >
+
+                <div className="col-span-full">
+                    <label htmlFor="modal-title" className="block text-sm font-medium leading-6 text-gray-900">
+                        Frage:
+                    </label>
+                    <div className="mt-2">
                                 <textarea
                                     id="modal-title"
                                     name="modal-title"
@@ -273,15 +284,15 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     defaultValue={modalTitle}
                                 />
-                        </div>
-                        <p className="mt-3 text-sm leading-6 text-gray-600">Einfach ... drauflosfragen.</p>
                     </div>
+                    <p className="mt-3 text-sm leading-6 text-gray-600">Einfach ... drauflosfragen.</p>
+                </div>
 
-                    <div className="col-span-full">
-                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6 text-gray-900">
-                            Hintergrund:
-                        </label>
-                        <div className="mt-2">
+                <div className="col-span-full">
+                    <label htmlFor="modal-content" className="block text-sm font-medium leading-6 text-gray-900">
+                        Hintergrund:
+                    </label>
+                    <div className="mt-2">
                                 <textarea
                                     id="modal-content"
                                     name="modal-content"
@@ -290,95 +301,95 @@ const QuestionList: React.FC<MyPropType> = ({user_uuid, questionsItems, setQuest
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     defaultValue={modalContent}
                                 />
-                        </div>
-                        <p className="mt-3 text-sm leading-6 text-gray-600">Wird später für LLM.context benutzt.</p>
                     </div>
+                    <p className="mt-3 text-sm leading-6 text-gray-600">Wird später für LLM.context benutzt.</p>
+                </div>
 
 
-                </ModalDialog>
-            )}
+            </ModalDialog>
+        )}
 
 
-            {/*Questions*/}
+        {/*Questions*/}
 
-            {
-                // @ts-ignore
-                questionsItems.map((question, index) => (
+        {questionsItems && (
+            questionsItems.map((question, index) => (
 
-                    //@ts-ignore
-                    <div
-                        draggable
-                        key={index}
-                        onDragStart={(e) => (dragItem.current = index)}
-                        onDragEnter={(e) => (dragOverItem.current = index)}
-                        onDragEnd={handleSort}
-                        onDragOver={(e) => e.preventDefault()}
-                        className={clsx(
-                            'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md bg-gray-50 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
-                            {
-                                'bg-sky-50 text-blue-600': index === 0,
-                            },
-                        )}
-                    >
-                        <div className="flex min-w-0 gap-x-4">
-                            <QuestionMarkCircleIcon className="w-6 h-6"/>
-                            <div className="min-w-0 flex-auto">
-                                <p className="text-sm font-semibold leading-6 text-gray-900">{question.creator}:
-                                    <span id="title_{question.uuid}">{question.title}</span></p>
-                                <p id="content_{question.uuid}"
-                                   className="mt-1 truncate text-xs leading-5 text-gray-500">{question.content}</p>
-                            </div>
+                //@ts-ignore
+                <div
+                    draggable
+                    key={index}
+                    onDragStart={(e) => (dragItem.current = index)}
+                    onDragEnter={(e) => (dragOverItem.current = index)}
+                    onDragEnd={handleSort}
+                    onDragOver={(e) => e.preventDefault()}
+                    className={clsx(
+                        'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md bg-gray-50 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
+                        {
+                            'bg-sky-50 text-blue-600': index === 0,
+                        },
+                    )}
+                >
+                    <div className="flex min-w-0 gap-x-4">
+                        <QuestionMarkCircleIcon className="w-6 h-6"/>
+                        <div className="min-w-0 flex-auto">
+                            <p className="text-sm font-semibold leading-6 text-gray-900">{question.creator}:
+                                <span id="title_{question.uuid}">{question.title}</span></p>
+                            <p id="content_{question.uuid}"
+                               className="mt-1 truncate text-xs leading-5 text-gray-500">{question.content}</p>
                         </div>
-                        <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                            <p className="text-xs leading-6 text-gray-600">
-                                {question.tags ? (
-                                    question.tags.map((tag: string) => (
-                                        <span key={tag}>
+                    </div>
+                    <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                        <p className="text-xs leading-6 text-gray-600">
+                            {question.tags ? (
+                                question.tags.map((tag: string) => (
+                                    <span key={tag}>
                                     #{tag}&nbsp;
                                 </span>
-                                    ))
-                                ) : (<span>
+                                ))
+                            ) : (<span>
                                     #noTag&nbsp;
                                 </span>
-                                )}
-
-                            </p>
-                            {question.dateUpdated ? (
-                                <p className="mt-1 text-xs leading-5 text-gray-500">
-                                    Updated: <time dateTime={question.dateUpdated}>
-                                    {
-                                        Moment(question.dateUpdated).format('DD.MM.yy HH:mm')
-                                    }
-                                </time>
-                                </p>
-                            ) : (
-                                <p className="mt-1 text-xs leading-5 text-gray-500">
-                                    Created: <time dateTime={question.dateCreated}>{
-                                    Moment(question.dateCreated).format('DD.MM.yy HH:mm')
-                                }</time>
-                                </p>
                             )}
-                        </div>
-                        <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                            <TrashIcon className="w-5 h-5 text-gray-400"
-                                       onClick={() => handleDeleteQuestion(question.uuid)}
-                                       onMouseOver={(e) => e.currentTarget.style.color = 'red'}
-                                       onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                            />
-                            <PencilSquareIcon className="w-5 h-5 text-gray-400"
-                                              onClick={() => handleUpdateQuestion(question.uuid)}
-                                              onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                              onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                            />
-                        </div>
+
+                        </p>
+                        {question.dateUpdated ? (
+                            <p className="mt-1 text-xs leading-5 text-gray-500">
+                                Updated: <time dateTime={question.dateUpdated}>
+                                {
+                                    Moment(question.dateUpdated).format('DD.MM.yy HH:mm')
+                                }
+                            </time>
+                            </p>
+                        ) : (
+                            <p className="mt-1 text-xs leading-5 text-gray-500">
+                                Created: <time dateTime={question.dateCreated}>{
+                                Moment(question.dateCreated).format('DD.MM.yy HH:mm')
+                            }</time>
+                            </p>
+                        )}
                     </div>
+                    <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                        <TrashIcon className="w-5 h-5 text-gray-400"
+                                   onClick={() => handleDeleteQuestion(question.uuid)}
+                                   onMouseOver={(e) => e.currentTarget.style.color = 'red'}
+                                   onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                        />
+                        <PencilSquareIcon className="w-5 h-5 text-gray-400"
+                                          onClick={() => handleUpdateQuestion(question.uuid)}
+                                          onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                          onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                        />
+                    </div>
+                </div>
 
 
-                ))}
+            ))
+        )}
 
 
-        </div>
-    )
+    </div>
+)
 }
 
 export default QuestionList;
