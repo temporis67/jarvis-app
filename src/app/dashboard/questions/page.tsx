@@ -62,25 +62,23 @@ function Page() {
     const renderPage = () => {
         return (
             <div className="divide-y divide-gray-100">
-                <div>Nutzer: {
-                    // @ts-ignore
-                    session.user.name
-                }
-                    UUID: {user_uuid}
+                <div className={"text-xs"}>
+                    {
+                        // @ts-ignore
+                        <b>{session.user.name}</b>
+                    }
+                    <span className={"text-gray-500"}> UUID: {user_uuid}</span>
                 </div>
                 {/*Questions*/}
-                <QuestionList
-                    // @ts-ignore
-                    questionsItems={questionsItems}
-                    // @ts-ignore
-                    setQuestionItems={setQuestionItems}/>
+                <div className={"flex flex-row"}>
+                <QuestionList/>
+                    <div>
+                        <h1>Antworten</h1>
+                        <QuestionList/>
+                    </div>
+                </div>
 
-                <NewQuestionForm
-                    // @ts-ignore
-                    questionsItems={questionsItems}
-                    // @ts-ignore
-                    setQuestionItems={setQuestionItems}
-                />
+                <NewQuestionForm/>
             </div>
         )
     }

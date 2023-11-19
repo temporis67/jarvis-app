@@ -30,6 +30,7 @@ const NewQuestionForm = () => {
         console.log("New Question API fetch() start")
 
         let formData = new FormData();
+        // @ts-ignore
         formData.append("user_uuid", user_uuid);
         formData.append("title", newTitle);
         formData.append("content", newContent);
@@ -89,11 +90,12 @@ const NewQuestionForm = () => {
                 console.log("XXXX New Question Items: ", out_items);
                 // @ts-ignore
                 const _questionsItems = questionsItems.slice();
+                // @ts-ignore
                 _questionsItems.unshift(out_items);
 
                   console.log("YY Result Items: ", _questionsItems);
 
-
+                // @ts-ignore
                 setQuestionItems(_questionsItems);
             }
         }).catch((error) => {
@@ -104,10 +106,8 @@ const NewQuestionForm = () => {
 
     return (
         <div>
-            <h2>NewQuestionForm {}</h2>
 
-
-            {/*Neue Frage*/}
+                {/*Neue Frage*/}
             <div className="flex min-w-0 gap-x-4 mt-6">
                 <div className="min-w-0 flex-auto">
                     <p>
