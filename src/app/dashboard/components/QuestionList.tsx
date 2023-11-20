@@ -24,6 +24,8 @@ const QuestionList = () => {
     // handle questionsItems via zustand store
     const questionsItems = useQuestionStore(state => state.questionItems);
     const setQuestionItems = useQuestionStore(state => state.setQuestionItems);
+    const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
+    const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
 
     // Update Question ModalDialog *******************************************************************************
@@ -31,7 +33,7 @@ const QuestionList = () => {
     const [showDialog, setShowDialog] = useState(false);
     const [modalTitle, setModalTitle] = useState(''); // Zustand für Modal-Titel
     const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
-    const [currentQuestionId, setCurrentQuestionId] = useState('');
+
 
 
     // handle title change
@@ -59,13 +61,14 @@ const QuestionList = () => {
         setShowDialog(true); // ModalDialog anzeigen
     }
 
-    const update_question = async (questionId: string, title: string, content: string) => {
+    const update_question = async (questionId: string | null, title: string, content: string) => {
         console.log("Update Question API fetch() start", questionId, " # ", title, " # ", content);
 
 
         let formData = new FormData();
         // @ts-ignore
         formData.append("user_uuid", user_uuid);
+        // @ts-ignore
         formData.append("question_uuid", questionId);
         formData.append("title", title);
         formData.append("content", content);
@@ -245,6 +248,8 @@ const handleSort = () => {
     // @ts-ignore
     setQuestionItems(_questionsItems);
 };
+
+// Ende Drag & Drop Handling *******************************************************************************
 
 const handleDeleteQuestion = (questionId: string) => {
     // Bestätigungsdialog
