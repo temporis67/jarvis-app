@@ -6,8 +6,8 @@ import {PowerIcon} from '@heroicons/react/24/outline';
 
 import Link from "next/link";
 import {signIn, signOut, useSession} from "next-auth/react";
-import {usePathname} from "next/navigation";
 
+import useUserStore from "@/app/store/userStore";
 
 function AuthButton() {
     const {data: session} = useSession();
@@ -41,20 +41,31 @@ function AuthButton() {
 }
 
 
+
 export default function SideNav() {
 
+    const {data: session} = useSession();
+    const user_name = useUserStore(state => state.userName);
+    const user_uuid = useUserStore(state => state.userUuid);
 
 
     return (
-        <div className="flex h-full flex-col px-3 py-4 md:px-2">
+        <div className="flex h-full flex-col jupx-3 py-4 md:px-2">
+
             <Link
-                className="mb-2 flex h-20 items-end justify-start rounded-md bg-blue-600 p-4 md:h-40"
-                href="/"
+                className="flex flex-col justify-end mb-2 h-20 rounded-md bg-blue-600 p-4 md:h-40"
+                href="/dashboard"
             >
-                <div className="w-32 text-white md:w-40">
+                <div className="text-white text-right items-end">
                     <Logo/>
                 </div>
+                            {
+                    user_name? <div className="text-white text-right"
+                                    // @ts-ignore
+                                    title={user_uuid}>for {user_name}</div> : <div>{user_uuid}</div>
+            }
             </Link>
+
 
             <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
 

@@ -2,7 +2,6 @@ import "./globals.css";
 import type {Metadata} from "next";
 import {Inter} from "next/font/google";
 import {getServerSession} from "next-auth";
-
 import SessionProvider from "./components/SessionProvider";
 import SideNav from "@/app/components/SideNav";
 
@@ -26,7 +25,7 @@ export default async function RootLayout({
         <SessionProvider session={session}>
 
             <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
-                <div className="w-full flex-none md:w-64">
+                <div className="w-full flex-none md:w-52">
                     <SideNav/>
                 </div>
                 {/*This is the main content area */}

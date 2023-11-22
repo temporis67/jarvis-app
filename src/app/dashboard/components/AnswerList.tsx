@@ -1,6 +1,12 @@
 import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import clsx from "clsx";
-import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, ExclamationCircleIcon, PlusCircleIcon} from "@heroicons/react/24/outline";
+import {
+    QuestionMarkCircleIcon,
+    TrashIcon,
+    PencilSquareIcon,
+    ExclamationCircleIcon,
+    PlusCircleIcon
+} from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
@@ -21,7 +27,6 @@ const AnswerList = () => {
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);
 
-    console.log("@/app/dashboard/components/AnswerList start - UUID: " + user_uuid)
 
     // handle questionsItems via zustand store
     const answers = useAnswersStore(state => state.answers);
@@ -32,9 +37,9 @@ const AnswerList = () => {
 
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
     console.log("@/app/dashboard/components/AnswerList currentQuestionId: " + currentQuestionId)
-    const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
+    // const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
-
+    console.log(":::: AnswerList start - User, question, answer.len " + user_uuid + " # " + currentQuestionId + " # " + answers.length)
 
 
     // Update Question ModalDialog *******************************************************************************
@@ -76,11 +81,11 @@ const AnswerList = () => {
                 body: formData,
                 mode: 'cors',
             });
-            if (!response.ok ) {
+            if (!response.ok) {
                 throw new Error('api_new_answer Network response was not ok', await response.json());
             }
             const data = await response.json();
-            if(!data.uuid) {
+            if (!data.uuid) {
                 throw new Error('api_new_answer no uuid in new answer', await response.json());
             }
             console.log("XXXXXXXXXXXXX New Answer API fetch() data OK: ", data);
@@ -100,9 +105,9 @@ const AnswerList = () => {
         // get new answerId from API
         // @ts-ignore
         api_new_answer(currentQuestionId, user_uuid).then(new_answer_id => {
-        setCurrentAnswerId(new_answer_id)
-        setModalHeader("Neue Antwort"); // Setze den Titel des Dialogs
-        setShowDialog(true); // ModalDialog anzeigen
+            setCurrentAnswerId(new_answer_id)
+            setModalHeader("Neue Antwort"); // Setze den Titel des Dialogs
+            setShowDialog(true); // ModalDialog anzeigen
         });
     }
 
@@ -170,7 +175,7 @@ const AnswerList = () => {
             const new_answer: AnswerType = {
                 uuid: currentAnswerId,
                 creator: user_uuid,
-                creator_name: session?.user?.name || "",
+                username: session?.user?.name || "",
                 source: user_uuid,
                 time_elapsed: "00:00:00",
                 // @ts-ignore
@@ -184,8 +189,7 @@ const AnswerList = () => {
             }
 
             addAnswer(new_answer);
-        }
-        else {
+        } else {
             answer.title = modalTitle;
             answer.content = modalContent;
         }
@@ -229,6 +233,9 @@ const AnswerList = () => {
         const api_url = (api_host + "/answers");
         console.log("questions/page/get_answers_by_question() start", question_uuid)
 
+        // clear answers
+        setAnswers([]);
+
         if (question_uuid === undefined || question_uuid === null) {
             throw new Error('ERROR: dashboard/components/AnswerList/get_answers_by_question(): question_uuid not given:: ' + question_uuid);
         }
@@ -248,13 +255,15 @@ const AnswerList = () => {
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            const out_items:any = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
+            const out_items: any = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
             console.log("::::::::::::: get_answers_by_question() data OK: ", out_items);
+            if(out_items.length === 0) { return out_items; } // empty list
+
             for (let a of out_items) {
                 let answer: AnswerType = {
                     uuid: a.uuid,
                     creator: a.creator,
-                    creator_name: a.creator_name,
+                    username: a.username,
                     source: a.source,
                     time_elapsed: a.time_elapsed,
                     question: a.question,
@@ -269,8 +278,8 @@ const AnswerList = () => {
                 // setting answers with data from api
                 addAnswer(answer);
             }
-            console.log("get_answers_by_question() SUCCESS:: #", out_items.length)
-            console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
+            console.log("get_answers_by_question() SUCCESS:: #", out_items)
+            // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
 
         } catch (error) {
             console.log("Error fetching data:", error);
@@ -282,33 +291,23 @@ const AnswerList = () => {
 
         console.log("load_answers() start: ", currentQuestionId, " # ")
         if (currentQuestionId === undefined || currentQuestionId === null) {
+            console.error("load_answers() no currentQuestionId given");
             return;
-        }
-        else {
+        } else {
+            console.log("load_answers() 2: ", currentQuestionId);
             await get_answers_by_question(currentQuestionId);
         }
 
-        console.log("load_answers() SUCCESS")
     }
 
+
     useEffect(() => {
-        console.log("useEffect load_answers() start: ", currentQuestionId, " # ")
-        load_answers().then(r => {});
-    }, []);
+        console.log("get_answers start UUID: " + currentQuestionId)
+        load_answers();
 
-    // load_answers().then(r => {});
+    }, [currentQuestionId])
 
-    // execute get_answers_by_question on page load
-/*    useEffect(() => {
 
-        get_answers_by_question(currentQuestionId).then(r => {
-            console.log("useEffect get_answers_by_question() SUCCESS:: #", r, " # ", currentQuestionId)
-        }).catch(e => {
-            console.error("useEffect AnswerList/get_answers_by_question() ERROR:: #", e, " # ", currentQuestionId)
-        });
-    }, []);*/
-
-    console.log("AnswerList.tsx Ende: ")
 
     const handleDeleteAnswer = (answerId: string) => {
         // Bestätigungsdialog
@@ -318,7 +317,7 @@ const AnswerList = () => {
             console.log("handleDeleteAnswer start for question ID: ", answerId);
             api_delete_answer(answerId)
                 .then(() => {
-                   delAnswer(answerId);
+                    delAnswer(answerId);
                 })
                 .catch(error => {
                     console.error("AnswerList/handleDeleteAnswer: Fehler beim Löschen der Antwort: ", error);
@@ -359,13 +358,25 @@ const AnswerList = () => {
 // Ende Drag & Drop Handling *******************************************************************************
 
 
-
-    console.log("AnswerList.tsx Ende: ")
+    console.log("AnswerList.tsx Ende: " + user_uuid)
 
 // Main Component *************************************************************************************************
     return (
         <div className={"w-1/2"}>
-            <p className={""}>Antworten</p>
+            <div className={"flex items-center"}>
+                <div className={"p-2"}>Antworten</div>
+                <div className={"p-2"}>
+                                    <PlusCircleIcon className="w-5 h-5 text-gray-400"
+                                onClick={() => handleClickNewAnswer()}
+                                onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                />
+
+                </div>
+
+
+
+            </div>
 
             {/********* ModalDialog Popup *********/}
             {showDialog && (
@@ -439,8 +450,8 @@ const AnswerList = () => {
                     >
                         <div className="flex min-w-1 gap-x-4">
                             <ExclamationCircleIcon className={"w-5 h-5 text-gray-400"}
-                                                onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                                onMouseOut={(e) => e.currentTarget.style.color = 'gray'}
+                                                   onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                                   onMouseOut={(e) => e.currentTarget.style.color = 'gray'}
                             />
                         </div>
                         <div className="flex min-w-0 gap-x-4">
@@ -450,13 +461,10 @@ const AnswerList = () => {
                                 <p className="text-sm font-semibold leading-6 text-gray-900">
 
 
-
-                                    {
-                                    // @ts-ignore
-                                    answer.creator_name}:&nbsp;
+                                    { answer.username}:&nbsp;
                                     <span id={"title_" +
-                                    // @ts-ignore
-                                    answer.uuid}>{
+                                        // @ts-ignore
+                                        answer.uuid}>{
                                         answer.title}</span></p>
                                 <p id={"content_" +
                                     // @ts-ignore
@@ -468,22 +476,7 @@ const AnswerList = () => {
 
                         </div>
                         <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                            {/*<p className="text-xs leading-6 text-gray-600">*/}
-                            {/*    {*/}
-                            {/*        // @ts-ignore*/}
-                            {/*        answer.tags ? (*/}
-                            {/*            // @ts-ignore*/}
-                            {/*            answer.tags.map((tag: string) => (*/}
-                            {/*                <span key={tag}>*/}
-                            {/*        #{tag}&nbsp;*/}
-                            {/*    </span>*/}
-                            {/*            ))*/}
-                            {/*        ) : (<span>*/}
-                            {/*        #noTag&nbsp;*/}
-                            {/*    </span>*/}
-                            {/*        )}*/}
-
-                            {/*</p>*/}
+                            <p className="mt-1 text-xs leading-5 text-gray-500"> Quality: {answer.quality} Time: {answer.time_elapsed}</p>
                             {
                                 // @ts-ignore
                                 answer.dateUpdated ? (
@@ -526,14 +519,7 @@ const AnswerList = () => {
                 ))
             )}
 
-            <div>
-                    <PlusCircleIcon className="w-5 h-5 text-gray-400"
-                      onClick={() => handleClickNewAnswer()}
-                      onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                      onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-    />
 
-            </div>
 
         </div>
     )

@@ -1,6 +1,6 @@
 import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import clsx from "clsx";
-import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon} from "@heroicons/react/24/outline";
+import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon} from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
@@ -46,17 +46,9 @@ const QuestionList = () => {
     };
 
     const handleSelectQuestion = (event: React.MouseEvent<HTMLElement>, questionId: string) => {
-        const element = event.currentTarget;
-        const currentBgClass = element.getAttribute('class')?.split(' ').find(cls => cls.startsWith('bg-'));
 
-        if (currentBgClass) {
-            element.classList.remove(currentBgClass);
-        }
-
-        // Beispiel: Wechsle zu einer anderen Hintergrundfarbe, z.B. 'bg-blue-500'
-        element.classList.add('bg-blue-500');
         setCurrentQuestionId(questionId);
-        // console.error("HERE change bg color of selected question: ", questionId")
+
     }
 
     const handleUpdateQuestion = (questionId: string) => {
@@ -210,6 +202,7 @@ const QuestionList = () => {
             }
             // @ts-ignore
             setQuestionItems(out_items);
+            // @ts-ignore
             setCurrentQuestionId(out_items[0].uuid);
 
             console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
@@ -285,7 +278,20 @@ const QuestionList = () => {
 // Main Component *************************************************************************************************
     return (
         <div className={"w-1/2"}>
-            <p className={""}>Fragen</p>
+            <div className={"flex items-center"}>
+                <div className={"p-2"}>Fragen</div>
+                <div className={"p-2"}>
+                    <PlusCircleIcon className="w-5 h-5 text-gray-400"
+                                    onClick={() => handleClickNewQuetion()}
+                                    onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                    onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                    />
+
+                </div>
+
+
+            </div>
+
 
             {/********* ModalDialog Popup *********/}
             {showDialog && (
@@ -350,9 +356,14 @@ const QuestionList = () => {
                         onDragEnter={(e) => (dragOverItem.current = index)}
                         onDragEnd={handleSort}
                         onDragOver={(e) => e.preventDefault()}
+                        //@ts-ignore
                         onClick={(event) => handleSelectQuestion(event, question.uuid)}
                         className={clsx(
                             'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md bg-gray-50 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
+                            {
+                                // @ts-ignore
+                                'bg-sky-100': question.uuid === currentQuestionId,
+                            }
                         )}
                     >
                         <div className="flex min-w-1 gap-x-4">
