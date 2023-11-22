@@ -1,6 +1,6 @@
 import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import clsx from "clsx";
-import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, ExclamationCircleIcon} from "@heroicons/react/24/outline";
+import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, ExclamationCircleIcon, PlusCircleIcon} from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
@@ -31,6 +31,7 @@ const AnswerList = () => {
     const updateAnswer = useAnswersStore(state => state.updateAnswer);
 
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
+    console.log("@/app/dashboard/components/AnswerList currentQuestionId: " + currentQuestionId)
     const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
 
@@ -39,6 +40,7 @@ const AnswerList = () => {
     // Update Question ModalDialog *******************************************************************************
     // Zustand für das Anzeigen des Dialogs
     const [showDialog, setShowDialog] = useState(false);
+    const [modalHeader, setModalHeader] = useState(''); // Zustand für Modal-Header
     const [modalTitle, setModalTitle] = useState(''); // Zustand für Modal-Titel
     const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
     const [currentAnswerId, setCurrentAnswerId] = useState('');
@@ -55,11 +57,61 @@ const AnswerList = () => {
     };
 
 
+    const api_new_answer = async (question_uuid: string | null, user_uuid: string) => {
+        console.log("New Answer API fetch() start", question_uuid)
+
+        if (question_uuid === undefined || question_uuid === null) {
+            throw new Error('ERROR: dashboard/components/AnswerList/api_new_answer(): question_uuid not given:: ' + question_uuid);
+        }
+
+        let formData = new FormData();
+        // @ts-ignore
+        formData.append("question_uuid", question_uuid);
+        formData.append("user_uuid", user_uuid);
+        const api_url = (api_host + "/new_answer");
+
+        try {
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: formData,
+                mode: 'cors',
+            });
+            if (!response.ok ) {
+                throw new Error('api_new_answer Network response was not ok', await response.json());
+            }
+            const data = await response.json();
+            if(!data.uuid) {
+                throw new Error('api_new_answer no uuid in new answer', await response.json());
+            }
+            console.log("XXXXXXXXXXXXX New Answer API fetch() data OK: ", data);
+            console.log("XXXXXXXXXXXXX New Answer UUID: ", data.uuid);
+
+            return data.uuid;
+
+        } catch (error) {
+            console.log("Error fetching data:", error);
+        }
+    }
+
+
+    const handleClickNewAnswer = () => {
+        console.log("handleClickNewAnswer was clicked: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
+
+        // get new answerId from API
+        // @ts-ignore
+        api_new_answer(currentQuestionId, user_uuid).then(new_answer_id => {
+        setCurrentAnswerId(new_answer_id)
+        setModalHeader("Neue Antwort"); // Setze den Titel des Dialogs
+        setShowDialog(true); // ModalDialog anzeigen
+        });
+    }
+
     const handleClickEditAnswer = (answerId: string) => {
         console.log("handleClickEditAnswer start for answer ID: ", answerId);
         // @ts-ignore
         const answer = answers.find(a => a.uuid === answerId);
         if (answer) {
+            setModalHeader("Antwort bearbeiten"); // Setze den Titel des Dialogs
             // @ts-ignore
             setModalTitle(answer.title); // Setze den Titel der Frage
             // @ts-ignore
@@ -76,13 +128,12 @@ const AnswerList = () => {
 
         let formData = new FormData();
         // @ts-ignore
-        formData.append("user_uuid", user_uuid);
         formData.append("answer_uuid", answer_uuid);
         formData.append("title", title);
         formData.append("content", content);
 
 
-        const api_url = (api_host + "/api_update_answer");
+        const api_url = (api_host + "/update_answer");
 
         try {
             const response = await fetch(api_url, {
@@ -113,9 +164,31 @@ const AnswerList = () => {
         api_update_answer(currentAnswerId, modalTitle, modalContent);
 
         let answer = answers.filter(a => a.uuid === currentAnswerId)[0];
-        answer.title = modalTitle;
-        answer.content = modalContent;
-        updateAnswer(answer);
+        if (answer === undefined || answer === null) {
+            // add new answer to store
+            console.log("handleClickUpdateAnswer: adding new answer")
+            const new_answer: AnswerType = {
+                uuid: currentAnswerId,
+                creator: user_uuid,
+                creator_name: session?.user?.name || "",
+                source: user_uuid,
+                time_elapsed: "00:00:00",
+                // @ts-ignore
+                question: currentQuestionId,
+                title: modalTitle,
+                content: modalContent,
+                quality: 0,
+                trust: 0,
+                dateCreated: Moment().format('YYYY-MM-DD HH:mm:ss'),
+                dateUpdated: Moment().format('YYYY-MM-DD HH:mm:ss'),
+            }
+
+            addAnswer(new_answer);
+        }
+        else {
+            answer.title = modalTitle;
+            answer.content = modalContent;
+        }
 
         setShowDialog(false); // ModalDialog schließen
     }
@@ -153,7 +226,7 @@ const AnswerList = () => {
 
     const get_answers_by_question = async (question_uuid: string | null) => {
 
-        const api_url = (api_host + "/answers_by_question");
+        const api_url = (api_host + "/answers");
         console.log("questions/page/get_answers_by_question() start", question_uuid)
 
         if (question_uuid === undefined || question_uuid === null) {
@@ -176,10 +249,12 @@ const AnswerList = () => {
             }
             const data = await response.json();
             const out_items:any = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
+            console.log("::::::::::::: get_answers_by_question() data OK: ", out_items);
             for (let a of out_items) {
                 let answer: AnswerType = {
                     uuid: a.uuid,
                     creator: a.creator,
+                    creator_name: a.creator_name,
                     source: a.source,
                     time_elapsed: a.time_elapsed,
                     question: a.question,
@@ -203,17 +278,37 @@ const AnswerList = () => {
     };
 
 
-    // execute get_answers_by_question on page load
-    useEffect(() => {
+    const load_answers = async () => {
 
+        console.log("load_answers() start: ", currentQuestionId, " # ")
+        if (currentQuestionId === undefined || currentQuestionId === null) {
+            return;
+        }
+        else {
+            await get_answers_by_question(currentQuestionId);
+        }
+
+        console.log("load_answers() SUCCESS")
+    }
+
+    useEffect(() => {
+        console.log("useEffect load_answers() start: ", currentQuestionId, " # ")
+        load_answers().then(r => {});
+    }, []);
+
+    // load_answers().then(r => {});
+
+    // execute get_answers_by_question on page load
+/*    useEffect(() => {
 
         get_answers_by_question(currentQuestionId).then(r => {
             console.log("useEffect get_answers_by_question() SUCCESS:: #", r, " # ", currentQuestionId)
         }).catch(e => {
             console.error("useEffect AnswerList/get_answers_by_question() ERROR:: #", e, " # ", currentQuestionId)
         });
-    }, []);
-    console.log("API fetched Questions Ende: ")
+    }, []);*/
+
+    console.log("AnswerList.tsx Ende: ")
 
     const handleDeleteAnswer = (answerId: string) => {
         // Bestätigungsdialog
@@ -264,14 +359,18 @@ const AnswerList = () => {
 // Ende Drag & Drop Handling *******************************************************************************
 
 
+
+    console.log("AnswerList.tsx Ende: ")
+
 // Main Component *************************************************************************************************
     return (
-        <div>
+        <div className={"w-1/2"}>
             <p className={""}>Antworten</p>
+
             {/********* ModalDialog Popup *********/}
             {showDialog && (
                 <ModalDialog
-                    title="Antwort bearbeiten"
+                    title={modalHeader}
                     onClose={onClose}
                     onOk={handleClickUpdateAnswer}
                     showDialog={showDialog}
@@ -338,20 +437,35 @@ const AnswerList = () => {
                             },
                         )}
                     >
+                        <div className="flex min-w-1 gap-x-4">
+                            <ExclamationCircleIcon className={"w-5 h-5 text-gray-400"}
+                                                onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                                onMouseOut={(e) => e.currentTarget.style.color = 'gray'}
+                            />
+                        </div>
                         <div className="flex min-w-0 gap-x-4">
-                            <ExclamationCircleIcon className="w-6 h-6"/>
+
                             <div className="min-w-0 flex-auto">
-                                <p className="text-sm font-semibold leading-6 text-gray-900">{
+
+                                <p className="text-sm font-semibold leading-6 text-gray-900">
+
+
+
+                                    {
                                     // @ts-ignore
-                                    answer.creator}:
-                                    <span id="title_{answer.uuid}">{
-                                        // @ts-ignore
+                                    answer.creator_name}:&nbsp;
+                                    <span id={"title_" +
+                                    // @ts-ignore
+                                    answer.uuid}>{
                                         answer.title}</span></p>
-                                <p id="content_{answer.uuid}"
+                                <p id={"content_" +
+                                    // @ts-ignore
+                                    answer.uuid}
                                    className="mt-1 truncate text-xs leading-5 text-gray-500">{
                                     // @ts-ignore
                                     answer.content}</p>
                             </div>
+
                         </div>
                         <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
                             {/*<p className="text-xs leading-6 text-gray-600">*/}
@@ -412,6 +526,14 @@ const AnswerList = () => {
                 ))
             )}
 
+            <div>
+                    <PlusCircleIcon className="w-5 h-5 text-gray-400"
+                      onClick={() => handleClickNewAnswer()}
+                      onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                      onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+    />
+
+            </div>
 
         </div>
     )
