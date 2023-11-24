@@ -2,8 +2,9 @@
 export default function Page() {
 
     return(
-    <div>
-      Dashboard {' '}
-    </div>
+        <div>
+    <h1>Dashboard</h1>
+        <p>Explore the universe ... with widgets :)</p>
+            </div>
     )
 }

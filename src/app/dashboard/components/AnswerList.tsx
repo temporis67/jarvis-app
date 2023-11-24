@@ -88,8 +88,8 @@ const AnswerList = () => {
             if (!data.uuid) {
                 throw new Error('api_new_answer no uuid in new answer', await response.json());
             }
-            console.log("XXXXXXXXXXXXX New Answer API fetch() data OK: ", data);
-            console.log("XXXXXXXXXXXXX New Answer UUID: ", data.uuid);
+            console.log("New Answer API fetch() data OK: ", data);
+            console.log("New Answer UUID: ", data.uuid);
 
             return data.uuid;
 
@@ -203,10 +203,9 @@ const AnswerList = () => {
 
         let formData = new FormData();
         // @ts-ignore
-        formData.append("user_uuid", user_uuid);
-        formData.append("question_uuid", answerId);
+        formData.append("answer_uuid", answerId);
 
-        const api_url = (api_host + "/api_delete_answer");
+        const api_url = (api_host + "/delete_answer");
 
         try {
             const response = await fetch(api_url, {
@@ -257,7 +256,9 @@ const AnswerList = () => {
             const data = await response.json();
             const out_items: any = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
             console.log("::::::::::::: get_answers_by_question() data OK: ", out_items);
-            if(out_items.length === 0) { return out_items; } // empty list
+            if (out_items.length === 0) {
+                return out_items;
+            } // empty list
 
             for (let a of out_items) {
                 let answer: AnswerType = {
@@ -308,10 +309,9 @@ const AnswerList = () => {
     }, [currentQuestionId])
 
 
-
     const handleDeleteAnswer = (answerId: string) => {
         // Bestätigungsdialog
-        const isConfirmed = window.confirm("Sind Sie sicher, dass Sie diese Frage löschen möchten?");
+        const isConfirmed = window.confirm("Sind Sie sicher, dass Sie diese Antwort löschen möchten?");
 
         if (isConfirmed) {
             console.log("handleDeleteAnswer start for question ID: ", answerId);
@@ -366,14 +366,13 @@ const AnswerList = () => {
             <div className={"flex items-center"}>
                 <div className={"p-2"}>Antworten</div>
                 <div className={"p-2"}>
-                                    <PlusCircleIcon className="w-5 h-5 text-gray-400"
-                                onClick={() => handleClickNewAnswer()}
-                                onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                />
+                    <PlusCircleIcon className="w-5 h-5 text-gray-400"
+                                    onClick={() => handleClickNewAnswer()}
+                                    onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                    onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                    />
 
                 </div>
-
 
 
             </div>
@@ -448,77 +447,85 @@ const AnswerList = () => {
                             },
                         )}
                     >
-                        <div className="flex min-w-1 gap-x-4">
-                            <ExclamationCircleIcon className={"w-5 h-5 text-gray-400"}
-                                                   onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                                   onMouseOut={(e) => e.currentTarget.style.color = 'gray'}
-                            />
-                        </div>
-                        <div className="flex min-w-0 gap-x-4">
 
-                            <div className="min-w-0 flex-auto">
+                            <div className="flex min-w-0 gap-x-4" id={"row1"}>
+                                {/* Icon */}
+                                <div className="flex min-w-1 gap-x-4">
+                                    <ExclamationCircleIcon className={"w-5 h-5 text-gray-400"}
+                                                           onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                                           onMouseOut={(e) => e.currentTarget.style.color = 'gray'}
+                                    />
+                                </div>
+                                 {/* Username, Title, Content Box */}
+                                <div className="flex min-w-0 gap-x-4">
 
-                                <p className="text-sm font-semibold leading-6 text-gray-900">
+                                    <div className="min-w-0 flex-auto">
+
+                                        <p className="text-sm truncate font-semibold leading-6 text-gray-900">
 
 
-                                    { answer.username}:&nbsp;
-                                    <span id={"title_" +
+                                            {answer.username}:&nbsp;
+                                            <span id={"title_" +
+                                                // @ts-ignore
+                                                answer.uuid}>{
+                                                answer.title}</span></p>
+
+                                        <p id={"content_" +
+                                            // @ts-ignore
+                                            answer.uuid}
+                                           className="mt-1 truncate text-xs leading-5 text-gray-500">{
+                                            // @ts-ignore
+                                            answer.content}</p>
+                                         <p className="mt-1 text-xs leading-5 text-gray-500 ">
+                                        Quality: {answer.quality} Time: {answer.time_elapsed} &nbsp;
+                                    {
                                         // @ts-ignore
-                                        answer.uuid}>{
-                                        answer.title}</span></p>
-                                <p id={"content_" +
-                                    // @ts-ignore
-                                    answer.uuid}
-                                   className="mt-1 truncate text-xs leading-5 text-gray-500">{
-                                    // @ts-ignore
-                                    answer.content}</p>
+                                        answer.dateUpdated ? (
+                                            <>
+                                                Updated: <time dateTime={
+                                                // @ts-ignore
+                                                answer.dateUpdated}>
+                                                {
+                                                    // @ts-ignore
+                                                    Moment(answer.dateUpdated).format('DD.MM.yy HH:mm')
+                                                }
+                                            </time>
+                                            </>
+                                        ) : (
+                                            <>
+                                                Created: <time dateTime={// @ts-ignore
+                                                answer.dateCreated}>{// @ts-ignore
+                                                Moment(answer.dateCreated).format('DD.MM.yy HH:mm')
+                                            }</time>
+                                            </>
+                                        )}
+                                        </p>
+                                    </div>
+
+                                </div>
+                                 {/* Actions */}
+                                <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                                    <TrashIcon className="w-5 h-5 text-gray-400"
+                                        // @ts-ignore
+                                               onClick={() => handleDeleteAnswer(answer.uuid)}
+                                               onMouseOver={(e) => e.currentTarget.style.color = 'red'}
+                                               onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                    />
+                                    <PencilSquareIcon className="w-5 h-5 text-gray-400"
+                                        // @ts-ignore
+                                                      onClick={() => handleClickEditAnswer(answer.uuid)}
+                                                      onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                                      onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                    />
+                                </div>
                             </div>
 
-                        </div>
-                        <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                            <p className="mt-1 text-xs leading-5 text-gray-500"> Quality: {answer.quality} Time: {answer.time_elapsed}</p>
-                            {
-                                // @ts-ignore
-                                answer.dateUpdated ? (
-                                    <p className="mt-1 text-xs leading-5 text-gray-500">
-                                        Updated: <time dateTime={
-                                        // @ts-ignore
-                                        answer.dateUpdated}>
-                                        {
-                                            // @ts-ignore
-                                            Moment(answer.dateUpdated).format('DD.MM.yy HH:mm')
-                                        }
-                                    </time>
-                                    </p>
-                                ) : (
-                                    <p className="mt-1 text-xs leading-5 text-gray-500">
-                                        Created: <time dateTime={// @ts-ignore
-                                        answer.dateCreated}>{// @ts-ignore
-                                        Moment(answer.dateCreated).format('DD.MM.yy HH:mm')
-                                    }</time>
-                                    </p>
-                                )}
-                        </div>
-                        <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                            <TrashIcon className="w-5 h-5 text-gray-400"
-                                // @ts-ignore
-                                       onClick={() => handleDeleteAnswer(answer.uuid)}
-                                       onMouseOver={(e) => e.currentTarget.style.color = 'red'}
-                                       onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                            />
-                            <PencilSquareIcon className="w-5 h-5 text-gray-400"
-                                // @ts-ignore
-                                              onClick={() => handleClickEditAnswer(answer.uuid)}
-                                              onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                              onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                            />
-                        </div>
+
                     </div>
 
 
                 ))
             )}
-
 
 
         </div>

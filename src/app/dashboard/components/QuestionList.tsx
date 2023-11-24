@@ -65,9 +65,18 @@ const QuestionList = () => {
         setShowDialog(true); // ModalDialog anzeigen
     }
 
-    const update_question = async (questionId: string | null, title: string, content: string) => {
-        console.log("Update Question API fetch() start", questionId, " # ", title, " # ", content);
+    const handleClickNewQuestion = () => {
+        console.log("handleClickNewQuestion start");
+        setModalTitle(''); // Setze den Titel der Frage
+        setModalContent(''); // Setze den Inhalt der Frage
+        setCurrentQuestionId(''); // Speichere die aktuelle Frage-ID
+        setShowDialog(true); // ModalDialog anzeigen
+    }
 
+    const update_question = async (questionId: string, title: string, content: string) => {
+
+
+        console.log("Update Question API fetch() start", questionId, " # ", title, " # ", content);
 
         let formData = new FormData();
         // @ts-ignore
@@ -105,8 +114,31 @@ const QuestionList = () => {
     const saveQuestion = () => {
         console.log("saveQuestion was clicked: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
 
-        // update DB via API
-        update_question(currentQuestionId, modalTitle, modalContent);
+        if (currentQuestionId === '') {
+            console.log("Neue Frage wird erstellt")
+            // @ts-ignore
+            new_question().then((out_items) => {
+                console.log("New Question Items: ", out_items);
+                // @ts-ignore
+                setCurrentQuestionId(out_items['uuid'])
+                // update DB via API
+                // @ts-ignore
+                update_question(out_items['uuid'], modalTitle, modalContent).then(r => {
+                    console.log("update_question() SUCCESS:: #", r)
+                })
+
+            });
+        } else {
+
+            // update DB via API
+            // @ts-ignore
+            update_question(modalTitle, modalContent).then(r => {
+                console.log("update_question() SUCCESS:: #", r)
+            })
+
+
+        }
+
 
         // update displayed question
         // Erstelle eine Kopie von questionsItems
@@ -167,6 +199,49 @@ const QuestionList = () => {
             console.log("Error fetching data:", error);
         }
     }
+
+    const new_question = async () => {
+        console.log("New Question API fetch() start")
+        const api_host = "http://127.0.0.1:5000/api";
+        const api_url = (api_host + "/new_question");
+
+        let formData = new FormData();
+        // @ts-ignore
+        formData.append("user_uuid", user_uuid);
+        formData.append("title", "");
+        formData.append("content", "");
+
+
+        try {
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: formData,
+                mode: 'cors',
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok', await response.json());
+            }
+            const data = await response.json();
+            console.log(":::: New Question API fetch() data OK: ", data);
+
+            let out_items = {};
+            Object.keys(data).forEach(key => {
+                // @ts-ignore
+                out_items[key] = data[key];
+            });
+            // @ts-ignore
+            out_items['creator'] = session.user.name;
+
+            console.log("New Question API fetch() out_items: ", out_items);
+
+            return out_items;
+
+        } catch (error) {
+            console.log("Error fetching data:", error);
+        }
+
+
+    };
 
 
     const get_questions_by_user = async (user_uuid2: string | null) => {
@@ -282,7 +357,7 @@ const QuestionList = () => {
                 <div className={"p-2"}>Fragen</div>
                 <div className={"p-2"}>
                     <PlusCircleIcon className="w-5 h-5 text-gray-400"
-                                    onClick={() => handleClickNewQuetion()}
+                                    onClick={() => handleClickNewQuestion()}
                                     onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
                                     onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
                     />
