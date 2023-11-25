@@ -5,6 +5,7 @@ import {
     HomeIcon,
     DocumentDuplicateIcon,
     ChatBubbleBottomCenterTextIcon,
+    Cog8ToothIcon,
 
 } from '@heroicons/react/24/outline';
 
@@ -16,9 +17,10 @@ import {signIn, signOut, useSession} from "next-auth/react";
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
 const links = [
-    {name: 'Home', href: '/', icon: HomeIcon},
-    {name: 'Dashboard', href: '/dashboard', icon: UserGroupIcon},
-    {name: 'Questions', href: '/dashboard/questions', icon: ChatBubbleBottomCenterTextIcon},
+
+    {name: 'Fragen', href: '/dashboard/questions', icon: ChatBubbleBottomCenterTextIcon},
+    {name: 'Einstellungen', href: '/dashboard/settings', icon: Cog8ToothIcon},
+
 
 ];
 

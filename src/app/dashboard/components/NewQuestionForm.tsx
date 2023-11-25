@@ -16,6 +16,11 @@ const NewQuestionForm = () => {
     const questionsItems = useQuestionStore(state => state.questionItems);
     const setQuestionItems = useQuestionStore(state => state.setQuestionItems);
 
+    const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
+    console.log("@/app/dashboard/components/NewQuestionForm currentQuestionId: " + currentQuestionId)
+    const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
+
+
 
 
     // handler for new question
@@ -97,6 +102,8 @@ const NewQuestionForm = () => {
 
                 // @ts-ignore
                 setQuestionItems(_questionsItems);
+                // @ts-ignore
+                setCurrentQuestionId(out_items['uuid']);
             }
         }).catch((error) => {
             console.error("Error in handleNewQuestion: ", error);

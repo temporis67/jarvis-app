@@ -12,20 +12,27 @@ export default function Layout({children}: { children: React.ReactNode }) {
     const user_uuid = useUserStore(state => state.userUuid);
     const setUserUuid = useUserStore(state => state.setUserUuid);
     const setUserName = useUserStore(state => state.setUserName);
+    const setUserEmail = useUserStore(state => state.setUserEmail);
 
     // fetch user via api
-    const getUserByEmail = async () => {
+    const getUser = async () => {
         const api_host = "http://127.0.0.1:5000/api";
         const api_url = (api_host + "/user");
         const email = session?.user?.email;
-        if (email === undefined || email === null) {
-            throw new Error('ERROR: dashboard/questions/page.tsx/getUserByEMail(): user email not found in session');
-        }
+        const user_name = session?.user?.name;
 
-        console.log("dashboard/questions/getUserByEmail() start ", email, api_url)
+        console.log("dashboard/questions/getUser() start ", email, api_url)
 
         let formData = new FormData();
-        formData.append("email", email);
+        if (!(email === undefined || email === null)) {
+            formData.append("email", email);
+        }
+        if (!(user_name === undefined || user_name === null)) {
+        formData.append("name", user_name);
+        }
+        if (!(user_uuid === undefined || user_uuid === null)) {
+        formData.append("uuid", user_uuid);
+        }
 
 
         try {
@@ -45,12 +52,14 @@ export default function Layout({children}: { children: React.ReactNode }) {
             console.log("dashboard/layout getting user.uuid by email from session SUCCESS: " + data['name'] + " ## " + data['uuid'])
             setUserUuid(data['uuid']); // via zustand store
             setUserName(data['name']); // via zustand store
+            setUserEmail(data['email']); // via zustand store
+
             console.log("setting uuid via zustand store: " + useUserStore.getState().userUuid)
             // sessionStorage.setItem("user_uuid", data['uuid']);
             return data['name'];
 
         } catch (error) {
-            console.error('API Host down? - Failed to fetch user in /app/api/auth.../route.ts/getUserByEmail() :', error);
+            console.error('API Host down? - Failed to fetch user in /app/api/auth.../route.ts/getUser() :', error);
             throw new Error('Failed to fetch user.');
         }
 
@@ -60,14 +69,14 @@ export default function Layout({children}: { children: React.ReactNode }) {
     if (status === 'authenticated') {
         // initialize user_uuid one time
         if (user_uuid === null) {
-            getUserByEmail().then(r => {
-                console.log("dashboard/layout.tsx: getUserByEmail() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
+            getUser().then(r => {
+                console.log("dashboard/layout.tsx: getUser() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
 
             }).catch(e => {
-                console.error("dashboard/layout.tsx: getUserByEmail() ERROR:: #", e, " # ", user_uuid)
+                console.error("dashboard/layout.tsx: getUser() ERROR:: #", e, " # ", user_uuid)
             })
         } else {
-            // console.log("dashboard/layout.tsx: getUserByEmail() SKIP:: #", user_uuid, " # ", useUserStore.getState().userUuid)
+            // console.log("dashboard/layout.tsx: getUser() SKIP:: #", user_uuid, " # ", useUserStore.getState().userUuid)
         }
 
         return (
