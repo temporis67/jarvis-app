@@ -28,6 +28,7 @@ const AnswerList = () => {
     const user_uuid = useUserStore(state => state.userUuid);
 
 
+
     // handle questionsItems via zustand store
     const answers = useAnswersStore(state => state.answers);
     const setAnswers = useAnswersStore(state => state.setAnswers);
