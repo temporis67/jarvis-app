@@ -3,6 +3,9 @@ import {useSession} from "next-auth/react";
 import useQuestionStore from "@/app/store/questionStore";
 import useUserStore from "@/app/store/userStore";
 
+import useModelStore from "@/app/store/modelStore";
+import {ModelType} from "@/app/store/modelStore";
+import ModelCard from "@/app/pages/components/ModelCard";
 
 
 const NewQuestionForm = () => {
@@ -13,14 +16,17 @@ const NewQuestionForm = () => {
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);
     // handle questionsItems via zustand store
-    const questionsItems = useQuestionStore(state => state.questionItems);
-    const setQuestionItems = useQuestionStore(state => state.setQuestionItems);
+    const questionsItems = useQuestionStore(state => state.questions);
+    const setQuestionItems = useQuestionStore(state => state.setQuestions);
 
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
-    console.log("@/app/dashboard/components/NewQuestionForm currentQuestionId: " + currentQuestionId)
+    console.log("@/app/pages/components/NewQuestionForm currentQuestionId: " + currentQuestionId)
     const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
-
+    // get models from zustand store
+    const models = useModelStore(state => state.models);
+    const current_model = useModelStore(state => state.current_model);
+    const setCurrentModel = useModelStore(state => state.setCurrentModel);
 
 
     // handler for new question
@@ -98,7 +104,7 @@ const NewQuestionForm = () => {
                 // @ts-ignore
                 _questionsItems.unshift(out_items);
 
-                  console.log("YY Result Items: ", _questionsItems);
+                console.log("YY Result Items: ", _questionsItems);
 
                 // @ts-ignore
                 setQuestionItems(_questionsItems);
@@ -114,7 +120,7 @@ const NewQuestionForm = () => {
     return (
         <div>
 
-                {/*Neue Frage*/}
+            {/*Neue Frage*/}
             <div className="flex min-w-0 gap-x-4 mt-6">
                 <div className="min-w-0 flex-auto">
                     <p>
@@ -145,12 +151,22 @@ const NewQuestionForm = () => {
                             defaultValue={""}
                             placeholder="Schreiben Sie hier..."></textarea>
                     </p>
-                    <p className={'text-right mt-2'}>
-                        <button
-                            onClick={handleNewQuestion}
-                            className="text-white bg-blue-500 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Fragen
-                        </button>
-                    </p>
+                    <div className={"flex flex-wrap overflow-hidden mt-2"}>
+                        <div className={"w-2/3 text-center"}>
+
+                            {current_model?.uuid && (
+                                <ModelCard model_uuid={current_model.uuid} />
+                            )}
+
+                        </div>
+
+                        <div className={'w-1/3 text-right'}>
+                            <button
+                                onClick={handleNewQuestion}
+                                className="text-white bg-blue-500 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Fragen
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
             </div>

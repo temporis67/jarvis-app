@@ -34,6 +34,7 @@ async function getUser(name: string, password: string): Promise<Response> {
 
 export const authOptions = {
     secret: process.env.NEXTAUTH_SECRET,
+
     providers: [
         GitHubProvider({
             clientId: process.env.GITHUB_ID ?? "",

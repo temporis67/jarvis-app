@@ -1,8 +1,10 @@
-import create from 'zustand'
+import {create} from 'zustand'
 
 //types
 export type AnswerType = {
     uuid: string;
+    status?: string;
+
     creator: string | null;
     username: string | null;
     source: string | null;
@@ -22,6 +24,8 @@ type AnswersType = Array<AnswerType>
 
 export type AnswersStoreType = {
     answers: AnswersType
+    current_answer: AnswerType | null
+    setCurrentAnswer: (answer: AnswerType) => void
     setAnswers: (new_answers: AnswersType) => void
     addAnswer: (todo: AnswerType) => void
     delAnswer: (uuid: string) => void
@@ -33,6 +37,7 @@ export type AnswersStoreType = {
 const initialAnswers: AnswersType = [
     {
         uuid: "5e2f3b7a-8810-11ee-a1b8-047c16bbac51",
+        status : "ready",
         creator: "7f81c2e6-7801-11ee-8c55-047c16bbac51",
         username: "Carlos",
         source: "7f81c2e6-7801-11ee-8c55-047c16bbac51",
@@ -47,6 +52,7 @@ const initialAnswers: AnswersType = [
     },
     {
         uuid: "6a4c88ee-8820-11ee-bf22-047c16bbac51",
+        status : "loading",
         creator: "9a73ebf2-7835-11ee-9d88-047c16bbac51",
         username: "Amit",
         source: "9a73ebf2-7835-11ee-9d88-047c16bbac51",
@@ -61,6 +67,7 @@ const initialAnswers: AnswersType = [
     },
     {
         uuid: "7c8daefe-8830-11ee-ba32-047c16bbac51",
+        status : "ready",
         creator: "bc64dafe-7859-11ee-a5b7-047c16bbac51",
         username: "Ivan",
         source: "bc64dafe-7859-11ee-a5b7-047c16bbac51",
@@ -75,6 +82,7 @@ const initialAnswers: AnswersType = [
     },
     {
         uuid: "8e1fc210-8840-11ee-cd44-047c16bbac51",
+        status : "ready",
         creator: "de55f3a4-7883-11ee-bd66-047c16bbac51",
         username: "Liam",
         source: "de55f3a4-7883-11ee-bd66-047c16bbac51",
@@ -92,6 +100,9 @@ const initialAnswers: AnswersType = [
 
 const answersStore = (set: any): AnswersStoreType => ({
     answers: [],
+    current_answer: null,
+    setCurrentAnswer: (answer: AnswerType) => set({current_answer: answer}),
+
     setAnswers: (new_answers: AnswersType) => set({answers: new_answers}),
     addAnswer: (answer: AnswerType) => set((state: AnswersStoreType) => ({answers: [answer, ...state.answers]})),
     delAnswer: (uuid: string) => set((state: AnswersStoreType) => ({answers: state.answers.filter(a => a.uuid !== uuid)})),

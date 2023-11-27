@@ -21,7 +21,7 @@ export default function Layout({children}: { children: React.ReactNode }) {
         const email = session?.user?.email;
         const user_name = session?.user?.name;
 
-        console.log("dashboard/questions/getUser() start ", email, api_url)
+        console.log("pages/questions/getUser() start ", email, api_url)
 
         let formData = new FormData();
         if (!(email === undefined || email === null)) {
@@ -49,7 +49,7 @@ export default function Layout({children}: { children: React.ReactNode }) {
             if (data['uuid'] === undefined || data['uuid'] === null) {
                 throw new Error('ERROR: User not found / UUID null', await response.json());
             }
-            console.log("dashboard/layout getting user.uuid by email from session SUCCESS: " + data['name'] + " ## " + data['uuid'])
+            console.log("pages/layout getting user.uuid by email from session SUCCESS: " + data['name'] + " ## " + data['uuid'])
             setUserUuid(data['uuid']); // via zustand store
             setUserName(data['name']); // via zustand store
             setUserEmail(data['email']); // via zustand store
@@ -70,13 +70,13 @@ export default function Layout({children}: { children: React.ReactNode }) {
         // initialize user_uuid one time
         if (user_uuid === null) {
             getUser().then(r => {
-                console.log("dashboard/layout.tsx: getUser() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
+                console.log("pages/layout.tsx: getUser() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
 
             }).catch(e => {
-                console.error("dashboard/layout.tsx: getUser() ERROR:: #", e, " # ", user_uuid)
+                console.error("pages/layout.tsx: getUser() ERROR:: #", e, " # ", user_uuid)
             })
         } else {
-            // console.log("dashboard/layout.tsx: getUser() SKIP:: #", user_uuid, " # ", useUserStore.getState().userUuid)
+            // console.log("pages/layout.tsx: getUser() SKIP:: #", user_uuid, " # ", useUserStore.getState().userUuid)
         }
 
         return (

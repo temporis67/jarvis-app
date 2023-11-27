@@ -19,11 +19,11 @@ const QuestionList = () => {
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);
     const setUserUuid = useUserStore(state => state.setUserUuid);
-    console.log("@/app/dashboard/components/QuestionList start - UUID: " + user_uuid)
+    console.log("@/app/pages/components/QuestionList start - UUID: " + user_uuid)
 
-    // handle questionsItems via zustand store
-    const questionsItems = useQuestionStore(state => state.questionItems);
-    const setQuestionItems = useQuestionStore(state => state.setQuestionItems);
+    // handle questions via zustand store
+    const questions = useQuestionStore(state => state.questions);
+    const setQuestions = useQuestionStore(state => state.setQuestions);
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
     const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
@@ -52,9 +52,9 @@ const QuestionList = () => {
     }
 
     const handleUpdateQuestion = (questionId: string) => {
-        console.log("handleUpdateQuestion start for question ID: ", questionId);
+        // console.log("handleUpdateQuestion start for question ID: ", questionId);
         // @ts-ignore
-        const question = questionsItems.find(q => q.uuid === questionId);
+        const question = questions.find(q => q.uuid === questionId);
         if (question) {
             // @ts-ignore
             setModalTitle(question.title); // Setze den Titel der Frage
@@ -66,7 +66,7 @@ const QuestionList = () => {
     }
 
     const handleClickNewQuestion = () => {
-        console.log("handleClickNewQuestion start");
+        // console.log("handleClickNewQuestion start");
         setModalTitle(''); // Setze den Titel der Frage
         setModalContent(''); // Setze den Inhalt der Frage
         setCurrentQuestionId(''); // Speichere die aktuelle Frage-ID
@@ -76,7 +76,7 @@ const QuestionList = () => {
     const update_question = async (questionId: string, title: string, content: string) => {
 
 
-        console.log("Update Question API fetch() start", questionId, " # ", title, " # ", content);
+        // console.log("Update Question API fetch() start", questionId, " # ", title, " # ", content);
 
         let formData = new FormData();
         // @ts-ignore
@@ -99,7 +99,7 @@ const QuestionList = () => {
                 throw new Error('Network response was not ok', await response.json());
             }
             const data = await response.json();
-            console.log("Update Question API fetch() data OK: ", data);
+            // console.log("Update Question API fetch() data OK: ", data);
         } catch (error) {
             console.log("Error fetching data:", error);
         }
@@ -107,24 +107,24 @@ const QuestionList = () => {
     }
 
     const onClose = () => {
-        console.log("Modal has closed")
+        // console.log("Modal has closed")
         setShowDialog(false); // ModalDialog schließen
     }
 
     const saveQuestion = () => {
-        console.log("saveQuestion was clicked: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
+        // console.log("saveQuestion was clicked: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
 
         if (currentQuestionId === '') {
-            console.log("Neue Frage wird erstellt")
+            // console.log("Neue Frage wird erstellt")
             // @ts-ignore
             new_question().then((out_items) => {
-                console.log("New Question Items: ", out_items);
+                // console.log("New Question Items: ", out_items);
                 // @ts-ignore
                 setCurrentQuestionId(out_items['uuid'])
                 // update DB via API
                 // @ts-ignore
                 update_question(out_items['uuid'], modalTitle, modalContent).then(r => {
-                    console.log("update_question() SUCCESS:: #", r)
+                    // console.log("update_question() SUCCESS:: #", r)
                 })
 
             });
@@ -132,8 +132,8 @@ const QuestionList = () => {
 
             // update DB via API
             // @ts-ignore
-            update_question(modalTitle, modalContent).then(r => {
-                console.log("update_question() SUCCESS:: #", r)
+            update_question(currentQuestionId, modalTitle, modalContent).then(r => {
+                // console.log("update_question() SUCCESS:: #", r)
             })
 
 
@@ -141,18 +141,18 @@ const QuestionList = () => {
 
 
         // update displayed question
-        // Erstelle eine Kopie von questionsItems
-        let updatedQuestions = questionsItems;
-        console.log("updatedQuestions: ", updatedQuestions);
+        // Erstelle eine Kopie von questions
+        let updatedQuestions = questions;
+        // console.log("updatedQuestions: ", updatedQuestions);
 
         // Finde den Index der zu aktualisierenden Frage
         // @ts-ignore
         for (let i = 0; i < updatedQuestions.length; i++) {
             // @ts-ignore
-            console.log("updatedQuestions[i].uuid: ", updatedQuestions[i], " # ", currentQuestionId);
+            // console.log("updatedQuestions[i].uuid: ", updatedQuestions[i], " # ", currentQuestionId);
             // @ts-ignore
             if (updatedQuestions[i].uuid === currentQuestionId) {
-                console.log("Aktualisiere den Titel und Inhalt der Frage", modalTitle, modalContent);
+                // console.log("Aktualisiere den Titel und Inhalt der Frage", modalTitle, modalContent);
                 // @ts-ignore
                 updatedQuestions[i].title = modalTitle;
                 // @ts-ignore
@@ -163,13 +163,13 @@ const QuestionList = () => {
 
 
         // Aktualisiere den State mit der neuen Fragenliste
-        setQuestionItems(updatedQuestions);
+        setQuestions(updatedQuestions);
         setShowDialog(false); // ModalDialog schließen
     }
 
 
     const delete_question = async (questionId: string) => {
-        console.log("Delete Question API fetch() start")
+        // console.log("Delete Question API fetch() start")
 
         let formData = new FormData();
         // @ts-ignore
@@ -191,7 +191,7 @@ const QuestionList = () => {
             console.log("Delete Question API fetch() data OK: ", data);
 
 
-            console.log("Delete Question API fetch() out_items: ");
+            // console.log("Delete Question API fetch() out_items: ");
 
             return;
 
@@ -201,7 +201,7 @@ const QuestionList = () => {
     }
 
     const new_question = async () => {
-        console.log("New Question API fetch() start")
+        // console.log("New Question API fetch() start")
         const api_host = "http://127.0.0.1:5000/api";
         const api_url = (api_host + "/new_question");
 
@@ -222,7 +222,7 @@ const QuestionList = () => {
                 throw new Error('Network response was not ok', await response.json());
             }
             const data = await response.json();
-            console.log(":::: New Question API fetch() data OK: ", data);
+            // console.log(":::: New Question API fetch() data OK: ", data);
 
             let out_items = {};
             Object.keys(data).forEach(key => {
@@ -232,7 +232,7 @@ const QuestionList = () => {
             // @ts-ignore
             out_items['creator'] = session.user.name;
 
-            console.log("New Question API fetch() out_items: ", out_items);
+            // console.log("New Question API fetch() out_items: ", out_items);
 
             return out_items;
 
@@ -250,7 +250,7 @@ const QuestionList = () => {
         console.log("questions/page/get_questions_by_user() start", user_uuid2)
 
         if (user_uuid2 === undefined || user_uuid2 === null) {
-            throw new Error('ERROR: dashboard/questions/page.tsx/get_questions_by_user(): user uuid not given:: ' + user_uuid2);
+            throw new Error('ERROR: pages/questions/page.tsx/get_questions_by_user(): user uuid not given:: ' + user_uuid2);
         }
 
         let formData = new FormData();
@@ -270,17 +270,17 @@ const QuestionList = () => {
             const data = await response.json();
             const out_items = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
             for (let q of out_items) {
-                console.log("Question: " + q);
+                // console.log("Question: " + q);
                 // @ts-ignore
                 q['creator'] = session?.user?.name;
 
             }
             // @ts-ignore
-            setQuestionItems(out_items);
+            setQuestions(out_items);
             // @ts-ignore
             setCurrentQuestionId(out_items[0].uuid);
 
-            console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
+            // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
 
         } catch (error) {
             console.log("Error fetching data:", error);
@@ -292,12 +292,12 @@ const QuestionList = () => {
     useEffect(() => {
         const user_uuid = useUserStore.getState().userUuid;
         get_questions_by_user(user_uuid).then(r => {
-            console.log("useEffect get_questions_by_user() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
+            // console.log("useEffect get_questions_by_user() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
         }).catch(e => {
             console.error("useEffect get_questions_by_user() ERROR:: #", e, " # ", user_uuid)
         });
     }, []);
-    console.log("API fetched Questions Ende: ")
+    // console.log("API fetched Questions Ende: ")
 
 
 // Drag & Drop Handling *******************************************************************************
@@ -310,7 +310,7 @@ const QuestionList = () => {
     const handleSort = () => {
         //duplicate items
         // @ts-ignore
-        let _questionsItems = [...questionsItems];
+        let _questionsItems = [...questions];
 
         //remove and save the dragged item content
         const draggedItemContent = _questionsItems.splice(dragItem.current, 1)[0];
@@ -324,7 +324,7 @@ const QuestionList = () => {
 
         //update the actual array
         // @ts-ignore
-        setQuestionItems(_questionsItems);
+        setQuestions(_questionsItems);
     };
 
 // Ende Drag & Drop Handling *******************************************************************************
@@ -338,9 +338,9 @@ const QuestionList = () => {
             delete_question(questionId)
                 .then(() => {
                     // @ts-ignore
-                    let _questionsItems = questionsItems.filter(question => question.uuid !== questionId);
+                    let _questionsItems = questions.filter(question => question.uuid !== questionId);
                     // @ts-ignore
-                    setQuestionItems(_questionsItems);
+                    setQuestions(_questionsItems);
                 })
                 .catch(error => {
                     console.error("Fehler beim Löschen der Frage: ", error);
@@ -420,8 +420,8 @@ const QuestionList = () => {
 
             {/*Questions*/}
 
-            {questionsItems && (
-                questionsItems.map((question, index) => (
+            {questions && (
+                questions.map((question, index) => (
 
                     //@ts-ignore
                     <div
@@ -515,12 +515,15 @@ const QuestionList = () => {
                                        onClick={() => handleDeleteQuestion(question.uuid)}
                                        onMouseOver={(e) => e.currentTarget.style.color = 'red'}
                                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                       title={"Frage löschen"}
                             />
                             <PencilSquareIcon className="w-5 h-5 text-gray-400"
                                 // @ts-ignore
                                               onClick={() => handleUpdateQuestion(question.uuid)}
                                               onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
                                               onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                              title={"Frage bearbeiten"}
+
                             />
                         </div>
                     </div>

@@ -1,9 +1,9 @@
 "use client";
 import 'moment/locale/de';
 import React, {useEffect} from "react";
-import QuestionList from "@/app/dashboard/components/QuestionList";
-import AnswerList from "@/app/dashboard/components/AnswerList";
-import NewQuestionForm from "@/app/dashboard/components/NewQuestionForm";
+import QuestionList from "@/app/pages/components/QuestionList";
+import AnswerList from "@/app/pages/components/AnswerList";
+import NewQuestionForm from "@/app/pages/components/NewQuestionForm";
 import {useSession} from "next-auth/react";
 import useUserStore from "@/app/store/userStore";
 

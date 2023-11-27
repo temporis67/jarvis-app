@@ -1,8 +1,10 @@
 import {create} from 'zustand';
 
+// TODO: add type QuestionType
+
 interface QuestionsState {
-    questionItems: [] | null;
-    setQuestionItems: (items: [] | null) => void;
+    questions: [] | null;
+    setQuestions: (items: [] | null) => void;
 
     currentQuestionId: string | null;
     setCurrentQuestionId: (id: string | null) => void;
@@ -10,8 +12,8 @@ interface QuestionsState {
 }
 
 const useQuestionStore = create<QuestionsState>(set => ({
-    questionItems: null,
-    setQuestionItems: (items: [] | null) => set({questionItems: items}),
+    questions: null,
+    setQuestions: (items: [] | null) => set({questions: items}),
 
     currentQuestionId: null,
     setCurrentQuestionId: (id: string | null) => set({currentQuestionId: id}),

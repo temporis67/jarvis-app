@@ -18,8 +18,8 @@ import {signIn, signOut, useSession} from "next-auth/react";
 // Depending on the size of the application, this would be stored in a database.
 const links = [
 
-    {name: 'Fragen', href: '/dashboard/questions', icon: ChatBubbleBottomCenterTextIcon},
-    {name: 'Einstellungen', href: '/dashboard/settings', icon: Cog8ToothIcon},
+    {name: 'Fragen', href: '/pages/questions', icon: ChatBubbleBottomCenterTextIcon},
+    {name: 'Einstellungen', href: '/pages/settings', icon: Cog8ToothIcon},
 
 
 ];

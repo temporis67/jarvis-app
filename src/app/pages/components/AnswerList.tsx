@@ -13,8 +13,11 @@ import ModalDialog from "@/app/components/ModalDialog";
 import {useSearchParams} from 'next/navigation'
 import useUserStore from "@/app/store/userStore";
 import useQuestionStore from "@/app/store/questionStore";
+
 import useAnswersStore from "@/app/store/answersStore";
 import {AnswerType} from "@/app/store/answersStore";
+import AnswerCard from "@/app/pages/components/AnswerCard";
+import AskButton from "@/app/pages/components/AskButton";
 
 
 const AnswerList = () => {
@@ -37,10 +40,10 @@ const AnswerList = () => {
     const updateAnswer = useAnswersStore(state => state.updateAnswer);
 
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
-    console.log("@/app/dashboard/components/AnswerList currentQuestionId: " + currentQuestionId)
+    // console.log("@/app/pages/components/AnswerList currentQuestionId: " + currentQuestionId)
     // const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
-    console.log(":::: AnswerList start - User, question, answer.len " + user_uuid + " # " + currentQuestionId + " # " + answers.length)
+    console.log("AnswerList start - User, question, answer.len " + user_uuid + " # " + currentQuestionId + " # " + answers.length)
 
 
     // Update Question ModalDialog *******************************************************************************
@@ -64,10 +67,10 @@ const AnswerList = () => {
 
 
     const api_new_answer = async (question_uuid: string | null, user_uuid: string) => {
-        console.log("New Answer API fetch() start", question_uuid)
+        // console.log("New Answer API fetch() start", question_uuid)
 
         if (question_uuid === undefined || question_uuid === null) {
-            throw new Error('ERROR: dashboard/components/AnswerList/api_new_answer(): question_uuid not given:: ' + question_uuid);
+            throw new Error('ERROR: pages/components/AnswerList/api_new_answer(): question_uuid not given:: ' + question_uuid);
         }
 
         let formData = new FormData();
@@ -89,8 +92,8 @@ const AnswerList = () => {
             if (!data.uuid) {
                 throw new Error('api_new_answer no uuid in new answer', await response.json());
             }
-            console.log("New Answer API fetch() data OK: ", data);
-            console.log("New Answer UUID: ", data.uuid);
+            // console.log("New Answer API fetch() data OK: ", data);
+            // console.log("New Answer UUID: ", data.uuid);
 
             return data.uuid;
 
@@ -101,7 +104,7 @@ const AnswerList = () => {
 
 
     const handleClickNewAnswer = () => {
-        console.log("handleClickNewAnswer was clicked: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
+        // console.log("handleClickNewAnswer was clicked: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
 
         // get new answerId from API
         // @ts-ignore
@@ -129,7 +132,7 @@ const AnswerList = () => {
 
 
     const api_update_answer = async (answer_uuid: string, title: string, content: string) => {
-        console.log("Update Answer API fetch() start", answer_uuid, " # ", title, " # ", content);
+        // console.log("Update Answer API fetch() start", answer_uuid, " # ", title, " # ", content);
 
 
         let formData = new FormData();
@@ -164,7 +167,7 @@ const AnswerList = () => {
     }
 
     const handleClickUpdateAnswer = () => {
-        console.log("handleClickUpdateAnswer was clicked: ", currentAnswerId, " # ", modalTitle, " # ", modalContent)
+        // console.log("handleClickUpdateAnswer was clicked: ", currentAnswerId, " # ", modalTitle, " # ", modalContent)
 
         // update DB via API
         api_update_answer(currentAnswerId, modalTitle, modalContent);
@@ -223,7 +226,7 @@ const AnswerList = () => {
             return;
 
         } catch (error) {
-            console.log("dashboard/components/AnswerList/api_delete_answer Error fetching data:", error);
+            console.log("pages/components/AnswerList/api_delete_answer Error fetching data:", error);
         }
     }
 
@@ -231,13 +234,13 @@ const AnswerList = () => {
     const get_answers_by_question = async (question_uuid: string | null) => {
 
         const api_url = (api_host + "/answers");
-        console.log("questions/page/get_answers_by_question() start", question_uuid)
+        // console.log("questions/page/get_answers_by_question() start", question_uuid)
 
         // clear answers
         setAnswers([]);
 
         if (question_uuid === undefined || question_uuid === null) {
-            throw new Error('ERROR: dashboard/components/AnswerList/get_answers_by_question(): question_uuid not given:: ' + question_uuid);
+            throw new Error('ERROR: pages/components/AnswerList/get_answers_by_question(): question_uuid not given:: ' + question_uuid);
         }
 
         let formData = new FormData();
@@ -256,7 +259,7 @@ const AnswerList = () => {
             }
             const data = await response.json();
             const out_items: any = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
-            console.log("::::::::::::: get_answers_by_question() data OK: ", out_items);
+            // console.log("::::::::::::: get_answers_by_question() data OK: ", out_items);
             if (out_items.length === 0) {
                 return out_items;
             } // empty list
@@ -276,7 +279,7 @@ const AnswerList = () => {
                     dateCreated: a.dateCreated,
                     dateUpdated: a.dateUpdated,
                 }
-                console.log("Answer: " + a);
+                // console.log("Answer: " + a);
                 // setting answers with data from api
                 addAnswer(answer);
             }
@@ -291,12 +294,12 @@ const AnswerList = () => {
 
     const load_answers = async () => {
 
-        console.log("load_answers() start: ", currentQuestionId, " # ")
+        // console.log("load_answers() start: ", currentQuestionId, " # ")
         if (currentQuestionId === undefined || currentQuestionId === null) {
             console.log("load_answers() no currentQuestionId given");
             return;
         } else {
-            console.log("load_answers() 2: ", currentQuestionId);
+            // console.log("load_answers() 2: ", currentQuestionId);
             await get_answers_by_question(currentQuestionId);
         }
 
@@ -304,7 +307,7 @@ const AnswerList = () => {
 
 
     useEffect(() => {
-        console.log("get_answers start UUID: " + currentQuestionId)
+        // console.log("get_answers start UUID: " + currentQuestionId)
         load_answers();
 
     }, [currentQuestionId])
@@ -329,7 +332,7 @@ const AnswerList = () => {
     }
 
 
-// Drag & Drop Handling *******************************************************************************
+    // Drag & Drop Handling *******************************************************************************
 
 // save reference for dragItem and dragOverItem
     const dragItem = React.useRef<any>(null);
@@ -359,23 +362,30 @@ const AnswerList = () => {
 // Ende Drag & Drop Handling *******************************************************************************
 
 
+
+
     console.log("AnswerList.tsx Ende: " + user_uuid)
 
 // Main Component *************************************************************************************************
+    // @ts-ignore
     return (
         <div className={"w-1/2"}>
-            <div className={"flex items-center"}>
+            {/*********** Answers Header ************/}
+            <div className={"flex"}>
                 <div className={"p-2"}>Antworten</div>
-                <div className={"p-2"}>
+                <div className={"flex flex row-end-2 p-2"}>
                     <PlusCircleIcon className="w-5 h-5 text-gray-400"
                                     onClick={() => handleClickNewAnswer()}
                                     onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
                                     onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Neue Antwort schreiben"}
                     />
 
+                    <AskButton
+                        // @ts-ignore
+                        questionId={currentQuestionId}/>
+
                 </div>
-
-
             </div>
 
             {/********* ModalDialog Popup *********/}
@@ -428,107 +438,21 @@ const AnswerList = () => {
             )}
 
 
-            {/*Answers*/}
+            {/********** Answers List ***********/}
 
-            {answers && (
-                answers.map((answer, index) => (
+            {
+                answers && (
+                    answers.map((answer, index) => (
+                        <AnswerCard
+                            key={index}
+                            answer_uuid={answer.uuid}
+                            handleDeleteAnswer={handleDeleteAnswer}
+                            handleClickEditAnswer={handleClickEditAnswer}
 
-                    //@ts-ignore
-                    <div
-                        draggable
-                        key={index}
-                        onDragStart={(e) => (dragItem.current = index)}
-                        onDragEnter={(e) => (dragOverItem.current = index)}
-                        onDragEnd={handleSort}
-                        onDragOver={(e) => e.preventDefault()}
-                        className={clsx(
-                            'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md bg-gray-50 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
-                            {
-                                'bg-sky-50 text-blue-600': index === 0,
-                            },
-                        )}
-                    >
-
-                            <div className="flex min-w-0 gap-x-4" id={"row1"}>
-                                {/* Icon */}
-                                <div className="flex min-w-1 gap-x-4">
-                                    <ExclamationCircleIcon className={"w-5 h-5 text-gray-400"}
-                                                           onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                                           onMouseOut={(e) => e.currentTarget.style.color = 'gray'}
-                                    />
-                                </div>
-                                 {/* Username, Title, Content Box */}
-                                <div className="flex min-w-0 gap-x-4">
-
-                                    <div className="min-w-0 flex-auto">
-
-                                        <p className="text-sm truncate font-semibold leading-6 text-gray-900">
-
-
-                                            {answer.username}:&nbsp;
-                                            <span id={"title_" +
-                                                // @ts-ignore
-                                                answer.uuid}>{
-                                                answer.title}</span></p>
-
-                                        <p id={"content_" +
-                                            // @ts-ignore
-                                            answer.uuid}
-                                           className="mt-1 truncate text-xs leading-5 text-gray-500">{
-                                            // @ts-ignore
-                                            answer.content}</p>
-                                         <p className="mt-1 text-xs leading-5 text-gray-500 ">
-                                        Quality: {answer.quality} Time: {answer.time_elapsed} &nbsp;
-                                    {
-                                        // @ts-ignore
-                                        answer.dateUpdated ? (
-                                            <>
-                                                Updated: <time dateTime={
-                                                // @ts-ignore
-                                                answer.dateUpdated}>
-                                                {
-                                                    // @ts-ignore
-                                                    Moment(answer.dateUpdated).format('DD.MM.yy HH:mm')
-                                                }
-                                            </time>
-                                            </>
-                                        ) : (
-                                            <>
-                                                Created: <time dateTime={// @ts-ignore
-                                                answer.dateCreated}>{// @ts-ignore
-                                                Moment(answer.dateCreated).format('DD.MM.yy HH:mm')
-                                            }</time>
-                                            </>
-                                        )}
-                                        </p>
-                                    </div>
-
-                                </div>
-                                 {/* Actions */}
-                                <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                                    <TrashIcon className="w-5 h-5 text-gray-400"
-                                        // @ts-ignore
-                                               onClick={() => handleDeleteAnswer(answer.uuid)}
-                                               onMouseOver={(e) => e.currentTarget.style.color = 'red'}
-                                               onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                    />
-                                    <PencilSquareIcon className="w-5 h-5 text-gray-400"
-                                        // @ts-ignore
-                                                      onClick={() => handleClickEditAnswer(answer.uuid)}
-                                                      onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                                      onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                    />
-                                </div>
-                            </div>
-
-
-                    </div>
-
-
+                        />
+                    )
                 ))
-            )}
-
-
+            }
         </div>
     )
 }
