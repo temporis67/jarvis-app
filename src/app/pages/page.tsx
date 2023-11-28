@@ -1,10 +1,21 @@
+"use client"
+import useUserStore from "@/app/store/userStore";
 
 export default function Page() {
 
+    const user_name = useUserStore(state => state.userName);
+
     return(
         <div>
-    <h1>Dashboard</h1>
-        <p>Explore the universe ... with widgets :)</p>
+<p className={"mb-2"}>
+                            Hallo {user_name}!</p>
+
+                        <p>
+                            In diesem Demonstrator können Sie das Verhalten von Large Language Models (LLM) testen und
+                            dabei das &quot;Hintergrundwissen&quot; des Modells um eigene Daten ergänzen (Kontext)
+                            sowie das Verhalten des Models über Anweisungen (Prompt) steuern.
+                            Beginnen Sie, indem Sie in den Bereich Fragen wechseln und dort eine Frage stellen.
+                        </p>
             </div>
     )
 }

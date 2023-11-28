@@ -1,34 +1,26 @@
-import {getServerSession} from "next-auth";
+"use client";
 import {lusitana} from "@/app/lib/fonts";
+import {useSession} from "next-auth/react";
+import {redirect} from "next/navigation";
 
-export default async function Home() {
-    const session = await getServerSession();
+export default function Home() {
+    const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
+
+    if (status === 'authenticated') {
+        redirect("/pages")
+    }
 
     return (
         <main>
             <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-                Jarvis - LLM Demonstrator
+                Jarvis - LLM Demonstrator :: { status}
             </h1>
-            {
-                session?.user?.name ? (
                     <>
-                        <p className={"mb-2"}>
-                            Hallo {session?.user?.name}!</p>
-
-                        <p>
-                            In diesem Demonstrator können Sie das Verhalten von Large Language Models (LLM) testen und
-                            dabei das "Hintergrundwissen" des Modells um eigene Daten ergänzen (Context)
-                            sowie das Verhalten des Models über Anweisungen (Prompt) steuern.
-                            Beginnen Sie, indem Sie in den Bereich Fragen wechseln und dort eine Frage stellen.
-                        </p>
-                    </>
-
-                ) : (
-                    <p>Bitte loggen Sie sich ein.<br/>
-                        Bei SignIn => Credentials können Sie als neuer Nutzer einen beliebigen Nutzernamen & Passwort
+                    <p className={"font-semibold"}>Bitte loggen Sie sich ein.</p>
+                    <p className={"font-light text-sm"}>
+                        Bei &quot;Sign In&quot; &rarr; &quot;Credentials&quot; können Sie als neuer Nutzer einen beliebigen Nutzernamen & Passwort
                         verwenden.</p>
-                )
-            }
+                    </>
         </main>
 
 

@@ -5,7 +5,7 @@ import {
     TrashIcon,
     PencilSquareIcon,
     ExclamationCircleIcon,
-    PlusCircleIcon
+    PlusCircleIcon, CalculatorIcon
 } from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
@@ -18,6 +18,7 @@ import useAnswersStore from "@/app/store/answersStore";
 import {AnswerType} from "@/app/store/answersStore";
 import AnswerCard from "@/app/pages/components/AnswerCard";
 import AskButton from "@/app/pages/components/AskButton";
+import useModelStore from "@/app/store/modelStore";
 
 
 const AnswerList = () => {
@@ -29,7 +30,7 @@ const AnswerList = () => {
 
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);
-
+    const user_name = useUserStore.getState().userName;
 
 
     // handle questionsItems via zustand store
@@ -39,11 +40,14 @@ const AnswerList = () => {
     const delAnswer = useAnswersStore(state => state.delAnswer);
     const updateAnswer = useAnswersStore(state => state.updateAnswer);
 
+    const questions = useQuestionStore(state => state.questions);
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
     // console.log("@/app/pages/components/AnswerList currentQuestionId: " + currentQuestionId)
     // const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
-    console.log("AnswerList start - User, question, answer.len " + user_uuid + " # " + currentQuestionId + " # " + answers.length)
+    const current_model = useModelStore(state => state.current_model);
+
+    console.log("AnswerList start - UserId # questionId # answer.len ::" + user_uuid + " # " + currentQuestionId + " # " + answers.length)
 
 
     // Update Question ModalDialog *******************************************************************************
@@ -53,7 +57,7 @@ const AnswerList = () => {
     const [modalTitle, setModalTitle] = useState(''); // Zustand für Modal-Titel
     const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
     const [currentAnswerId, setCurrentAnswerId] = useState('');
-
+    const [isLoading, setIsLoading] = useState('');
 
     // handle title change
     const handleModalTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +132,109 @@ const AnswerList = () => {
             setCurrentAnswerId(answerId); // Speichere die aktuelle Frage-ID
         }
         setShowDialog(true); // ModalDialog anzeigen
+    }
+
+
+    const apiFetch = async (slug: string, formData: FormData): Promise<any> => {
+        console.log("API fetch() start", slug);
+
+        if (slug === undefined || slug === null) {
+            throw new Error('ERROR: apiFetch(): slug not given: ' + slug);
+        }
+
+        const api_url = api_host + "/" + slug; // Assuming api_host is defined elsewhere
+
+        try {
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: formData,
+                mode: 'cors',
+            });
+            if (!response.ok) {
+                throw new Error('apiFetch Network response was not ok: ' + await response.json());
+            }
+            const data = await response.json();
+            console.log("AnswerList.apiFetch() data OK: ", data);
+
+            return data; // Return the whole response data
+
+        } catch (error) {
+            console.log("Error fetching data:", error);
+        }
+    }
+
+
+    const handleAskQuestion = (questionId: string) => {
+
+        setIsLoading("loading")
+        console.log("Start handleAskQuestion questionId: " + questionId);
+        // @ts-ignore
+        const question = questions?.filter((question: any) => question.uuid === questionId)[0].title;
+        // @ts-ignore
+        const context = questions?.filter((question: any) => question.uuid === questionId)[0].content;
+        const prompt = current_model?.default_prompt.replace("{question}", question).replace("{context}", context);
+        // console.log("handleAskQuestion prompt: " + prompt);
+
+
+        // add answer to store with status loading
+        const newAnswer: AnswerType = {
+            uuid: "",
+            status: "loading",
+            creator: user_uuid,
+            username: user_name,
+            // @ts-ignore
+            source: current_model.uuid,
+            time_elapsed: "",
+
+            question: questionId,
+            title: "",
+            content: "",
+            quality: 0,
+            trust: 0,
+            dateCreated: "",
+            dateUpdated: "",
+        }
+        // ToDo: this to AnswerList.tsx
+        // @ts-ignore
+        api_new_answer(questionId, user_uuid).then(new_answer_id => {
+            setCurrentAnswerId(new_answer_id)
+            newAnswer.uuid = new_answer_id;
+            newAnswer.status = "loading";
+
+            // set form data
+            const formData = new FormData();
+            formData.append('question_uuid', questionId);
+            formData.append('question', JSON.stringify(question));
+            // @ts-ignore
+            formData.append('model', JSON.stringify(current_model));
+            // @ts-ignore
+            formData.append('user_uuid', user_uuid);
+            // @ts-ignore
+            formData.append('answer', JSON.stringify(newAnswer));
+            // @ts-ignore
+            formData.append('prompt', prompt);
+
+            // fetch answer from api
+            apiFetch("ask", formData).then(answer => {
+                console.log("AskButton.api_new_answer.ask answer: ", answer);
+                newAnswer.uuid = answer.uuid;
+                newAnswer.title = answer.title;
+                newAnswer.content = answer.content;
+                newAnswer.status = "loaded";
+                addAnswer(newAnswer);
+                setIsLoading("")
+
+            });
+
+
+            console.log("End handleAskQuestion newAnswer.uuid: " + newAnswer.uuid);
+            // update answer in store
+
+
+            // here
+        });
+
+
     }
 
 
@@ -362,8 +469,6 @@ const AnswerList = () => {
 // Ende Drag & Drop Handling *******************************************************************************
 
 
-
-
     console.log("AnswerList.tsx Ende: " + user_uuid)
 
 // Main Component *************************************************************************************************
@@ -378,12 +483,30 @@ const AnswerList = () => {
                                     onClick={() => handleClickNewAnswer()}
                                     onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
                                     onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                        title={"Neue Antwort schreiben"}
+                                    title={"Neue Antwort schreiben"}
                     />
 
-                    <AskButton
+                    <CalculatorIcon className="w-5 h-5 text-gray-400"
                         // @ts-ignore
-                        questionId={currentQuestionId}/>
+                                    onClick={() => handleAskQuestion(currentQuestionId)}
+                                    onMouseOver={(e) => e.currentTarget.style.color = 'red'}
+                                    onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                    title={"Model fragen"}
+                    />
+                    {isLoading === "loading" && (
+                        <div className="animate-spin ml-2 h-5 w-5 text-blue-500">
+                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                 strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path
+                                    d="M12 6v6l4 2"/>
+                            </svg>
+                        </div>
+                    )
+                    }
+
 
                 </div>
             </div>
@@ -443,15 +566,15 @@ const AnswerList = () => {
             {
                 answers && (
                     answers.map((answer, index) => (
-                        <AnswerCard
-                            key={index}
-                            answer_uuid={answer.uuid}
-                            handleDeleteAnswer={handleDeleteAnswer}
-                            handleClickEditAnswer={handleClickEditAnswer}
+                            <AnswerCard
+                                key={index}
+                                answer_uuid={answer.uuid}
+                                handleDeleteAnswer={handleDeleteAnswer}
+                                handleClickEditAnswer={handleClickEditAnswer}
 
-                        />
-                    )
-                ))
+                            />
+                        )
+                    ))
             }
         </div>
     )

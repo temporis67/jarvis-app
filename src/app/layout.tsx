@@ -31,7 +31,6 @@ export default async function RootLayout({
                 {/*This is the main content area */}
                 <div className="flex-grow p-6 md:overflow-y-auto md:p-12">
                     {children}
-
                 </div>
             </div>
 

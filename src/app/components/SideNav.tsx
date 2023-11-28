@@ -1,5 +1,4 @@
 "use client";
-
 import NavLinks from './NavLinks';
 import Logo from '@/app/components/Logo';
 import {PowerIcon} from '@heroicons/react/24/outline';
@@ -14,17 +13,15 @@ function AuthButton() {
 
     if (session) {
         return (
-            <div
-                className={'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3'}>
-                {/*{session?.user?.name} 2 <br/>*/}
+
                 <button
-                    className="flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
+                    className="flex h-[44px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
                     onClick={() => signOut()}
                 >
                     <PowerIcon className="w-6"/>
-                    <div className="hidden md:block">Sign Out</div>
+                    <p className="hidden md:block">Sign Out</p>
                 </button>
-            </div>
+
         );
     }
     return (
@@ -44,41 +41,46 @@ function AuthButton() {
 
 export default function SideNav() {
 
-    const {data: session} = useSession();
+    const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
     const user_name = useUserStore(state => state.userName);
     const user_uuid = useUserStore(state => state.userUuid);
 
+    if (status === 'authenticated') {
+        return (
+            <div className="flex h-full flex-col jupx-3 py-4 md:px-2">
+                {/* Logo */}
+                <a
+                    className="flex flex-col justify-end mb-2 h-20 rounded-md bg-blue-600 p-4 md:h-40"
+                    href="/"
+                >
+                    <div className="text-white text-right items-end">
+                        <Logo/>
+                    </div>
+                    {
+                        user_name ? <div className="text-white text-right"
+                            // @ts-ignore
+                                         title={user_uuid}>for {user_name}</div> : <div>{user_uuid}</div>
+                    }
+                </a>
 
-    return (
-        <div className="flex h-full flex-col jupx-3 py-4 md:px-2">
 
-            <Link
-                className="flex flex-col justify-end mb-2 h-20 rounded-md bg-blue-600 p-4 md:h-40"
-                href="/"
-            >
-                <div className="text-white text-right items-end">
-                    <Logo/>
+                <div className="flex grow flex-row justify-items-start space-x-2 md:flex-col md:space-x-0 md:space-y-2">
+                    <NavLinks/>
+                    <AuthButton/>
                 </div>
-                {
-                    user_name ? <div className="text-white text-right"
-                                // @ts-ignore
-                                title={user_uuid}>for {user_name}</div> : <div>{user_uuid}</div>
-                }
-            </Link>
 
-
-            <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
-
-
-                <NavLinks/>
-
+            </div>
+        );
+    } else {
+        return (
+            <div className="flex h-full flex-col jupx-3 py-4 md:px-2">
+                {/* Logo */}
 
                 <div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block">
                     <AuthButton/>
                 </div>
-
-
             </div>
-        </div>
-    );
+        );
+    }
+
 }

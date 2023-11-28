@@ -111,6 +111,7 @@ const answersStore = (set: any): AnswersStoreType => ({
         answers: state.answers.map(a => {
             let _answer = answer
             if (a.uuid === answer.uuid) {
+                console.log("answerStore.updateAnswer: ", a.uuid)
                 _answer = answer
             }
             return _answer
