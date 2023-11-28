@@ -47,7 +47,7 @@ export default function AnswerCard({answer_uuid, handleDeleteAnswer, handleClick
 // Ende Drag & Drop Handling *******************************************************************************
 
 
-// Display fulll answer
+// Display full answer
 const showFullAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEvent>) => {
     const element = event.currentTarget;
     element.className = element.className.replace('truncate', '');

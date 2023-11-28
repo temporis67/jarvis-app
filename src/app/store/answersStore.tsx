@@ -27,9 +27,9 @@ export type AnswersStoreType = {
     current_answer: AnswerType | null
     setCurrentAnswer: (answer: AnswerType) => void
     setAnswers: (new_answers: AnswersType) => void
-    addAnswer: (todo: AnswerType) => void
+    addAnswer: (new_answer: AnswerType) => void
     delAnswer: (uuid: string) => void
-    updateAnswer: (todo: AnswerType) => void
+    updateAnswer: (edited_answer: AnswerType) => void
 
 }
 

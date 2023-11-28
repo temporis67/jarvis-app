@@ -1,10 +1,10 @@
-import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import clsx from "clsx";
 import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon} from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
-import {useSearchParams} from 'next/navigation'
+
 import useUserStore from "@/app/store/userStore";
 import useQuestionStore from "@/app/store/questionStore";
 
@@ -117,13 +117,13 @@ const QuestionList = () => {
         if (currentQuestionId === '') {
             // console.log("Neue Frage wird erstellt")
             // @ts-ignore
-            new_question().then((out_items) => {
-                // console.log("New Question Items: ", out_items);
+            new_question().then((fresh_question) => {
+                // console.log("New Question Items: ", fresh_question);
                 // @ts-ignore
-                setCurrentQuestionId(out_items['uuid'])
+                setCurrentQuestionId(fresh_question['uuid'])
                 // update DB via API
                 // @ts-ignore
-                update_question(out_items['uuid'], modalTitle, modalContent).then(r => {
+                update_question(fresh_question['uuid'], modalTitle, modalContent).then(r => {
                     // console.log("update_question() SUCCESS:: #", r)
                 })
 
@@ -350,6 +350,20 @@ const QuestionList = () => {
         }
     }
 
+    // Display full text view
+    const showFullQuestion = (event: React.MouseEvent<HTMLParagraphElement, MouseEvent>) => {
+        const element = event.currentTarget;
+        element.className = element.className.replace('truncate', '');
+    };
+
+    const showShortQuestion = (event: React.MouseEvent<HTMLParagraphElement, MouseEvent>) => {
+        const element = event.currentTarget;
+        // Fügt 'truncate' hinzu, wenn es nicht bereits vorhanden ist
+        if (!element.className.includes('truncate')) {
+            element.className += ' truncate';
+        }
+    };
+
 // Main Component *************************************************************************************************
     return (
         <div className={"w-1/2"}>
@@ -465,7 +479,11 @@ const QuestionList = () => {
                                 <p id={"content_" +
                                     // @ts-ignore
                                     question.uuid}
-                                   className="mt-1 truncate text-xs leading-5 text-gray-500">{
+                                   className="mt-1 truncate text-xs leading-5 text-gray-500"
+                                   onMouseOver={showFullQuestion}
+                                   onMouseOut={showShortQuestion}
+
+                                >{
                                     // @ts-ignore
                                     question.content}</p>
                             </div>
