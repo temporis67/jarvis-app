@@ -47,6 +47,20 @@ export default function AnswerCard({answer_uuid, handleDeleteAnswer, handleClick
 // Ende Drag & Drop Handling *******************************************************************************
 
 
+// Display fulll answer
+const showFullAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEvent>) => {
+    const element = event.currentTarget;
+    element.className = element.className.replace('truncate', '');
+};
+
+const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEvent>) => {
+    const element = event.currentTarget;
+    // Fügt 'truncate' hinzu, wenn es nicht bereits vorhanden ist
+    if (!element.className.includes('truncate')) {
+        element.className += ' truncate';
+    }
+};
+
     if (answer.status === "loading") return (
         <div
             draggable
@@ -129,9 +143,13 @@ export default function AnswerCard({answer_uuid, handleDeleteAnswer, handleClick
                         <p id={"content_" +
                             // @ts-ignore
                             answer.uuid}
-                           className="mt-1 truncate text-xs leading-5 text-gray-500">{
+                           className="mt-1 truncate text-xs leading-5 text-gray-500"
+                            onMouseOver={showFullAnswer}
+                            onMouseOut={showShortAnswer}
+                        >{
                             // @ts-ignore
                             answer.content}</p>
+
                         <p className="mt-1 text-xs leading-5 text-gray-500 ">
                             Quality: {answer.quality} Time: {answer.time_elapsed} &nbsp;
                             {

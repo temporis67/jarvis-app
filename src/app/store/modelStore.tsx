@@ -29,7 +29,7 @@ const initialModels: ModelsType = [
         model_id: "spicyboros-13b-2.2.Q5_K_M.gguf",
         model_label: "SpiCyBoRoS 13b Q5_K_M",
         default_prompt: "A chat.\n" +
-            "USER: For your information: {context}" +
+            "USER: For your information: {context} " +
             "Now I have a question: {question}\n" +
             "ASSISTANT: ",
 
