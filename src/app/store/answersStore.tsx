@@ -17,8 +17,8 @@ export type AnswerType = {
     quality: number;
     trust: number;
 
-    dateCreated: string;
-    dateUpdated: string;
+    date_created: string;
+    date_updated: string;
 }
 type AnswersType = Array<AnswerType>
 
@@ -47,8 +47,8 @@ const initialAnswers: AnswersType = [
         content: "Galaxien entstanden aus Dichteunterschieden im frühen Universum. Sie entwickelten sich weiter durch Gravitationskräfte, die Gas und Staub zusammenzogen. Über Milliarden Jahre bildeten sich verschiedene Galaxientypen durch Kollisionen und Fusionen.",
         quality: 4,
         trust: 65,
-        dateCreated: "11:15:40",
-        dateUpdated: "11:16:05",
+        date_created: "11:15:40",
+        date_updated: "11:16:05",
     },
     {
         uuid: "6a4c88ee-8820-11ee-bf22-047c16bbac51",
@@ -62,8 +62,8 @@ const initialAnswers: AnswersType = [
         content: "Die kosmische Hintergrundstrahlung ist das älteste Licht im Universum, ein Überbleibsel aus der Zeit kurz nach dem Urknall. Sie bietet Einblicke in die frühen Bedingungen des Universums und ist ein Beleg für die Urknalltheorie.",
         quality: 5,
         trust: 70,
-        dateCreated: "12:30:21",
-        dateUpdated: "12:31:10",
+        date_created: "12:30:21",
+        date_updated: "12:31:10",
     },
     {
         uuid: "7c8daefe-8830-11ee-ba32-047c16bbac51",
@@ -77,8 +77,8 @@ const initialAnswers: AnswersType = [
         content: "In den ersten Minuten nach dem Urknall entstanden die ersten Elemente wie Wasserstoff, Helium und Lithium durch Nukleosynthese. Diese Elemente sind die Grundbausteine für das weitere Universum.",
         quality: 4,
         trust: 60,
-        dateCreated: "13:45:55",
-        dateUpdated: "13:46:20",
+        date_created: "13:45:55",
+        date_updated: "13:46:20",
     },
     {
         uuid: "8e1fc210-8840-11ee-cd44-047c16bbac51",
@@ -92,8 +92,8 @@ const initialAnswers: AnswersType = [
         content: "Dunkle Materie, eine unsichtbare Form von Materie, beeinflusst Gravitationskräfte in Galaxien und Galaxienhaufen. Sie ist ein Schlüsselelement zur Erklärung der Verteilung und Bewegung der sichtbaren Materie.",
         quality: 3,
         trust: 55,
-        dateCreated: "14:10:33",
-        dateUpdated: "14:11:07",
+        date_created: "14:10:33",
+        date_updated: "14:11:07",
     }
 ];
 

@@ -15,6 +15,8 @@ export default function AnswerCard({answer_uuid, handleDeleteAnswer, handleClick
     const answers = useAnswersStore(state => state.answers);
     // select current_answer from answers by answer_uuid
     const answer = answers.filter((answer: AnswerType) => answer.uuid === answer_uuid)[0]
+    console.log("AnswerCard: ", answer)
+
     const current_answer = useAnswersStore(state => state.current_answer);
 
     // Drag & Drop Handling *******************************************************************************
@@ -151,25 +153,28 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
                             answer.content}</p>
 
                         <p className="mt-1 text-xs leading-5 text-gray-500 ">
-                            Quality: {answer.quality} Time: {answer.time_elapsed} &nbsp;
+                            Ranking: {answer.quality} Dauer: {
+
+                            parseFloat(answer.time_elapsed).toFixed(1)
+                        } s &nbsp;
                             {
                                 // @ts-ignore
-                                answer.dateUpdated ? (
+                                answer.date_updated ? (
                                     <>
-                                        Updated: <time dateTime={
+                                        DLM: <time dateTime={
                                         // @ts-ignore
-                                        answer.dateUpdated}>
+                                        answer.date_updated}>
                                         {
                                             // @ts-ignore
-                                            Moment(answer.dateUpdated).format('DD.MM.yy HH:mm')
+                                            Moment(answer.date_updated).format('DD.MM.yy HH:mm')
                                         }
                                     </time>
                                     </>
                                 ) : (
                                     <>
-                                        Created: <time dateTime={// @ts-ignore
-                                        answer.dateCreated}>{// @ts-ignore
-                                        Moment(answer.dateCreated).format('DD.MM.yy HH:mm')
+                                        DC: <time dateTime={// @ts-ignore
+                                        answer.date_created}>{// @ts-ignore
+                                        Moment(answer.date_created).format('DD.MM.yy HH:mm')
                                     }</time>
                                     </>
                                 )}

@@ -172,11 +172,14 @@ const AnswerList = () => {
         const question = questions?.filter((question: any) => question.uuid === questionId)[0].title;
         // @ts-ignore
         const context = questions?.filter((question: any) => question.uuid === questionId)[0].content;
+        // @ts-ignore
         const prompt = current_model?.default_prompt.replace("{question}", question).replace("{context}", context);
         // console.log("handleAskQuestion prompt: " + prompt);
 
 
         // add answer to store with status loading
+        const now = new Date();
+        console.log(now.toString());
         const newAnswer: AnswerType = {
             uuid: "",
             status: "loading",
@@ -191,8 +194,8 @@ const AnswerList = () => {
             content: "",
             quality: 0,
             trust: 0,
-            dateCreated: "",
-            dateUpdated: "",
+            date_created: now.toString(),
+            date_updated: now.toString(),
         }
         // ToDo: this to AnswerList.tsx
         // @ts-ignore
@@ -221,6 +224,7 @@ const AnswerList = () => {
                 newAnswer.title = answer.title;
                 newAnswer.content = answer.content;
                 newAnswer.status = "loaded";
+                newAnswer.time_elapsed = answer.time_elapsed;
                 addAnswer(newAnswer);
                 setIsLoading("")
 
@@ -295,8 +299,8 @@ const AnswerList = () => {
                 content: modalContent,
                 quality: 0,
                 trust: 0,
-                dateCreated: Moment().format('YYYY-MM-DD HH:mm:ss'),
-                dateUpdated: Moment().format('YYYY-MM-DD HH:mm:ss'),
+                date_created: Moment().format('YYYY-MM-DD HH:mm:ss'),
+                date_updated: Moment().format('YYYY-MM-DD HH:mm:ss'),
             }
 
             addAnswer(new_answer);
@@ -383,8 +387,8 @@ const AnswerList = () => {
                     content: a.content,
                     quality: a.quality,
                     trust: a.trust,
-                    dateCreated: a.dateCreated,
-                    dateUpdated: a.dateUpdated,
+                    date_created: a.date_created,
+                    date_updated: a.date_updated,
                 }
                 // console.log("Answer: " + a);
                 // setting answers with data from api

@@ -6,7 +6,7 @@ import {useSession} from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
 
 import useUserStore from "@/app/store/userStore";
-import useQuestionStore from "@/app/store/questionStore";
+import useQuestionStore, {QuestionType} from "@/app/store/questionStore";
 
 
 const QuestionList = () => {
@@ -21,11 +21,18 @@ const QuestionList = () => {
     const setUserUuid = useUserStore(state => state.setUserUuid);
     console.log("@/app/pages/components/QuestionList start - UUID: " + user_uuid)
 
-    // handle questions via zustand store
+    // Use store functions for handling question state
     const questions = useQuestionStore(state => state.questions);
     const setQuestions = useQuestionStore(state => state.setQuestions);
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
     const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
+
+    const currentQuestion = useQuestionStore(state => state.currentQuestion);
+    const setCurrentQuestion = useQuestionStore(state => state.setCurrentQuestion);
+
+    const addQuestion = useQuestionStore(state => state.addQuestion); // New function from store
+    const delQuestion = useQuestionStore(state => state.delQuestion); // New function from store
+    const updateQuestion = useQuestionStore(state => state.updateQuestion); // New function from store
 
 
     // Update Question ModalDialog *******************************************************************************
@@ -48,32 +55,46 @@ const QuestionList = () => {
     const handleSelectQuestion = (event: React.MouseEvent<HTMLElement>, questionId: string) => {
 
         setCurrentQuestionId(questionId);
+        // @ts-ignore
+        setCurrentQuestion(questions.find(q => q.uuid === questionId));
+
 
     }
 
     const handleUpdateQuestion = (questionId: string) => {
-        // console.log("handleUpdateQuestion start for question ID: ", questionId);
-        // @ts-ignore
         const question = questions.find(q => q.uuid === questionId);
         if (question) {
-            // @ts-ignore
-            setModalTitle(question.title); // Setze den Titel der Frage
-            // @ts-ignore
-            setModalContent(question.content); // Setze den Inhalt der Frage
-            setCurrentQuestionId(questionId); // Speichere die aktuelle Frage-ID
+            setModalTitle(question.title || ''); // Use nullish coalescing to handle null values
+            setModalContent(question.content || '');
+            setCurrentQuestionId(questionId);
         }
-        setShowDialog(true); // ModalDialog anzeigen
+        setShowDialog(true);
     }
 
-    const handleClickNewQuestion = () => {
-        // console.log("handleClickNewQuestion start");
-        setModalTitle(''); // Setze den Titel der Frage
-        setModalContent(''); // Setze den Inhalt der Frage
-        setCurrentQuestionId(''); // Speichere die aktuelle Frage-ID
-        setShowDialog(true); // ModalDialog anzeigen
+
+    const handleDeleteQuestion = (questionId: string) => {
+        // Bestätigungsdialog
+        const isConfirmed = window.confirm("Sind Sie sicher, dass Sie diese Frage löschen möchten?");
+
+        if (isConfirmed) {
+            console.log("handleDeleteQuestion start for question ID: ", questionId);
+            api_delete_question(questionId)
+                .then(() => {
+                    // @ts-ignore
+                    let _questionsItems = questions.filter(question => question.uuid !== questionId);
+                    // @ts-ignore
+                    setQuestions(_questionsItems);
+                })
+                .catch(error => {
+                    console.error("Fehler beim Löschen der Frage: ", error);
+                });
+        } else {
+            console.log("Frage Löschung abgebrochen für ID: ", questionId);
+        }
     }
 
-    const update_question = async (questionId: string, title: string, content: string) => {
+
+    const api_update_question = async (question: QuestionType) => {
 
 
         // console.log("Update Question API fetch() start", questionId, " # ", title, " # ", content);
@@ -82,9 +103,10 @@ const QuestionList = () => {
         // @ts-ignore
         formData.append("user_uuid", user_uuid);
         // @ts-ignore
-        formData.append("question_uuid", questionId);
-        formData.append("title", title);
-        formData.append("content", content);
+        formData.append("question_uuid", question.uuid);
+        formData.append("title", JSON.stringify(question.title));
+        formData.append("content", JSON.stringify(question.content));
+        formData.append("question", JSON.stringify(question));
 
 
         const api_url = (api_host + "/update_question");
@@ -99,42 +121,70 @@ const QuestionList = () => {
                 throw new Error('Network response was not ok', await response.json());
             }
             const data = await response.json();
-            // console.log("Update Question API fetch() data OK: ", data);
+            console.log("Update Question API fetch() data OK: ", data);
+
+            // LATER: Set all fields based on data/question
+            question.date_updated = data.date_updated;
+
+            return question;
+
+            // HERE
+
+
         } catch (error) {
             console.log("Error fetching data:", error);
         }
 
     }
 
-    const onClose = () => {
-        // console.log("Modal has closed")
-        setShowDialog(false); // ModalDialog schließen
-    }
 
     const saveQuestion = () => {
         // console.log("saveQuestion was clicked: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
 
+        // HERE
+
         if (currentQuestionId === '') {
-            // console.log("Neue Frage wird erstellt")
+
+            console.log("Neue Frage wird erstellt")
             // @ts-ignore
-            new_question().then((fresh_question) => {
-                // console.log("New Question Items: ", fresh_question);
-                // @ts-ignore
-                setCurrentQuestionId(fresh_question['uuid'])
-                // update DB via API
-                // @ts-ignore
-                update_question(fresh_question['uuid'], modalTitle, modalContent).then(r => {
-                    // console.log("update_question() SUCCESS:: #", r)
-                })
+            api_new_question().then((new_question: QuestionType) => {
+                console.log("Fresh Question Item: ", new_question);
+                if (new_question === undefined) {
+                    throw new Error('ERROR: pages/questions/page.tsx/saveQuestion(): Could not create new question uuid is undefined');
+                } else {
+                    setCurrentQuestionId(new_question['uuid'])
+                    new_question.uuid = new_question['uuid'];
+                    new_question.status = "loading";
+                    new_question.title = modalTitle;
+                    new_question.content = modalContent;
+                    new_question.date_created = Moment().format('DD.MM.YYYY HH:mm');
+                    new_question.date_updated = Moment().format('DD.MM.YYYY HH:mm');
+                    // update DB via API
+                    // @ts-ignore
+                    api_update_question(new_question).then(r => {
+                        console.log("api_update_question() SUCCESS:: #", r)
+                        new_question.status = "loaded";
+                        addQuestion(new_question);
+                    })
+                }
 
             });
         } else {
 
             // update DB via API
-            // @ts-ignore
-            update_question(currentQuestionId, modalTitle, modalContent).then(r => {
-                // console.log("update_question() SUCCESS:: #", r)
-            })
+            if (currentQuestion !== null) {
+                console.log("Aktualisiere Frage: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
+                // @ts-ignore
+                currentQuestion.title = modalTitle;
+                // @ts-ignore
+                currentQuestion.content = modalContent;
+                // @ts-ignore
+                currentQuestion.date_updated = Moment().format('DD.MM.YYYY HH:mm');
+                api_update_question(currentQuestion).then(r => {
+                    // console.log("api_update_question() SUCCESS:: #", r)
+                })
+
+            }
 
 
         }
@@ -157,6 +207,7 @@ const QuestionList = () => {
                 updatedQuestions[i].title = modalTitle;
                 // @ts-ignore
                 updatedQuestions[i].content = modalContent;
+                updatedQuestions[i].date_updated = Moment().format('DD.MM.YYYY HH:mm');
                 break; // Beende die Schleife, sobald das Element gefunden und aktualisiert wurde
             }
         }
@@ -168,7 +219,16 @@ const QuestionList = () => {
     }
 
 
-    const delete_question = async (questionId: string) => {
+    const handleClickNewQuestion = () => {
+        // console.log("handleClickNewQuestion start");
+        setModalTitle(''); // Setze den Titel der Frage
+        setModalContent(''); // Setze den Inhalt der Frage
+        setCurrentQuestionId(''); // Keine Id als Signal für 'neue Frage'
+        setShowDialog(true); // ModalDialog anzeigen
+    }
+
+
+    const api_delete_question = async (questionId: string) => {
         // console.log("Delete Question API fetch() start")
 
         let formData = new FormData();
@@ -200,7 +260,7 @@ const QuestionList = () => {
         }
     }
 
-    const new_question = async () => {
+    const api_new_question = async () => {
         // console.log("New Question API fetch() start")
         const api_host = "http://127.0.0.1:5000/api";
         const api_url = (api_host + "/new_question");
@@ -210,6 +270,19 @@ const QuestionList = () => {
         formData.append("user_uuid", user_uuid);
         formData.append("title", "");
         formData.append("content", "");
+
+        const new_question: QuestionType = {
+            uuid: '',
+            status: '',
+            creator_uuid: '',
+            creator_name: '',
+            time_elapsed: '',
+            title: '',
+            content: '',
+            date_created: '',
+            date_updated: '',
+            answers: null,
+        }
 
 
         try {
@@ -228,11 +301,16 @@ const QuestionList = () => {
             Object.keys(data).forEach(key => {
                 // @ts-ignore
                 out_items[key] = data[key];
+                if (key in new_question) {
+                    // @ts-ignore
+                    new_question[key] = data[key];
+                }
+
             });
             // @ts-ignore
             out_items['creator'] = session.user.name;
 
-            // console.log("New Question API fetch() out_items: ", out_items);
+            console.log("New Question API fetch() out_items: ", new_question);
 
             return out_items;
 
@@ -244,7 +322,7 @@ const QuestionList = () => {
     };
 
 
-    const get_questions_by_user = async (user_uuid2: string | null) => {
+    const api_get_questions_by_user = async (user_uuid2: string | null) => {
 
         const api_url = (api_host + "/questions");
         console.log("questions/page/get_questions_by_user() start", user_uuid2)
@@ -269,16 +347,35 @@ const QuestionList = () => {
             }
             const data = await response.json();
             const out_items = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
-            for (let q of out_items) {
-                // console.log("Question: " + q);
+
+            // @ts-ignore
+            console.log("get_questions_by_user() date_updated: ", out_items[0]['date_updated']);
+
+            out_items.sort((a, b) => {
+                // @ts-ignore
+                const dateA = new Date(a['date_updated']);
+                // @ts-ignore
+                const dateB = new Date(b['date_updated']);
+                console.log("dateA: ", dateA, " # dateB: ", dateB);
+                return dateA.getTime() - dateB.getTime();
+            });
+            let out_items2 = out_items.reverse();
+
+            for (let q of out_items2) {
+                // @ts-ignore
+                console.log("Question: " + q['date_updated']);
                 // @ts-ignore
                 q['creator'] = session?.user?.name;
+
 
             }
             // @ts-ignore
             setQuestions(out_items);
             // @ts-ignore
             setCurrentQuestionId(out_items[0].uuid);
+
+            // @ts-ignore
+            setCurrentQuestion(out_items[0]);
 
             // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
 
@@ -288,10 +385,16 @@ const QuestionList = () => {
     };
 
 
+    const onClose = () => {
+        // console.log("Modal has closed")
+        setShowDialog(false); // ModalDialog schließen
+    }
+
+
 // execute get_questions_by_user on page load
     useEffect(() => {
         const user_uuid = useUserStore.getState().userUuid;
-        get_questions_by_user(user_uuid).then(r => {
+        api_get_questions_by_user(user_uuid).then(r => {
             // console.log("useEffect get_questions_by_user() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
         }).catch(e => {
             console.error("useEffect get_questions_by_user() ERROR:: #", e, " # ", user_uuid)
@@ -329,27 +432,6 @@ const QuestionList = () => {
 
 // Ende Drag & Drop Handling *******************************************************************************
 
-    const handleDeleteQuestion = (questionId: string) => {
-        // Bestätigungsdialog
-        const isConfirmed = window.confirm("Sind Sie sicher, dass Sie diese Frage löschen möchten?");
-
-        if (isConfirmed) {
-            console.log("handleDeleteQuestion start for question ID: ", questionId);
-            delete_question(questionId)
-                .then(() => {
-                    // @ts-ignore
-                    let _questionsItems = questions.filter(question => question.uuid !== questionId);
-                    // @ts-ignore
-                    setQuestions(_questionsItems);
-                })
-                .catch(error => {
-                    console.error("Fehler beim Löschen der Frage: ", error);
-                });
-        } else {
-            console.log("Frage Löschung abgebrochen für ID: ", questionId);
-        }
-    }
-
     // Display full text view
     const showFullQuestion = (event: React.MouseEvent<HTMLParagraphElement, MouseEvent>) => {
         const element = event.currentTarget;
@@ -365,6 +447,7 @@ const QuestionList = () => {
     };
 
 // Main Component *************************************************************************************************
+    // @ts-ignore
     return (
         <div className={"w-1/2"}>
             <div className={"flex items-center"}>
@@ -468,7 +551,7 @@ const QuestionList = () => {
                             <div className="min-w-0 flex-auto">
                                 <p className="text-sm font-semibold leading-6 text-gray-900">{
                                     // @ts-ignore
-                                    question.creator}:
+                                    question.creator}:&nbsp;
                                     {/* set id to question.uuid */}
 
                                     <span id={"title_" +
@@ -506,23 +589,25 @@ const QuestionList = () => {
 
                             </p>
                             {
-                                // @ts-ignore
-                                question.dateUpdated ? (
+
+                                question.date_updated ? (
                                     <p className="mt-1 text-xs leading-5 text-gray-500">
-                                        Updated: <time dateTime={
+                                        <time dateTime={
                                         // @ts-ignore
-                                        question.dateUpdated}>
+                                        question.date_updated}>
                                         {
                                             // @ts-ignore
-                                            Moment(question.dateUpdated).format('DD.MM.yy HH:mm')
+                                            Moment(question.date_updated).format('DD.MM.YY HH:mm')
                                         }
                                     </time>
                                     </p>
                                 ) : (
                                     <p className="mt-1 text-xs leading-5 text-gray-500">
-                                        Created: <time dateTime={// @ts-ignore
-                                        question.dateCreated}>{// @ts-ignore
-                                        Moment(question.dateCreated).format('DD.MM.yy HH:mm')
+                                        <time
+                                        // @ts-ignore
+                                        dateTime={
+                                        question.date_created}>{// @ts-ignore
+                                        Moment(question.date_created).format('DD.MM.y HH:mm')
                                     }</time>
                                     </p>
                                 )}
