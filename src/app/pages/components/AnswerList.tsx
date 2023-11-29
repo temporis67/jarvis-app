@@ -225,6 +225,8 @@ const AnswerList = () => {
                 newAnswer.content = answer.content;
                 newAnswer.status = "loaded";
                 newAnswer.time_elapsed = answer.time_elapsed;
+                newAnswer.creator = answer.creator;
+                newAnswer.username = answer.username;
                 addAnswer(newAnswer);
                 setIsLoading("")
 
