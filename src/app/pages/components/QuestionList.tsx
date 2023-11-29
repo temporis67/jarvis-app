@@ -59,7 +59,6 @@ const QuestionList = () => {
         // @ts-ignore
         setCurrentQuestion(questions.find(q => q.uuid === questionId));
 
-
     }
 
     const handleUpdateQuestion = (questionId: string) => {

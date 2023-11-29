@@ -12,7 +12,7 @@ export type ModelType = {
 type ModelsType = Array<ModelType>
 
 export type ModelStoreType = {
-    models: ModelsType
+    models: ModelsType | []
     setModels: (new_models: ModelsType) => void
     addModel: (model: ModelType) => void
     delModel: (uuid: string) => void
@@ -64,7 +64,7 @@ const initialModels: ModelsType = [
     ]
 
 const modelStore = (set: any):ModelStoreType => ({
-    models: initialModels,
+    models: [],
     setModels: (new_models: ModelsType) => set({ models: new_models }),
 
     current_model: initialModels[0],

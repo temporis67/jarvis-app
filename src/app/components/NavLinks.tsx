@@ -19,7 +19,7 @@ import {signIn, signOut, useSession} from "next-auth/react";
 const links = [
 
     {name: 'Fragen', href: '/pages/questions', icon: ChatBubbleBottomCenterTextIcon},
-    {name: 'Einstellungen', href: '/pages/settings', icon: Cog8ToothIcon},
+    {name: 'Models', href: '/pages/settings', icon: Cog8ToothIcon},
 
 
 ];
