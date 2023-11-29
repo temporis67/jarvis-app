@@ -18,7 +18,7 @@ export default function ModelCard({model_uuid}: {model_uuid: string}) {
                     </dt>
 
                     <dd className="mt-1 text-sm text-gray-900">
-                        Model ID: {model.model_id}
+                        Model ID: {model.model_filename}
                     </dd>
 
 

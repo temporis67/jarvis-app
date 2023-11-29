@@ -180,11 +180,14 @@ const AnswerList = () => {
         // add answer to store with status loading
         const now = new Date();
         console.log(now.toString());
+
         const newAnswer: AnswerType = {
             uuid: "",
             status: "loading",
-            creator: user_uuid,
-            username: user_name,
+            // @ts-ignore
+            creator: current_model.uuid,
+            // @ts-ignore
+            username: current_model.model_label.substring(0, 6),
             // @ts-ignore
             source: current_model.uuid,
             time_elapsed: "",
@@ -528,7 +531,7 @@ const AnswerList = () => {
 
                     <div className="col-span-full">
                         <label htmlFor="modal-title" className="block text-sm font-medium leading-6 text-gray-900">
-                            Antwort:
+                            Kernaussage:
                         </label>
                         <div className="mt-2">
                                 <textarea
@@ -536,12 +539,11 @@ const AnswerList = () => {
                                     name="modal-title"
                                     // @ts-ignore
                                     onChange={handleModalTitleChange}
-                                    rows={3}
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    rows={2}
+                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     defaultValue={modalTitle}
                                 />
                         </div>
-                        <p className="mt-3 text-sm leading-6 text-gray-600">Einfach ... drauflosfragen.</p>
                     </div>
 
                     <div className="col-span-full">
@@ -554,12 +556,12 @@ const AnswerList = () => {
                                     name="modal-content"
                                     // @ts-ignore
                                     onChange={handleModalContentChange}
-                                    rows={3}
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    rows={6}
+                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     defaultValue={modalContent}
                                 />
                         </div>
-                        <p className="mt-3 text-sm leading-6 text-gray-600">Wird später für LLM.context benutzt.</p>
+
                     </div>
 
 

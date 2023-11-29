@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+
 import clsx from "clsx";
 import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon} from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
@@ -207,7 +208,8 @@ const QuestionList = () => {
                 updatedQuestions[i].title = modalTitle;
                 // @ts-ignore
                 updatedQuestions[i].content = modalContent;
-                updatedQuestions[i].date_updated = Moment().format('DD.MM.YYYY HH:mm');
+                const now = new Date()
+                updatedQuestions[i].date_updated = now.toString();
                 break; // Beende die Schleife, sobald das Element gefunden und aktualisiert wurde
             }
         }
@@ -485,11 +487,11 @@ const QuestionList = () => {
                                     // @ts-ignore
                                     onChange={handleModalTitleChange}
                                     rows={3}
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     defaultValue={modalTitle}
                                 />
                         </div>
-                        <p className="mt-3 text-sm leading-6 text-gray-600">Einfach ... drauflosfragen.</p>
+
                     </div>
 
                     <div className="col-span-full">
@@ -502,12 +504,16 @@ const QuestionList = () => {
                                     name="modal-content"
                                     // @ts-ignore
                                     onChange={handleModalContentChange}
-                                    rows={3}
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    rows={5}
+                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     defaultValue={modalContent}
                                 />
                         </div>
-                        <p className="mt-3 text-sm leading-6 text-gray-600">Wird später für LLM.context benutzt.</p>
+                        <p className="mt-3 text-xs leading-6 text-gray-600">
+                            Die Hintergrundinformationen beeinflussen die Antwort des Models entscheidend.
+                            Hilfreich sind sprachlich ähnlich Texte aus dem gleichen Themengebiet.
+
+                        </p>
                     </div>
 
 
@@ -542,6 +548,7 @@ const QuestionList = () => {
                             <QuestionMarkCircleIcon className={"w-5 h-5 text-gray-400"}
                                                     onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
                                                     onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                                    title={question.uuid}
 
 
                             />
