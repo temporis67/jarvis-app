@@ -37,49 +37,56 @@ export default function ModelCard({model_uuid, handleClickEditModel}: { model_uu
     }
 
 
+    if (model !== undefined) {
 
-    return (
-        <div className={clsx("bg-white border-1 border-amber-950 overflow-hidden shadow rounded-lg",
-            {
-                                // @ts-ignore
-                                'bg-sky-200': model.uuid === currentModel.uuid,
-            })}
+        return (
+
+            <div className={clsx("bg-white border-1 border-amber-950 overflow-hidden shadow rounded-lg",
+                {
+                    // @ts-ignore
+                    'bg-sky-200': model.uuid === currentModel.uuid,
+                })}
 
 
-            onClick={(event) => handleSelectModel(event)}
-        >
-            <div className="px-4 py-5 sm:p-6">
-                <div>
-                    <div className="text-sm font-medium text-gray-500 ">
-                        <div className="flex flex-row justify-between">
-                            <div className={""}>
-                        {model.model_label}
-                            </div>
-                            <div className={""}>
-                        <PencilSquareIcon className="w-5 h-5 text-gray-400"
-                        // @ts-ignore
-                                      onClick={() => handleClickEditModel(model.uuid)}
-                                      onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                      onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                      title={"Model bearbeiten"}
-                    />
+                 onClick={(event) => handleSelectModel(event)}
+            >
+                <div className="px-4 py-5 sm:p-6">
+                    <div>
+                        <div className="text-sm font-medium text-gray-500 ">
+                            <div className="flex flex-row justify-between">
+                                <div className={""}>
+                                    {model.model_label}
                                 </div>
+                                <div className={""}>
+                                    <PencilSquareIcon className="w-5 h-5 text-gray-400"
+                                        // @ts-ignore
+                                                      onClick={() => handleClickEditModel(model.uuid)}
+                                                      onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                                      onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                                      title={"Model bearbeiten"}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="mt-1 text-xs text-gray-600">
-                        File: {model.model_filename}
-                    </div>
-                    <div className="mt-1 truncate text-sm text-gray-900"
+                        <div className="mt-1 text-xs text-gray-600">
+                            File: {model.model_filename}
+                        </div>
+                        <div className="mt-1 truncate text-sm text-gray-900"
 
-                        onMouseOver={showFullPrompt}
-                        onMouseOut={showShortPrompt}
+                             onMouseOver={showFullPrompt}
+                             onMouseOut={showShortPrompt}
 
-                    >
-                        Default Prompt: {model.default_prompt}
+                        >
+                            Default Prompt: {model.default_prompt}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    )
+
+        )
+    }
+    else {
+        return (<></>)
+    }
 }

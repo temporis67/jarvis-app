@@ -7,6 +7,7 @@ import Link from "next/link";
 import {signIn, signOut, useSession} from "next-auth/react";
 
 import useUserStore from "@/app/store/userStore";
+import {useEffect} from "react";
 
 function AuthButton() {
     const {data: session} = useSession();
@@ -45,6 +46,7 @@ export default function SideNav() {
     const user_name = useUserStore(state => state.userName);
     const user_uuid = useUserStore(state => state.userUuid);
 
+
     if (status === 'authenticated') {
         return (
             <div className="flex h-full flex-col jupx-3 py-4 md:px-2">
@@ -76,7 +78,7 @@ export default function SideNav() {
             <div className="flex h-full flex-col jupx-3 py-4 md:px-2">
                 {/* Logo */}
 
-                <div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block">
+                <div className="flex grow flex-row justify-items-start space-x-2 md:flex-col md:space-x-0 md:space-y-2">
                     <AuthButton/>
                 </div>
             </div>
