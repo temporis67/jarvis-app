@@ -19,6 +19,8 @@ const QuestionList = () => {
 
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);
+    const user_name = useUserStore.getState().userName;
+
     const setUserUuid = useUserStore(state => state.setUserUuid);
     console.log("@/app/pages/components/QuestionList start - UUID: " + user_uuid)
 
@@ -54,10 +56,9 @@ const QuestionList = () => {
     };
 
     const handleSelectQuestion = (event: React.MouseEvent<HTMLElement>, questionId: string) => {
-
-        setCurrentQuestionId(questionId);
         // @ts-ignore
         setCurrentQuestion(questions.find(q => q.uuid === questionId));
+        setCurrentQuestionId(questionId);
 
     }
 
@@ -357,26 +358,29 @@ const QuestionList = () => {
                 const dateA = new Date(a['date_updated']);
                 // @ts-ignore
                 const dateB = new Date(b['date_updated']);
-                console.log("dateA: ", dateA, " # dateB: ", dateB);
+                // console.log("dateA: ", dateA, " # dateB: ", dateB);
                 return dateA.getTime() - dateB.getTime();
             });
             let out_items2 = out_items.reverse();
 
             for (let q of out_items2) {
                 // @ts-ignore
-                console.log("Question: " + q['date_updated']);
+                // console.log("Question: " + q['date_updated']);
                 // @ts-ignore
-                q['creator'] = session?.user?.name;
+                // ToDo: replace creator with user name
+                q['creator'] = user_name;
 
 
             }
             // @ts-ignore
             setQuestions(out_items);
             // @ts-ignore
-            setCurrentQuestionId(out_items[0].uuid);
-
+            if (currentQuestionId === null || currentQuestionId === '' && out_items.length > 0) {
+                setCurrentQuestionId(out_items[0].uuid);
+                setCurrentQuestion(out_items[0]);
+            }
             // @ts-ignore
-            setCurrentQuestion(out_items[0]);
+
 
             // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
 
@@ -394,7 +398,7 @@ const QuestionList = () => {
 
 // execute get_questions_by_user on page load
     useEffect(() => {
-        const user_uuid = useUserStore.getState().userUuid;
+        // const user_uuid = useUserStore.getState().userUuid;
         api_get_questions_by_user(user_uuid).then(r => {
             // console.log("useEffect get_questions_by_user() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
         }).catch(e => {

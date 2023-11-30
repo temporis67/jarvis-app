@@ -155,7 +155,8 @@ const NewQuestionForm = () => {
                         <div className={"w-2/3 text-center"}>
 
                             {current_model?.uuid && (
-                                <ModelCard model_uuid={current_model.uuid} />
+                                // ToDO: Handle Edit Model
+                                <ModelCard handleClickEditModel={''} model_uuid={current_model.uuid} />
                             )}
 
                         </div>

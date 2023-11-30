@@ -12,7 +12,7 @@ import {useSession} from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
 import {useSearchParams} from 'next/navigation'
 import useUserStore from "@/app/store/userStore";
-import useQuestionStore from "@/app/store/questionStore";
+import useQuestionStore, {QuestionType} from "@/app/store/questionStore";
 
 import useAnswersStore from "@/app/store/answersStore";
 import {AnswerType} from "@/app/store/answersStore";
@@ -25,7 +25,7 @@ const AnswerList = () => {
 
     // Initialisierung
     Moment.locale('de');
-    const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
+    // const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
     const api_host = "http://127.0.0.1:5000/api";
 
     // connect variables to zustand store
@@ -33,15 +33,19 @@ const AnswerList = () => {
     const user_name = useUserStore.getState().userName;
 
 
-    // handle questionsItems via zustand store
-    const answers = useAnswersStore(state => state.answers);
-    const setAnswers = useAnswersStore(state => state.setAnswers);
-    const addAnswer = useAnswersStore(state => state.addAnswer);
-    const delAnswer = useAnswersStore(state => state.delAnswer);
-    const updateAnswer = useAnswersStore(state => state.updateAnswer);
-
     const questions = useQuestionStore(state => state.questions);
-    const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
+    const currentQuestionId: string|null = useQuestionStore(state => state.currentQuestionId);
+    const currentQuestion: QuestionType = useQuestionStore(state => state.currentQuestion);
+
+
+
+    // handle questionsItems via zustand store
+    const answers = currentQuestion?.answers?.answers || [];
+    const setAnswers = currentQuestion?.answers?.setAnswers
+    const addAnswer = currentQuestion?.answers?.addAnswer
+    const delAnswer = currentQuestion?.answers?.delAnswer
+    const updateAnswer = currentQuestion?.answers?.updateAnswer
+
     // console.log("@/app/pages/components/AnswerList currentQuestionId: " + currentQuestionId)
     // const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
@@ -421,7 +425,7 @@ const AnswerList = () => {
 
         // console.log("load_answers() start: ", currentQuestionId, " # ")
         if (currentQuestionId === undefined || currentQuestionId === null) {
-            console.log("load_answers() no currentQuestionId given");
+            console.log("!!!!!!!!!!!!!!!  load_answers() no currentQuestionId given");
             return;
         } else {
             // console.log("load_answers() 2: ", currentQuestionId);
@@ -431,11 +435,11 @@ const AnswerList = () => {
     }
 
 
-    useEffect(() => {
-        // console.log("get_answers start UUID: " + currentQuestionId)
-        load_answers();
-
-    }, [currentQuestionId])
+    // useEffect(() => {
+    //     // console.log("get_answers start UUID: " + currentQuestionId)
+    //     load_answers();
+    //
+    // }, [currentQuestionId])
 
 
     const handleDeleteAnswer = (answerId: string) => {
