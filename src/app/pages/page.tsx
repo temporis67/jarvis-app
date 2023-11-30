@@ -3,12 +3,8 @@ import useUserStore from "@/app/store/userStore";
 
 export default function Page() {
 
-    const user_name = useUserStore(state => state.userName);
-
     return(
         <div>
-<p className={"mb-2"}>
-                            Hallo {user_name}!</p>
 
                         <p>
                             In diesem Demonstrator können Sie das Verhalten von Large Language Models (LLM) testen und
