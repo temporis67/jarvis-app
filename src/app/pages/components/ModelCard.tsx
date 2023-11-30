@@ -44,7 +44,7 @@ export default function ModelCard({model_uuid, handleClickEditModel}: { model_uu
             <div className={clsx("bg-white border-1 border-amber-950 overflow-hidden shadow rounded-lg",
                 {
                     // @ts-ignore
-                    'bg-sky-200': model.uuid === currentModel.uuid,
+                    'bg-sky-300': model.uuid === currentModel.uuid,
                 })}
 
 
