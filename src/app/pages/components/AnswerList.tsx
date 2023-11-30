@@ -70,16 +70,17 @@ const AnswerList = () => {
     };
 
 
-    const api_new_answer = async (question_uuid: string | null, user_uuid: string) => {
+    const api_new_answer = async (question_uuid: string | null, creator_uuid: string, user_uuid: string) => {
         // console.log("New Answer API fetch() start", question_uuid)
 
-        if (question_uuid === undefined || question_uuid === null) {
+        if (question_uuid === undefined || question_uuid === null || creator_uuid === undefined || creator_uuid === null || user_uuid === undefined || user_uuid === null) {
             throw new Error('ERROR: pages/components/AnswerList/api_new_answer(): question_uuid not given:: ' + question_uuid);
         }
 
         let formData = new FormData();
         // @ts-ignore
         formData.append("question_uuid", question_uuid);
+        formData.append("creator_uuid", creator_uuid);
         formData.append("user_uuid", user_uuid);
         const api_url = (api_host + "/new_answer");
 
@@ -110,9 +111,9 @@ const AnswerList = () => {
     const handleClickNewAnswer = () => {
         // console.log("handleClickNewAnswer was clicked: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
 
-        // get new answerId from API
+        // get new answerId from API - creator==user
         // @ts-ignore
-        api_new_answer(currentQuestionId, user_uuid).then(new_answer_id => {
+        api_new_answer(currentQuestionId, user_uuid, user_uuid).then(new_answer_id => {
             setCurrentAnswerId(new_answer_id)
             setModalHeader("Neue Antwort"); // Setze den Titel des Dialogs
             setShowDialog(true); // ModalDialog anzeigen
@@ -185,9 +186,11 @@ const AnswerList = () => {
             uuid: "",
             status: "loading",
             // @ts-ignore
-            creator: current_model.uuid,
+            creator_uuid: current_model.uuid,
+            creator_name: current_model?.model_label.substring(0, 6)||"I am Robot.",
             // @ts-ignore
-            username: current_model.model_label.substring(0, 6),
+            user_name: user_name,
+            user_uuid: user_uuid,
             // @ts-ignore
             source: current_model.uuid,
             time_elapsed: "",
@@ -200,9 +203,9 @@ const AnswerList = () => {
             date_created: now.toString(),
             date_updated: now.toString(),
         }
-        // ToDo: this to AnswerList.tsx
+
         // @ts-ignore
-        api_new_answer(questionId, user_uuid).then(new_answer_id => {
+        api_new_answer(questionId, current_model.uuid, user_uuid).then(new_answer_id => {
             setCurrentAnswerId(new_answer_id)
             newAnswer.uuid = new_answer_id;
             newAnswer.status = "loading";
@@ -213,6 +216,8 @@ const AnswerList = () => {
             formData.append('question', JSON.stringify(question));
             // @ts-ignore
             formData.append('model', JSON.stringify(current_model));
+            // @ts-ignore
+            formData.append("creator_uuid", current_model.uuid);
             // @ts-ignore
             formData.append('user_uuid', user_uuid);
             // @ts-ignore
@@ -228,8 +233,8 @@ const AnswerList = () => {
                 newAnswer.content = answer.content;
                 newAnswer.status = "loaded";
                 newAnswer.time_elapsed = answer.time_elapsed;
-                newAnswer.creator = answer.creator;
-                newAnswer.username = answer.username;
+                newAnswer.creator_uuid = answer.creator_uuid;
+                newAnswer.user_name = answer.username;
                 addAnswer(newAnswer);
                 setIsLoading("")
 
@@ -294,16 +299,18 @@ const AnswerList = () => {
             console.log("handleClickUpdateAnswer: adding new answer")
             const new_answer: AnswerType = {
                 uuid: currentAnswerId,
-                creator: user_uuid,
-                username: session?.user?.name || "",
+                creator_uuid: user_uuid,
+                creator_name: user_name || "",
+                user_uuid: user_uuid,
+                user_name: user_name || "",
                 source: user_uuid,
                 time_elapsed: "00:00:00",
                 // @ts-ignore
                 question: currentQuestionId,
                 title: modalTitle,
                 content: modalContent,
-                quality: 0,
-                trust: 0,
+                quality: 50,
+                trust: 100,
                 date_created: Moment().format('YYYY-MM-DD HH:mm:ss'),
                 date_updated: Moment().format('YYYY-MM-DD HH:mm:ss'),
             }
@@ -383,8 +390,10 @@ const AnswerList = () => {
             for (let a of out_items) {
                 let answer: AnswerType = {
                     uuid: a.uuid,
-                    creator: a.creator,
-                    username: a.username,
+                    creator_uuid: a.creator_uuid,
+                    creator_name: a.creator_name,
+                    user_uuid: a.user_uuid,
+                    user_name: a.username,
                     source: a.source,
                     time_elapsed: a.time_elapsed,
                     question: a.question,

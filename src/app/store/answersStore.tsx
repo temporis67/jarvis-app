@@ -5,8 +5,11 @@ export type AnswerType = {
     uuid: string;
     status?: string;
 
-    creator: string | null;
-    username: string | null;
+    creator_uuid: string | null;
+    creator_name: string | null;
+
+    user_uuid: string | null;
+    user_name: string | null;
 
     source: string | null;
     time_elapsed: string;
@@ -39,8 +42,10 @@ const initialAnswers: AnswersType = [
     {
         uuid: "5e2f3b7a-8810-11ee-a1b8-047c16bbac51",
         status : "ready",
-        creator: "7f81c2e6-7801-11ee-8c55-047c16bbac51",
-        username: "Carlos",
+        creator_uuid: "8f81c2e6-7801-11ee-8c55-047c16bbac51",
+        creator_name: "SpiCy",
+        user_uuid: "7f81c2e6-7801-11ee-8c55-047c16bbac51",
+        user_name: "Carlos",
         source: "7f81c2e6-7801-11ee-8c55-047c16bbac51",
         time_elapsed: "01:05:12",
         question: "df60c21e-8791-11ee-b1a4-047c16bbac51",
@@ -54,8 +59,10 @@ const initialAnswers: AnswersType = [
     {
         uuid: "6a4c88ee-8820-11ee-bf22-047c16bbac51",
         status : "loading",
-        creator: "9a73ebf2-7835-11ee-9d88-047c16bbac51",
-        username: "Amit",
+        creator_uuid: "9a73ebf2-7835-11ee-9d88-047c16bbac51",
+        creator_name: "Amit",
+        user_uuid: "9a73ebf2-7835-11ee-9d88-047c16bbac51",
+        user_name: "Amit",
         source: "9a73ebf2-7835-11ee-9d88-047c16bbac51",
         time_elapsed: "00:40:30",
         question: "df60c21e-8791-11ee-b1a4-047c16bbac51",
@@ -69,8 +76,10 @@ const initialAnswers: AnswersType = [
     {
         uuid: "7c8daefe-8830-11ee-ba32-047c16bbac51",
         status : "ready",
-        creator: "bc64dafe-7859-11ee-a5b7-047c16bbac51",
-        username: "Ivan",
+        creator_uuid: "bc64dafe-7859-11ee-a5b7-047c16bbac51",
+        creator_name: "Ivan",
+        user_uuid: "bc64dafe-7859-11ee-a5b7-047c16bbac51",
+        user_name: "Ivan",
         source: "bc64dafe-7859-11ee-a5b7-047c16bbac51",
         time_elapsed: "00:35:47",
         question: "df60c21e-8791-11ee-b1a4-047c16bbac51",
@@ -84,8 +93,10 @@ const initialAnswers: AnswersType = [
     {
         uuid: "8e1fc210-8840-11ee-cd44-047c16bbac51",
         status : "ready",
-        creator: "de55f3a4-7883-11ee-bd66-047c16bbac51",
-        username: "Liam",
+        creator_uuid: "de55f3a4-7883-11ee-bd66-047c16bbac51",
+        creator_name: "Liam",
+        user_uuid: "de55f3a4-7883-11ee-bd66-047c16bbac51",
+        user_name: "Liam",
         source: "de55f3a4-7883-11ee-bd66-047c16bbac51",
         time_elapsed: "01:15:03",
         question: "df60c21e-8791-11ee-b1a4-047c16bbac51",

@@ -136,7 +136,7 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
                         <p className="text-sm truncate font-semibold leading-6 text-gray-900" title={answer.uuid}>
 
 
-                            {answer.username}:&nbsp;
+                            {answer.creator_name}:&nbsp;
                             <span id={"title_" +
                                 // @ts-ignore
                                 answer.uuid}>{
@@ -161,7 +161,7 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
                                 // @ts-ignore
                                 answer.date_updated ? (
                                     <>
-                                        DLM: <time dateTime={
+                                        <time dateTime={
                                         // @ts-ignore
                                         answer.date_updated}>
                                         {
@@ -172,7 +172,7 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
                                     </>
                                 ) : (
                                     <>
-                                        DC: <time dateTime={// @ts-ignore
+                                        <time dateTime={// @ts-ignore
                                         answer.date_created}>{// @ts-ignore
                                         Moment(answer.date_created).format('DD.MM.yy HH:mm')
                                     }</time>
