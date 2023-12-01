@@ -425,6 +425,7 @@ const QuestionList = () => {
         //remove and save the dragged item content
         const draggedItemContent = _questionsItems.splice(dragItem.current, 1)[0];
 
+        console.log("handleSort: dragging  ", draggedItemContent.uuid, " to ", dragOverItem.current.uuid)
         //switch the position
         _questionsItems.splice(dragOverItem.current, 0, draggedItemContent);
 

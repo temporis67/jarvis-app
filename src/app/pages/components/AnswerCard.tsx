@@ -6,10 +6,14 @@ import {ExclamationCircleIcon, PencilSquareIcon, TrashIcon} from "@heroicons/rea
 import Moment from "moment";
 import React from "react";
 
-export default function AnswerCard({answer_uuid, handleDeleteAnswer, handleClickEditAnswer}: {
+export default function AnswerCard({key, answer_uuid, handleDeleteAnswer, handleClickEditAnswer, dragItem, dragOverItem, handleSort}: {
+    key: any,
     answer_uuid: string,
     handleDeleteAnswer: any,
-    handleClickEditAnswer: any
+    handleClickEditAnswer: any,
+    dragItem: any,
+    dragOverItem: any,
+    handleSort: any
 }) {
 
     const answers = useAnswersStore(state => state.answers);
@@ -19,35 +23,6 @@ export default function AnswerCard({answer_uuid, handleDeleteAnswer, handleClick
     console.log("AnswerCard: ", answer)
 
     const current_answer = useAnswersStore(state => state.current_answer);
-
-    // Drag & Drop Handling *******************************************************************************
-
-// save reference for dragItem and dragOverItem
-    const dragItem = React.useRef<any>(null);
-    const dragOverItem = React.useRef<any>(null);
-
-// const handle drag sorting
-    const handleSort = () => {
-        //duplicate items
-        // @ts-ignore
-        let _answers = [...answers];
-
-        //remove and save the dragged item content
-        const draggedItemContent = _answers.splice(dragItem.current, 1)[0];
-
-        //switch the position
-        _answers.splice(dragOverItem.current, 0, draggedItemContent);
-
-        //reset the position ref
-        dragItem.current = null;
-        dragOverItem.current = null;
-
-        //update the actual array
-        // @ts-ignore
-        setAnswers(_answers);
-    };
-
-// Ende Drag & Drop Handling *******************************************************************************
 
 
 // Display full answer
@@ -67,9 +42,9 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
     if (answer.status === "loading") return (
         <div
             draggable
-            key={answer_uuid}
-            onDragStart={(e) => (dragItem.current = answer_uuid)}
-            onDragEnter={(e) => (dragOverItem.current = answer_uuid)}
+            key={key}
+            onDragStart={(e) => (dragItem.current = key)}
+            onDragEnter={(e) => (dragOverItem.current = key)}
             onDragEnd={handleSort}
             onDragOver={(e) => e.preventDefault()}
             className={clsx(
@@ -80,7 +55,7 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
             )}
         >
 
-            <div className="flex min-w-0 gap-x-4" id={"row1"} title={current_answer?.uuid}>
+            <div className="flex min-w-0 gap-x-4" id={"row1"} title={answer_uuid}>
                 <div className="flex min-w-1 gap-x-4">
                     <ExclamationCircleIcon className={"w-5 h-5 text-gray-400"}
                                            onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
@@ -109,7 +84,10 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
             draggable
             key={answer_uuid}
             onDragStart={(e) => (dragItem.current = answer_uuid)}
-            onDragEnter={(e) => (dragOverItem.current = answer_uuid)}
+            onDragEnter={(e) => (
+                console.log("onDragEnter move ", dragItem.current, " to ", answer_uuid),
+                dragOverItem.current = answer_uuid)
+            }
             onDragEnd={handleSort}
             onDragOver={(e) => e.preventDefault()}
             className={clsx(

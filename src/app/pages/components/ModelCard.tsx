@@ -5,7 +5,7 @@ import React from "react";
 import clsx from "clsx";
 import {PencilSquareIcon} from "@heroicons/react/24/outline";
 
-export default function ModelCard({model_uuid, handleClickEditModel}: { model_uuid: string, handleClickEditModel: any } ) {
+export default function ModelCard({model_uuid, handleClickEditModel, mode}: { model_uuid: string, handleClickEditModel: any, mode: string } ) {
 
     const models = useModelStore(state => state.models);
     const setCurrentModel = useModelStore(state => state.setCurrentModel);
@@ -38,6 +38,33 @@ export default function ModelCard({model_uuid, handleClickEditModel}: { model_uu
 
 
     if (model !== undefined) {
+
+        if (mode === "short") {
+            return(
+                <div className={clsx("m-1 overflow-hidden shadow rounded-lg",
+                    {
+                        // @ts-ignore
+                        ' bg-sky-200': model.uuid === currentModel.uuid,
+                        // @ts-ignore
+                        ' bg-white': model.uuid !== currentModel.uuid,
+                    })}
+                        onClick={(event) => handleSelectModel(event)}
+                >
+                    <div className="p-1">
+                        <div>
+                            <div className="text-sm font-medium text-gray-500 ">
+                                <div className="flex flex-row justify-between">
+                                    <div className={"text-xs"}>
+                                        {model.model_label}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            )
+        }
 
 
         return (

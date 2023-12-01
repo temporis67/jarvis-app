@@ -8,7 +8,7 @@ import ModelStore from "@/app/store/modelStore";
 import ModalDialog from "@/app/components/ModalDialog";
 
 
-const ModelCardList = () => {
+const ModelCardList = ({mode}: {mode: string}) => {
 
     const api_host = "http://127.0.0.1:5000/api";
 
@@ -132,7 +132,7 @@ const ModelCardList = () => {
 
 
     return (
-        <div className={"mt-2"}>
+        <div className={""}>
 
             {/********* ModalDialog Popup *********/}
             {showDialog && (
@@ -145,7 +145,7 @@ const ModelCardList = () => {
 
                     <div className="col-span-full">
                         <label htmlFor="modal-title" className="block text-sm font-medium leading-6 text-gray-900">
-                            Kernaussage:
+                            Model Label
                         </label>
                         <div className="mt-2">
                                 <textarea
@@ -162,7 +162,7 @@ const ModelCardList = () => {
 
                     <div className="col-span-full">
                         <label htmlFor="modal-content" className="block text-sm font-medium leading-6 text-gray-900">
-                            Hintergrund:
+                            Prompt:
                         </label>
                         <div className="mt-2">
                                 <textarea
@@ -174,7 +174,9 @@ const ModelCardList = () => {
                                     className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     defaultValue={modalContent}
                                 />
+                            <p>Je nach Model können oder müssen die Platzhalter {"{question}"} und {"{content}"} benutzt werden.</p>
                         </div>
+
 
                     </div>
 
@@ -183,14 +185,15 @@ const ModelCardList = () => {
             )}
 
 
-            <h1 className={"m-2"}>Models</h1>
+            { mode !== "short" && (<h1 className={"m-2"}>Models</h1>) }
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex">
                 {models.map((model: ModelType) => (
                     <ModelCard
                         key={model.uuid}
                         model_uuid={model.uuid}
                         handleClickEditModel={handleClickEditModel}
+                        mode={mode}
 
                     />
                 ))}

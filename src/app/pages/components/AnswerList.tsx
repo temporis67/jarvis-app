@@ -187,7 +187,7 @@ const AnswerList = () => {
             status: "loading",
             // @ts-ignore
             creator_uuid: current_model.uuid,
-            creator_name: current_model?.model_label.substring(0, 6)||"I am Robot.",
+            creator_name: current_model?.model_label|| "??",
             // @ts-ignore
             user_name: user_name,
             user_uuid: user_uuid,
@@ -214,7 +214,6 @@ const AnswerList = () => {
             const formData = new FormData();
             formData.append('question_uuid', questionId);
             formData.append('question', JSON.stringify(question));
-            formData.append('context', JSON.stringify(context));
             // @ts-ignore
             formData.append('model', JSON.stringify(current_model));
             // @ts-ignore
@@ -470,12 +469,20 @@ const AnswerList = () => {
         //duplicate items
         // @ts-ignore
         let _answers = [...answers];
+        // console.info("handleSort: dragging  ", dragItem, " to ", dragOverItem)
+        // console.info("Answers: ", _answers)
 
+        const dragItemIndex = _answers.findIndex(item => item.uuid === dragItem.current);
         //remove and save the dragged item content
-        const draggedItemContent = _answers.splice(dragItem.current, 1)[0];
+        const draggedItemContent = _answers.splice(dragItemIndex, 1)[0];
 
+        const dragOverItemIndex = _answers.findIndex(item => item.uuid === dragOverItem.current);
         //switch the position
-        _answers.splice(dragOverItem.current, 0, draggedItemContent);
+        _answers.splice(dragOverItemIndex, 0, draggedItemContent);
+
+        // console.info("Answers after: ", _answers)
+
+        // console.log("handleSort: dragging  ", draggedItemContent.uuid, " to ", dragOverItem.current.uuid)
 
         //reset the position ref
         dragItem.current = null;
@@ -590,6 +597,9 @@ const AnswerList = () => {
                                 answer_uuid={answer.uuid}
                                 handleDeleteAnswer={handleDeleteAnswer}
                                 handleClickEditAnswer={handleClickEditAnswer}
+                                dragItem={dragItem}
+                                dragOverItem={dragOverItem}
+                                handleSort={handleSort}
 
                             />
                         )
