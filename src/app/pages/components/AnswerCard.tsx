@@ -13,9 +13,10 @@ export default function AnswerCard({answer_uuid, handleDeleteAnswer, handleClick
 }) {
 
     const answers = useAnswersStore(state => state.answers);
+    const setAnswers = useAnswersStore(state => state.setAnswers);
     // select current_answer from answers by answer_uuid
     const answer = answers.filter((answer: AnswerType) => answer.uuid === answer_uuid)[0]
-    console.log("AnswerCard: ", answer.title.substring(0,10))
+    console.log("AnswerCard: ", answer)
 
     const current_answer = useAnswersStore(state => state.current_answer);
 

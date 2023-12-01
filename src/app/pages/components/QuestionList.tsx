@@ -376,7 +376,9 @@ const QuestionList = () => {
             setQuestions(out_items);
             // @ts-ignore
             if (currentQuestionId === null || currentQuestionId === '' && out_items.length > 0) {
+                // @ts-ignore
                 setCurrentQuestionId(out_items[0].uuid);
+                // @ts-ignore
                 setCurrentQuestion(out_items[0]);
             }
             // @ts-ignore
