@@ -2,7 +2,7 @@
 import useUserStore from "@/app/store/userStore";
 
 export default function Page() {
-
+     console.log("Root Page Start :", process.env.GITHUB_SECRET);
     return(
         <div>
 

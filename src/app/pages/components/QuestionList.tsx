@@ -9,13 +9,20 @@ import ModalDialog from "@/app/components/ModalDialog";
 import useUserStore from "@/app/store/userStore";
 import useQuestionStore, {QuestionType} from "@/app/store/questionStore";
 
+import {JARVIS_API_HOST} from "../../../../env_vars";
+
+
 
 const QuestionList = () => {
 
     // Initialisierung
     Moment.locale('de');
     const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
-    const api_host = "http://127.0.0.1:5000/api";
+    const api_host = JARVIS_API_HOST;
+
+    console.log("************** API host: ", api_host)
+
+
 
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);
@@ -264,7 +271,6 @@ const QuestionList = () => {
 
     const api_new_question = async () => {
         // console.log("New Question API fetch() start")
-        const api_host = "http://127.0.0.1:5000/api";
         const api_url = (api_host + "/new_question");
 
         let formData = new FormData();
@@ -465,6 +471,7 @@ const QuestionList = () => {
                                     onClick={() => handleClickNewQuestion()}
                                     onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
                                     onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                    title={"Neue Frage erstellen"}
                     />
 
                 </div>
@@ -543,10 +550,10 @@ const QuestionList = () => {
                         //@ts-ignore
                         onClick={(event) => handleSelectQuestion(event, question.uuid)}
                         className={clsx(
-                            'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md bg-gray-50 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
+                            'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md bg-gray-700 text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
                             {
                                 // @ts-ignore
-                                'bg-sky-100': question.uuid === currentQuestionId,
+                                'bg-gray-500': question.uuid === currentQuestionId,
                             }
                         )}
                     >
@@ -562,7 +569,7 @@ const QuestionList = () => {
                         <div className="flex min-w-0 gap-x-4">
 
                             <div className="min-w-0 flex-auto">
-                                <p className="text-sm font-semibold leading-6 text-gray-900">{
+                                <p className="text-sm font-semibold leading-6 text-gray-300">{
                                     // @ts-ignore
                                     question.creator}:&nbsp;
                                     {/* set id to question.uuid */}
@@ -575,7 +582,7 @@ const QuestionList = () => {
                                 <p id={"content_" +
                                     // @ts-ignore
                                     question.uuid}
-                                   className="mt-1 truncate text-xs leading-5 text-gray-500"
+                                   className="mt-1 truncate text-xs leading-5 text-gray-300"
                                    onMouseOver={showFullQuestion}
                                    onMouseOut={showShortQuestion}
 
@@ -585,7 +592,7 @@ const QuestionList = () => {
                             </div>
                         </div>
                         <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                            <p className="text-xs leading-6 text-gray-600">
+                            <p className="text-xs leading-6 text-gray-400">
                                 {
                                     // @ts-ignore
                                     question.tags ? (
@@ -604,7 +611,7 @@ const QuestionList = () => {
                             {
 
                                 question.date_updated ? (
-                                    <p className="mt-1 text-xs leading-5 text-gray-500">
+                                    <p className="mt-1 text-xs leading-5 text-gray-400">
                                         <time dateTime={
                                         // @ts-ignore
                                         question.date_updated}>

@@ -6,11 +6,12 @@ import ModelCard from "@/app/pages/components/ModelCard";
 import React, {useEffect, useState} from "react";
 import ModelStore from "@/app/store/modelStore";
 import ModalDialog from "@/app/components/ModalDialog";
+import {JARVIS_API_HOST} from "../../../../env_vars";
 
 
 const ModelCardList = ({mode}: {mode: string}) => {
 
-    const api_host = "http://127.0.0.1:5000/api";
+    const api_host = JARVIS_API_HOST;
 
     const models = useModelStore(state => state.models);
     const setModels = useModelStore(state => state.setModels);
@@ -25,6 +26,7 @@ const ModelCardList = ({mode}: {mode: string}) => {
     const [modalTitle, setModalTitle] = useState(''); // Zustand für Modal-Titel
     const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
 
+    console.log("ModelCardList Start: ", models);
 
     const apiFetch = async (slug: string, formData: FormData): Promise<any> => {
         console.log("API fetch() start", slug);
@@ -130,6 +132,9 @@ const ModelCardList = ({mode}: {mode: string}) => {
         setShowDialog(true); // ModalDialog anzeigen
     }
 
+    if (models !== undefined && models !== null && models.length > 0) {
+        models.sort((a, b) => a.model_label.localeCompare(b.model_label));
+    }
 
     return (
         <div className={""}>
@@ -187,7 +192,7 @@ const ModelCardList = ({mode}: {mode: string}) => {
 
             { mode !== "short" && (<h1 className={"m-2"}>Models</h1>) }
 
-            <div className="flex">
+            <div className="flex flex-wrap">
                 {models.map((model: ModelType) => (
                     <ModelCard
                         key={model.uuid}

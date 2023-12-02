@@ -1,11 +1,13 @@
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials"
+import {JARVIS_API_HOST} from "../../../../../env_vars";
+import { NextAuthOptions } from "next-auth";
 
 async function getUser(name: string, password: string): Promise<Response> {
 
     try {
-        const api_host = "http://127.0.0.1:5000/api";
+        const api_host = JARVIS_API_HOST;
         const api_url = (api_host + "/user");
 
         let formData = new FormData();
@@ -32,7 +34,7 @@ async function getUser(name: string, password: string): Promise<Response> {
 }
 
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
 
     providers: [
@@ -50,8 +52,8 @@ export const authOptions = {
             // e.g. domain, username, password, 2FA token, etc.
             // You can pass any HTML attribute to the <input> tag through the object.
             credentials: {
-                username: {label: "Username", type: "text", placeholder: "jsmith"},
-                password: {label: "Password", type: "password"}
+                username: {label: "Username", type: "text", placeholder: "Choose a username"},
+                password: {label: "Password", type: "password" }
             },
             async authorize(credentials, req) {
                 // You need to provide your own logic here that takes the credentials
@@ -62,7 +64,7 @@ export const authOptions = {
                 // (i.e., the request IP address)
 
                 // console.log("credentials: " + JSON.stringify(credentials))
-                //@ts-ignore
+                // @ts-ignore
                 const res = await getUser(credentials.username, credentials.password);
                 const user = await res.json()
 
@@ -78,9 +80,7 @@ export const authOptions = {
                 return null
             }
         })
-
-
-    ],
+    ], // end of providers
 };
 
 export const handler = NextAuth(authOptions);

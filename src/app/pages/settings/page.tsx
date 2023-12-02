@@ -7,7 +7,7 @@ import ModelCardList from "@/app/pages/components/ModelCardList";
 export default function Page() {
     return (
         <div>
-            <ModelCardList />
+            <ModelCardList mode={"long"}/>
         </div>
     )
 }

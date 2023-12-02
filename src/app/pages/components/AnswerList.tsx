@@ -19,6 +19,7 @@ import {AnswerType} from "@/app/store/answersStore";
 import AnswerCard from "@/app/pages/components/AnswerCard";
 import AskButton from "@/app/pages/components/AskButton";
 import useModelStore from "@/app/store/modelStore";
+import {JARVIS_API_HOST} from "../../../../env_vars";
 
 
 const AnswerList = () => {
@@ -26,7 +27,7 @@ const AnswerList = () => {
     // Initialisierung
     Moment.locale('de');
     const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
-    const api_host = "http://127.0.0.1:5000/api";
+    const api_host = JARVIS_API_HOST;
 
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);
@@ -155,7 +156,7 @@ const AnswerList = () => {
                 throw new Error('apiFetch Network response was not ok: ' + await response.json());
             }
             const data = await response.json();
-            console.log("AnswerList.apiFetch() data OK: ", data);
+            // console.log("AnswerList.apiFetch() data OK: ", data);
 
             return data; // Return the whole response data
 
@@ -180,7 +181,7 @@ const AnswerList = () => {
 
         // add answer to store with status loading
         const now = new Date();
-        console.log(now.toString());
+        // console.log(now.toString());
 
         const newAnswer: AnswerType = {
             uuid: "",
@@ -233,7 +234,7 @@ const AnswerList = () => {
                 newAnswer.content = answer.content;
                 newAnswer.status = "loaded";
                 newAnswer.time_elapsed = answer.time_elapsed;
-                console.log("AnswerList.api_new_answer.ask time_elapsed: ", newAnswer.time_elapsed);
+                // console.log("AnswerList.api_new_answer.ask time_elapsed: ", newAnswer.time_elapsed);
                 newAnswer.creator_uuid = answer.creator_uuid;
                 newAnswer.user_name = answer.username;
                 addAnswer(newAnswer);
@@ -405,7 +406,7 @@ const AnswerList = () => {
                     date_created: a.date_created,
                     date_updated: a.date_updated,
                 }
-                console.log("Answer Time Elapsed: " + a.time_elapsed);
+                // console.log("Answer Time Elapsed: " + a.time_elapsed);
                 // setting answers with data from api
                 addAnswer(answer);
             }
@@ -521,8 +522,10 @@ const AnswerList = () => {
                                     title={"Model fragen"}
                     />
                     {isLoading === "loading" && (
-                        <div className="animate-spin ml-2 h-5 w-5 text-blue-500">
-                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        <div className="animate-spin h-5 w-5 text-blue-500"
+                            title={"Antwort wird berechnet - Bitte warten Sie geduldig..."}
+                        >
+                            <svg className="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                  fill="none"
                                  stroke="currentColor" strokeWidth="2" strokeLinecap="round"
                                  strokeLinejoin="round">

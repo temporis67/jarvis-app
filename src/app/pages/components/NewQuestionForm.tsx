@@ -6,6 +6,7 @@ import useUserStore from "@/app/store/userStore";
 import useModelStore from "@/app/store/modelStore";
 import {ModelType} from "@/app/store/modelStore";
 import ModelCard from "@/app/pages/components/ModelCard";
+import {JARVIS_API_HOST} from "../../../../env_vars";
 
 
 const NewQuestionForm = () => {
@@ -34,10 +35,11 @@ const NewQuestionForm = () => {
     const [newContent, setNewContent] = React.useState("");
 
 
-    const api_host = "http://127.0.0.1:5000/api";
-    const api_url = (api_host + "/new_question");
+    const api_host = JARVIS_API_HOST;
+
 
     const new_question = async () => {
+        const api_url = (api_host + "/new_question");
         console.log("New Question API fetch() start")
 
         let formData = new FormData();
@@ -156,7 +158,7 @@ const NewQuestionForm = () => {
 
                             {current_model?.uuid && (
                                 // ToDO: Handle Edit Model
-                                <ModelCard handleClickEditModel={''} model_uuid={current_model.uuid} />
+                                <ModelCard handleClickEditModel={''} model_uuid={current_model.uuid}  mode={"short"}/>
                             )}
 
                         </div>

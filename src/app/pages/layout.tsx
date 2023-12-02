@@ -3,6 +3,7 @@ import {useSession} from "next-auth/react";
 import {redirect} from "next/navigation";
 import React from "react";
 import useUserStore from "@/app/store/userStore";
+import {JARVIS_API_HOST} from "../../../env_vars";
 
 
 export default function Layout({children}: { children: React.ReactNode }) {
@@ -16,7 +17,7 @@ export default function Layout({children}: { children: React.ReactNode }) {
 
     // fetch user via api
     const getUser = async () => {
-        const api_host = "http://127.0.0.1:5000/api";
+        const api_host = JARVIS_API_HOST;
         const api_url = (api_host + "/user");
         const email = session?.user?.email;
         const user_name = session?.user?.name;

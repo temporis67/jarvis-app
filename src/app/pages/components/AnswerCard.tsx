@@ -20,7 +20,7 @@ export default function AnswerCard({key, answer_uuid, handleDeleteAnswer, handle
     const setAnswers = useAnswersStore(state => state.setAnswers);
     // select current_answer from answers by answer_uuid
     const answer = answers.filter((answer: AnswerType) => answer.uuid === answer_uuid)[0]
-    console.log("AnswerCard: ", answer)
+    // console.log("AnswerCard: ", answer)
 
     const current_answer = useAnswersStore(state => state.current_answer);
 
@@ -85,15 +85,15 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
             key={answer_uuid}
             onDragStart={(e) => (dragItem.current = answer_uuid)}
             onDragEnter={(e) => (
-                console.log("onDragEnter move ", dragItem.current, " to ", answer_uuid),
+                // console.log("onDragEnter move ", dragItem.current, " to ", answer_uuid),
                 dragOverItem.current = answer_uuid)
             }
             onDragEnd={handleSort}
             onDragOver={(e) => e.preventDefault()}
             className={clsx(
-                'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md bg-gray-50 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
+                'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md bg-gray-700 text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
                 {
-                    'bg-sky-50 text-blue-600': answer_uuid === current_answer?.uuid,
+                    'bg-gray-500': answer_uuid === current_answer?.uuid,
                 },
             )}
         >
@@ -112,7 +112,7 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
 
                     <div className="min-w-0 flex-auto">
 
-                        <p className="text-sm truncate font-semibold leading-6 text-gray-900" title={answer.uuid}>
+                        <p className="text-sm truncate font-semibold leading-6 text-gray-300" title={answer.uuid}>
 
 
                             {answer.creator_name}:&nbsp;
@@ -124,14 +124,14 @@ const showShortAnswer = (event: React.MouseEvent<HTMLParagraphElement, MouseEven
                         <p id={"content_" +
                             // @ts-ignore
                             answer.uuid}
-                           className="mt-1 truncate text-xs leading-5 text-gray-500"
+                           className="mt-1 truncate text-xs leading-5 text-gray-300"
                             onMouseOver={showFullAnswer}
                             onMouseOut={showShortAnswer}
                         >{
                             // @ts-ignore
                             answer.content}</p>
 
-                        <p className="mt-1 text-xs leading-5 text-gray-500 ">
+                        <p className="mt-1 text-xs leading-5 text-gray-400 ">
                             Ranking: {answer.quality} Dauer: {
 
                             parseFloat(answer.time_elapsed).toFixed(1)

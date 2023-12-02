@@ -10,7 +10,7 @@ const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
     title: "Jarvis UI",
-    description: "Another NextJS Llama",
+    description: "Another React Llama",
 };
 
 export default async function RootLayout({
@@ -20,6 +20,7 @@ export default async function RootLayout({
 }) {
     const session = await getServerSession();
 
+    console.log("Root Layout Start :", process.env.GITHUB_SECRET);
 
     return (
         <html lang="en">

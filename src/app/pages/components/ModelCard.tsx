@@ -44,15 +44,15 @@ export default function ModelCard({model_uuid, handleClickEditModel, mode}: { mo
                 <div className={clsx("m-1 overflow-hidden shadow rounded-lg",
                     {
                         // @ts-ignore
-                        ' bg-sky-200': model.uuid === currentModel.uuid,
+                        ' bg-gray-500': model.uuid === currentModel.uuid,
                         // @ts-ignore
-                        ' bg-white': model.uuid !== currentModel.uuid,
+                        ' bg-gray-700': model.uuid !== currentModel.uuid,
                     })}
                         onClick={(event) => handleSelectModel(event)}
                 >
                     <div className="p-1">
                         <div>
-                            <div className="text-sm font-medium text-gray-500 ">
+                            <div className="text-sm font-medium text-gray-300 ">
                                 <div className="flex flex-row justify-between">
                                     <div className={"text-xs"}>
                                         {model.model_label}
@@ -69,20 +69,20 @@ export default function ModelCard({model_uuid, handleClickEditModel, mode}: { mo
 
         return (
 
-            <div className={clsx("border-1 border-amber-950 overflow-hidden shadow rounded-lg",
+            <div className={clsx("w-48 m-2 p-3 overflow-hidden shadow rounded-lg",
                 {
                       // @ts-ignore
-                    ' bg-sky-200': model.uuid === currentModel.uuid,
+                    ' bg-gray-500': model.uuid === currentModel.uuid,
                     // @ts-ignore
-                    ' bg-white': model.uuid !== currentModel.uuid,
+                    ' bg-gray-700': model.uuid !== currentModel.uuid,
                 })}
 
 
                  onClick={(event) => handleSelectModel(event)}
             >
-                <div className="px-4 py-5 sm:p-6">
+                <div className="">
                     <div>
-                        <div className="text-sm font-medium text-gray-500 ">
+                        <div className="text-sm font-medium">
                             <div className="flex flex-row justify-between">
                                 <div className={""}>
                                     {model.model_label}
@@ -99,10 +99,10 @@ export default function ModelCard({model_uuid, handleClickEditModel, mode}: { mo
                             </div>
                         </div>
 
-                        <div className="mt-1 text-xs text-gray-600">
+                        <div className="mt-1 text-xs text-gray-400">
                             File: {model.model_filename}
                         </div>
-                        <div className="mt-1 truncate text-sm text-gray-900"
+                        <div className="mt-1 truncate text-sm text-gray-300"
 
                              onMouseOver={showFullPrompt}
                              onMouseOut={showShortPrompt}
