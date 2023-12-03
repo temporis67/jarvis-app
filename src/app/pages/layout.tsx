@@ -55,7 +55,7 @@ export default function Layout({children}: { children: React.ReactNode }) {
             setUserName(data['name']); // via zustand store
             setUserEmail(data['email']); // via zustand store
 
-            console.log("setting uuid via zustand store: " + useUserStore.getState().userUuid)
+        //    console.log("setting uuid via zustand store: " + useUserStore.getState().userUuid)
             // sessionStorage.setItem("user_uuid", data['uuid']);
             return data['name'];
 

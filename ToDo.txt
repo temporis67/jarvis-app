@@ -1,0 +1,17 @@
+ToDo's:
+
+- rework AUTH
+
+- build w. ngnix
+
+- persistent drag&drop
+
+- changed priority of q & a when drag & dropped
+
+- other local models
+
+- generate tags by model
+
+- search & group by tags
+
+- GPU Support

@@ -20,7 +20,7 @@ export default async function RootLayout({
 }) {
     const session = await getServerSession();
 
-    console.log("Root Layout Start :", process.env.GITHUB_SECRET);
+    // console.log("Root Layout Start :", process.env.GITHUB_SECRET);
 
     return (
         <html lang="en">

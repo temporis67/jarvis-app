@@ -31,7 +31,7 @@ export default function ModelCard({model_uuid, handleClickEditModel, mode}: { mo
     const handleSelectModel = (event: React.MouseEvent<HTMLElement>) => {
         console.log("handleSelectModel: ", model);
         // @ts-ignore
-        console.log("clsx: ", model.uuid, currentModel.uuid)
+       // console.log("clsx: ", model.uuid, currentModel.uuid)
         setCurrentModel(model);
 
     }

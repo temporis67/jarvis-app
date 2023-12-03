@@ -423,7 +423,7 @@ const AnswerList = () => {
 
         // console.log("load_answers() start: ", currentQuestionId, " # ")
         if (currentQuestionId === undefined || currentQuestionId === null) {
-            console.log("!!!!!!!!!!!!!!!  load_answers() no currentQuestionId given");
+            console.log("load_answers() no currentQuestionId given");
             return;
         } else {
             // console.log("load_answers() 2: ", currentQuestionId);

@@ -29,7 +29,7 @@ const ModelCardList = ({mode}: {mode: string}) => {
     console.log("ModelCardList Start: ", models);
 
     const apiFetch = async (slug: string, formData: FormData): Promise<any> => {
-        console.log("API fetch() start", slug);
+      //  console.log("API fetch() start", slug);
 
         if (slug === undefined || slug === null) {
             throw new Error('ERROR: apiFetch(): slug not given: ' + slug);
@@ -60,7 +60,7 @@ const ModelCardList = ({mode}: {mode: string}) => {
         const formData = new FormData();
         formData.append("action", "list_models");
         const data = await apiFetch("get_models", formData);
-        console.log("apiFetchModels() data: ", data);
+      //  console.log("apiFetchModels() data: ", data);
         const new_models: any = Object.values(data);
         setModels(new_models);
         // return data;
@@ -73,7 +73,7 @@ const ModelCardList = ({mode}: {mode: string}) => {
     }, []);
 
     const onClose = () => {
-        console.log("Modal has closed")
+     //   console.log("Modal has closed")
         setShowDialog(false); // ModalDialog schließen
     }
 

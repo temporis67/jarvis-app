@@ -100,7 +100,7 @@ const NewQuestionForm = () => {
             // Überprüfen, ob out_items nicht null oder undefined ist, bevor es zu _questionsItems hinzugefügt wird
             if (out_items) {
                 // @ts-ignore
-                console.log("XXXX New Question Items: ", out_items);
+                // console.log("New Question Items: ", out_items);
                 // @ts-ignore
                 const _questionsItems = questionsItems.slice();
                 // @ts-ignore
