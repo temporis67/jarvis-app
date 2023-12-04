@@ -6,8 +6,7 @@ import { ExclamationCircleIcon, PencilSquareIcon, TrashIcon } from "@heroicons/r
 import Moment from "moment";
 import React from "react";
 
-export default function AnswerCard({ key2, answer_uuid, handleDeleteAnswer, handleClickEditAnswer, dragItem, dragOverItem, handleSort }: {
-    key2: any,
+export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClickEditAnswer, dragItem, dragOverItem, handleSort }: {
     answer_uuid: string,
     handleDeleteAnswer: any,
     handleClickEditAnswer: any,
@@ -20,7 +19,7 @@ export default function AnswerCard({ key2, answer_uuid, handleDeleteAnswer, hand
     const setAnswers = useAnswersStore(state => state.setAnswers);
     // select current_answer from answers by answer_uuid
     const answer = answers.filter((answer: AnswerType) => answer.uuid === answer_uuid)[0]
-    console.log("AnswerCard: ", answer)
+    // console.log("AnswerCard: ", answer)
 
     const current_answer = useAnswersStore(state => state.current_answer);
     const setCurrentAnswer = useAnswersStore(state => state.setCurrentAnswer);
@@ -52,11 +51,11 @@ export default function AnswerCard({ key2, answer_uuid, handleDeleteAnswer, hand
     return (
         <div
             draggable
-            key={key2}
-            onDragStart={(e) => (dragItem.current = key2)}
+            key={answer.uuid}
+            onDragStart={(e) => (dragItem.current = answer.uuid)}
             onDragEnter={(e) => (
                 // console.log("onDragEnter move ", dragItem.current, " to ", answer_uuid),
-                dragOverItem.current = key2)
+                dragOverItem.current = answer.uuid)
             }
             onDragEnd={handleSort}
             onDragOver={(e) => e.preventDefault()}
@@ -110,7 +109,7 @@ export default function AnswerCard({ key2, answer_uuid, handleDeleteAnswer, hand
                                 answer.content}</p>
 
                         <p className="mt-1 text-xs leading-5 text-gray-400 ">
-                            Ranking: {answer.quality} Dauer: {
+                            Rank: {answer.rank} Dauer: {
 
                                 parseFloat(answer.time_elapsed).toFixed(1)
                             } s &nbsp;

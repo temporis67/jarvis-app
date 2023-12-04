@@ -1,23 +1,23 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 
 import clsx from "clsx";
-import {QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon} from "@heroicons/react/24/outline";
+import { QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
-import {useSession} from "next-auth/react";
+import { useSession } from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
 
 import useUserStore from "@/app/store/userStore";
-import useQuestionStore, {QuestionType} from "@/app/store/questionStore";
+import useQuestionStore, { QuestionType } from "@/app/store/questionStore";
+import useAnswersStore from "@/app/store/answersStore";
 
-import {JARVIS_API_HOST} from "../../../../env_vars";
-
+import { JARVIS_API_HOST } from "../../../../env_vars";
 
 
 const QuestionList = () => {
 
     // Initialisierung
     Moment.locale('de');
-    const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
+    const { data: session, status } = useSession(); // now we have a 'session' and session 'status'
     const api_host = JARVIS_API_HOST;
 
     // console.log("API host: ",  process.env.REACT_APP_JARVIS_API_HOST)
@@ -39,6 +39,8 @@ const QuestionList = () => {
 
     const currentQuestion = useQuestionStore(state => state.currentQuestion);
     const setCurrentQuestion = useQuestionStore(state => state.setCurrentQuestion);
+
+    const setAnswers = useAnswersStore(state => state.setAnswers);
 
     const addQuestion = useQuestionStore(state => state.addQuestion); // New function from store
     const delQuestion = useQuestionStore(state => state.delQuestion); // New function from store
@@ -92,6 +94,7 @@ const QuestionList = () => {
                     let _questionsItems = questions.filter(question => question.uuid !== questionId);
                     // @ts-ignore
                     setQuestions(_questionsItems);
+                    setAnswers([]);
                 })
                 .catch(error => {
                     console.error("Fehler beim Löschen der Frage: ", error);
@@ -259,6 +262,8 @@ const QuestionList = () => {
             const data = await response.json();
             console.log("Delete Question data OK: ", data);
 
+
+
             return;
 
         } catch (error) {
@@ -286,6 +291,7 @@ const QuestionList = () => {
             content: '',
             date_created: '',
             date_updated: '',
+            rank: 50,
             answers: null,
         }
 
@@ -353,19 +359,21 @@ const QuestionList = () => {
             const out_items = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
 
             // @ts-ignore
-            console.log("get_questions_by_user() creator: ", out_items[0]['creator']);
+            console.log("*** get_questions_by_user(): ", out_items);
 
+
+            // sort out_items by 'rank' which is a number
             out_items.sort((a, b) => {
                 // @ts-ignore
-                const dateA = new Date(a['date_updated']);
+                const rankA = a['rank'];
                 // @ts-ignore
-                const dateB = new Date(b['date_updated']);
-                // console.log("dateA: ", dateA, " # dateB: ", dateB);
-                return dateA.getTime() - dateB.getTime();
+                const rankB = b['rank'];
+                // console.log("rankA: ", rankA, " # rankB: ", rankB);
+                return rankB - rankA;
             });
-            let out_items2 = out_items.reverse();
 
-            for (let q of out_items2) {
+
+            for (let q of out_items) {
                 // @ts-ignore
                 // console.log("Question: " + q['date_updated']);
                 // @ts-ignore
@@ -374,7 +382,7 @@ const QuestionList = () => {
 
 
             }
-            
+
             // @ts-ignore
             setQuestions(out_items);
             // @ts-ignore
@@ -394,6 +402,36 @@ const QuestionList = () => {
         }
     };
 
+    const api_update_question_rank = async (questionId: string, rank: string) => {
+        console.log("Update Question Rank API fetch() start", questionId, " # ", rank);
+
+        let formData = new FormData();
+        // @ts-ignore
+        formData.append("user_uuid", user_uuid);
+        formData.append("question_uuid", questionId);
+        formData.append("rank", rank.toString());
+
+        const api_url = (api_host + "/update_question_rank");
+
+        try {
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: formData,
+                mode: 'cors',
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok', await response.json());
+            }
+            const data = await response.json();
+            console.log("QL.api_update_question_rank OK: ", data);
+
+            return data;
+
+        } catch (error) {
+            console.error("ERROR:: QL.api_update_question_rank: ", error);
+        }
+
+    }
 
     const onClose = () => {
         // console.log("Modal has closed")
@@ -401,7 +439,7 @@ const QuestionList = () => {
     }
 
 
-// execute get_questions_by_user on page load
+    // execute get_questions_by_user on page load
     useEffect(() => {
         // const user_uuid = useUserStore.getState().userUuid;
         api_get_questions_by_user(user_uuid).then(r => {
@@ -413,24 +451,50 @@ const QuestionList = () => {
     // console.log("API fetched Questions Ende: ")
 
 
-// Drag & Drop Handling *******************************************************************************
+    // Drag & Drop Handling *******************************************************************************
 
-// save reference for dragItem and dragOverItem
+    // save reference for dragItem and dragOverItem
     const dragItem = React.useRef<any>(null);
     const dragOverItem = React.useRef<any>(null);
 
-// const handle drag sorting
+    // const handle drag sorting
     const handleSort = () => {
         //duplicate items
         // @ts-ignore
         let _questionsItems = [...questions];
 
+        console.log("* handleSort: dragging  ", dragItem.current, " to ", dragOverItem.current)
+        // save the dragOverItem content
+        const dragOverIndex = _questionsItems.findIndex(question => question.uuid === dragOverItem.current);
+        const dragOverItemContent = _questionsItems.find(question => question.uuid === dragOverItem.current);
         //remove and save the dragged item content
-        const draggedItemContent = _questionsItems.splice(dragItem.current, 1)[0];
+        const draggedIndex = _questionsItems.findIndex(question => question.uuid === dragItem.current);
+        const draggedItemContent = _questionsItems.splice(draggedIndex, 1)[0];
 
-        console.log("handleSort: dragging  ", draggedItemContent.uuid, " to ", dragOverItem.current.uuid)
+        console.log("handleSort: dragging  ", draggedItemContent.uuid, " to ", dragOverItemContent?.uuid)
+
+        // calculate new rank. for now set the draffed item to the tagets rank abnd decrease target by one
+        // @ts-ignore
+        draggedItemContent.rank = dragOverItemContent.rank;
+        // @ts-ignore
+        dragOverItemContent.rank = dragOverItemContent.rank - 1;
+
+
+        // save the dragged item rank
+        // @ts-ignore
+        api_update_question_rank(draggedItemContent.uuid, draggedItemContent.rank).then(r => {
+            // console.log("api_update_question_rank() SUCCESS:: #", r)
+        })
+        // @ts-ignore
+        api_update_question_rank(dragOverItemContent.uuid, dragOverItemContent.rank).then(r => {
+            // console.log("api_update_question_rank() SUCCESS:: #", r)
+        })
+
         //switch the position
-        _questionsItems.splice(dragOverItem.current, 0, draggedItemContent);
+        _questionsItems.splice(dragOverIndex, 0, draggedItemContent);
+
+        setCurrentQuestionId(draggedItemContent.uuid);
+        setCurrentQuestion(draggedItemContent);
 
         //reset the position ref
         dragItem.current = null;
@@ -441,7 +505,7 @@ const QuestionList = () => {
         setQuestions(_questionsItems);
     };
 
-// Ende Drag & Drop Handling *******************************************************************************
+    // Ende Drag & Drop Handling *******************************************************************************
 
     // Display full text view
     const showFullQuestion = (event: React.MouseEvent<HTMLParagraphElement, MouseEvent>) => {
@@ -457,7 +521,7 @@ const QuestionList = () => {
         }
     };
 
-// Main Component *************************************************************************************************
+    // Main Component *************************************************************************************************
     // @ts-ignore
     return (
         <div className={"w-1/2"}>
@@ -465,10 +529,10 @@ const QuestionList = () => {
                 <div className={"p-2"}>Fragen</div>
                 <div className={"p-2"}>
                     <PlusCircleIcon className="w-5 h-5 text-gray-400"
-                                    onClick={() => handleClickNewQuestion()}
-                                    onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                    onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                    title={"Neue Frage erstellen"}
+                        onClick={() => handleClickNewQuestion()}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Neue Frage erstellen"}
                     />
 
                 </div>
@@ -484,44 +548,45 @@ const QuestionList = () => {
                     onClose={onClose}
                     onOk={saveQuestion}
                     showDialog={showDialog}
+
                 >
 
                     <div className="col-span-full">
-                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6 text-gray-900">
+                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6">
                             Frage:
                         </label>
                         <div className="mt-2">
-                                <textarea
-                                    id="modal-title"
-                                    name="modal-title"
-                                    // @ts-ignore
-                                    onChange={handleModalTitleChange}
-                                    rows={3}
-                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    defaultValue={modalTitle}
-                                />
+                            <textarea
+                                id="modal-title"
+                                name="modal-title"
+                                // @ts-ignore
+                                onChange={handleModalTitleChange}
+                                rows={3}
+                                className="bg-gray-700 p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                defaultValue={modalTitle}
+                            />
                         </div>
-
                     </div>
 
-                    <div className="col-span-full">
-                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6 text-gray-900">
+                    <div className="col-span-full mt-4">
+                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6">
                             Hintergrund:
                         </label>
-                        <div className="mt-2">
-                                <textarea
-                                    id="modal-content"
-                                    name="modal-content"
-                                    // @ts-ignore
-                                    onChange={handleModalContentChange}
-                                    rows={5}
-                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    defaultValue={modalContent}
-                                />
+                        <div className="">
+                            <textarea
+                                id="modal-content"
+                                name="modal-content"
+                                // @ts-ignore
+                                onChange={handleModalContentChange}
+                                rows={5}
+                                className="bg-gray-700 p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                defaultValue={modalContent}
+                            />
                         </div>
-                        <p className="mt-3 text-xs leading-6 text-gray-600">
+                        <p className="mt-3 text-xs leading-6">
                             Die Hintergrundinformationen beeinflussen die Antwort des Models entscheidend.
-                            Hilfreich sind sprachlich ähnlich Texte aus dem gleichen Themengebiet.
+                            Hilfreich sind sprachlich ähnlich Texte aus dem gleichen Themengebiet.<br />
+                            Oder zu berücksichtigende Fakten.
 
                         </p>
                     </div>
@@ -539,9 +604,9 @@ const QuestionList = () => {
                     //@ts-ignore
                     <div
                         draggable
-                        key={index}
-                        onDragStart={(e) => (dragItem.current = index)}
-                        onDragEnter={(e) => (dragOverItem.current = index)}
+                        key={question.uuid}
+                        onDragStart={(e) => (dragItem.current = question.uuid)}
+                        onDragEnter={(e) => (dragOverItem.current = question.uuid)}
                         onDragEnd={handleSort}
                         onDragOver={(e) => e.preventDefault()}
                         //@ts-ignore
@@ -557,9 +622,9 @@ const QuestionList = () => {
                     >
                         <div className="flex min-w-1 gap-x-4">
                             <QuestionMarkCircleIcon className={"w-5 h-5 text-gray-400"}
-                                                    onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                                    onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                                    title={question.uuid}
+                                onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                title={question.uuid}
 
 
                             />
@@ -575,34 +640,35 @@ const QuestionList = () => {
                                     <span id={"title_" +
                                         // @ts-ignore
                                         question.uuid}>{
-                                        // @ts-ignore
-                                        question.title}</span></p>
+                                            // @ts-ignore
+                                            question.title}</span></p>
                                 <p id={"content_" +
                                     // @ts-ignore
                                     question.uuid}
-                                   className="mt-1 truncate text-xs leading-5"
-                                   onMouseOver={showFullQuestion}
-                                   onMouseOut={showShortQuestion}
+                                    className="mt-1 truncate text-xs leading-5"
+                                    onMouseOver={showFullQuestion}
+                                    onMouseOut={showShortQuestion}
 
                                 >{
-                                    // @ts-ignore
-                                    question.content}</p>
+                                        // @ts-ignore
+                                        question.content}</p>
+                                        <p className="text-xs">Rank: {question.rank}</p>
                             </div>
                         </div>
-                        <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                            <p className="text-xs leading-6 text-gray-400">
+                        <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end ">
+                            <p className="text-xs leading-6 text-gray-400 ">
                                 {
                                     // @ts-ignore
                                     question.tags ? (
                                         // @ts-ignore
                                         question.tags.map((tag: string) => (
                                             <span key={tag}>
-                                    #{tag}&nbsp;
-                                </span>
+                                                #{tag}&nbsp;
+                                            </span>
                                         ))
                                     ) : (<span>
-                                    #noTag&nbsp;
-                                </span>
+                                        #noTag&nbsp;
+                                    </span>
                                     )}
 
                             </p>
@@ -611,39 +677,39 @@ const QuestionList = () => {
                                 question.date_updated ? (
                                     <p className="mt-1 text-xs leading-5 text-gray-400">
                                         <time dateTime={
-                                        // @ts-ignore
-                                        question.date_updated}>
-                                        {
                                             // @ts-ignore
-                                            Moment(question.date_updated).format('DD.MM.YY HH:mm')
-                                        }
-                                    </time>
+                                            question.date_updated}>
+                                            {
+                                                // @ts-ignore
+                                                Moment(question.date_updated).format('DD.MM.YY HH:mm')
+                                            }
+                                        </time>
                                     </p>
                                 ) : (
                                     <p className="mt-1 text-xs leading-5 text-gray-500">
                                         <time
-                                        // @ts-ignore
-                                        dateTime={
-                                        question.date_created}>{// @ts-ignore
-                                        Moment(question.date_created).format('DD.MM.y HH:mm')
-                                    }</time>
+                                            // @ts-ignore
+                                            dateTime={
+                                                question.date_created}>{// @ts-ignore
+                                                Moment(question.date_created).format('DD.MM.y HH:mm')
+                                            }</time>
                                     </p>
                                 )}
                         </div>
                         <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
                             <TrashIcon className="w-5 h-5 text-gray-400"
                                 // @ts-ignore
-                                       onClick={() => handleDeleteQuestion(question.uuid)}
-                                       onMouseOver={(e) => e.currentTarget.style.color = 'red'}
-                                       onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                       title={"Frage löschen"}
+                                onClick={() => handleDeleteQuestion(question.uuid)}
+                                onMouseOver={(e) => e.currentTarget.style.color = 'red'}
+                                onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                title={"Frage löschen"}
                             />
                             <PencilSquareIcon className="w-5 h-5 text-gray-400"
                                 // @ts-ignore
-                                              onClick={() => handleUpdateQuestion(question.uuid)}
-                                              onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                              onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                              title={"Frage bearbeiten"}
+                                onClick={() => handleUpdateQuestion(question.uuid)}
+                                onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                title={"Frage bearbeiten"}
 
                             />
                         </div>

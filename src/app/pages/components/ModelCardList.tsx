@@ -149,7 +149,7 @@ const ModelCardList = ({mode}: {mode: string}) => {
                 >
 
                     <div className="col-span-full">
-                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6 text-gray-900">
+                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6">
                             Model Label
                         </label>
                         <div className="mt-2">
@@ -159,14 +159,14 @@ const ModelCardList = ({mode}: {mode: string}) => {
                                     // @ts-ignore
                                     onChange={handleModalTitleChange}
                                     rows={2}
-                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    className="bg-gray-700 p-2 block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                     defaultValue={modalTitle}
                                 />
                         </div>
                     </div>
 
-                    <div className="col-span-full">
-                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6 text-gray-900">
+                    <div className="col-span-full mt-4">
+                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6">
                             Prompt:
                         </label>
                         <div className="mt-2">
@@ -176,10 +176,10 @@ const ModelCardList = ({mode}: {mode: string}) => {
                                     // @ts-ignore
                                     onChange={handleModalContentChange}
                                     rows={6}
-                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    className="bg-gray-700 p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                     defaultValue={modalContent}
                                 />
-                            <p>Je nach Model können oder müssen die Platzhalter {"{question}"} und {"{content}"} benutzt werden.</p>
+                            <div className="mt-3 block text-sm">Je nach Model können oder müssen die Platzhalter {"{question}"} und {"{content}"} benutzt werden.</div>
                         </div>
 
 

@@ -237,6 +237,19 @@ const AnswerList = () => {
                 // console.log("AnswerList.api_new_answer.ask time_elapsed: ", newAnswer.time_elapsed);
                 newAnswer.creator_uuid = answer.creator_uuid;
                 newAnswer.user_name = answer.username;
+                // FIXME: rank should be calculated by API
+                newAnswer.rank = 100;
+
+                let old_one = answers[0]
+                if(old_one !== undefined){
+                    // @ts-ignore
+                    old_one.rank = old_one.rank - 1;
+                    // updateAnswer(old_one);
+                    api_handle_update_answer_rank(old_one.uuid, old_one.rank);
+
+                }
+
+
                 addAnswer(newAnswer);
                 setIsLoading("")
 
@@ -386,8 +399,21 @@ const AnswerList = () => {
                     // clear answers
             setAnswers([]);
             if (out_items.length === 0) {
-                return out_items;
+                return out_items;                                
             } // empty list
+
+
+            // sort out_items by 'rank' which is a number
+            out_items.sort((a:number, b:number) => {
+                // @ts-ignore
+                const rankA = a['rank'];
+                // @ts-ignore
+                const rankB = b['rank'];
+                // console.log("rankA: ", rankA, " # rankB: ", rankB);
+                return rankB - rankA;
+            });
+            out_items.reverse();
+
 
             for (let a of out_items) {
                 let answer: AnswerType = {
@@ -405,11 +431,14 @@ const AnswerList = () => {
                     trust: a.trust,
                     date_created: a.date_created,
                     date_updated: a.date_updated,
+                    rank: a.rank,
                 }
                 // console.log("Answer Time Elapsed: " + a.time_elapsed);
                 // setting answers with data from api
                 addAnswer(answer);
             }
+
+            
             console.log("get_answers_by_question() SUCCESS:: #", out_items)
             // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
 
@@ -465,25 +494,70 @@ const AnswerList = () => {
     const dragItem = React.useRef<any>(null);
     const dragOverItem = React.useRef<any>(null);
 
+
+    const api_handle_update_answer_rank = async (answer_uuid: string, rank: number) => {
+        console.log("Update Answer Rank API fetch() start", answer_uuid, " # ", rank);
+
+        let formData = new FormData();
+        // @ts-ignore
+        formData.append("answer_uuid", answer_uuid);
+        // @ts-ignore
+        formData.append("user_uuid", user_uuid);
+        formData.append("rank", rank.toString());
+        // @ts-ignore
+        formData.append("question_uuid", currentQuestionId);
+
+        const api_url = (api_host + "/update_answer_rank");
+
+        try {
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: formData,
+                mode: 'cors',
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok', await response.json());
+            }
+            const data = await response.json();
+            console.log("Update Answer Rank API fetch() data OK: ", data);
+        } catch (error) {
+            console.log("Error fetching data:", error);
+        }
+
+    }
+
 // const handle drag sorting
     const handleSort = () => {
         //duplicate items
         // @ts-ignore
         let _answers = [...answers];
         // console.info("handleSort: dragging  ", dragItem, " to ", dragOverItem)
-        // console.info("Answers: ", _answers)
+        console.info("Answers: ", _answers)
 
+
+        const dragOverItemContent = _answers.find(answer => answer.uuid === dragOverItem.current );
         const dragItemIndex = _answers.findIndex(item => item.uuid === dragItem.current);
         //remove and save the dragged item content
         const draggedItemContent = _answers.splice(dragItemIndex, 1)[0];
-
         const dragOverItemIndex = _answers.findIndex(item => item.uuid === dragOverItem.current);
+
         //switch the position
         _answers.splice(dragOverItemIndex, 0, draggedItemContent);
 
-        // console.info("Answers after: ", _answers)
+        // console.log("handleSort: dragging2  ", draggedItemContent.uuid, " to ", dragOverItemContent?.uuid)
 
-        // console.log("handleSort: dragging  ", draggedItemContent.uuid, " to ", dragOverItem.current.uuid)
+        // calculate new rank. for now set the draffed item to the tagets rank abnd decrease target by one
+        // @ts-ignore
+        draggedItemContent.rank = dragOverItemContent.rank;
+        // @ts-ignore
+        dragOverItemContent.rank = dragOverItemContent.rank - 1;
+
+        // save the rank of the dragged item and the target item
+        // @ts-ignore
+        api_handle_update_answer_rank(draggedItemContent.uuid, draggedItemContent.rank);
+        // @ts-ignore
+        api_handle_update_answer_rank(dragOverItemContent.uuid, dragOverItemContent.rank);
+
 
         //reset the position ref
         dragItem.current = null;
@@ -550,8 +624,8 @@ const AnswerList = () => {
                     showDialog={showDialog}
                 >
 
-                    <div className="col-span-full">
-                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6 text-gray-900">
+                    <div className="col-span-full text-gray-200">
+                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6">
                             Kernaussage:
                         </label>
                         <div className="mt-2">
@@ -561,14 +635,14 @@ const AnswerList = () => {
                                     // @ts-ignore
                                     onChange={handleModalTitleChange}
                                     rows={2}
-                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                     defaultValue={modalTitle}
                                 />
                         </div>
                     </div>
 
-                    <div className="col-span-full">
-                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6 text-gray-900">
+                    <div className="mt-4 col-span-full">
+                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6">
                             Hintergrund:
                         </label>
                         <div className="mt-2">
@@ -578,7 +652,7 @@ const AnswerList = () => {
                                     // @ts-ignore
                                     onChange={handleModalContentChange}
                                     rows={6}
-                                    className="p-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                    className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                     defaultValue={modalContent}
                                 />
                         </div>
@@ -596,7 +670,6 @@ const AnswerList = () => {
                 answers && (
                     answers.map((answer, index) => (
                             <AnswerCard
-                                key2={index}
                                 answer_uuid={answer.uuid}
                                 handleDeleteAnswer={handleDeleteAnswer}
                                 handleClickEditAnswer={handleClickEditAnswer}

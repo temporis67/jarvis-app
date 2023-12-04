@@ -37,9 +37,9 @@ export default function ModalDialog({title, onClose, onOk, children, showDialog}
         showDialog && (
 
             <dialog ref={dialogRef}
-                    className="fixed top-50 left-50 -translate-x-50 -translate-y-50 z-10 rounded-xl backdrop:bg-gray-800/50">
-                <div className="w-3/4 max-w-full bg-gray-200 flex flex-col" style={{width: '75vw'}}>
-                    <div className="flex flex-row justify-between mb-4 pt-2 px-5 bg-gray-200">
+                    className="bg-gray-700 text-gray-300 fixed top-50 left-50 -translate-x-50 -translate-y-50 z-10 rounded-xl backdrop:bg-gray-800/50">
+                <div className="w-3/4 max-w-full flex flex-col" style={{width: '75vw'}}>
+                    <div className="flex flex-row justify-between mb-4 pt-2 px-5 ">
                         <h1 className="text-2xl">{title}</h1>
 
                         <XCircleIcon className="w-6 h-6" onClick={closeDialog}

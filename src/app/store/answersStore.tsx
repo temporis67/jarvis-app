@@ -20,6 +20,7 @@ export type AnswerType = {
 
     quality: number;
     trust: number;
+    rank?: number;
 
     date_created: string;
     date_updated: string;

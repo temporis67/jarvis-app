@@ -76,8 +76,6 @@ export default function SideNav() {
     } else {
         return (
             <div className="flex h-full flex-col jupx-3 py-4 md:px-2">
-                {/* Logo */}
-
                 <div className="flex grow flex-row justify-items-start space-x-2 md:flex-col md:space-x-0 md:space-y-2">
                     <AuthButton/>
                 </div>

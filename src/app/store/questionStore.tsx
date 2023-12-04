@@ -17,6 +17,8 @@ export type QuestionType = {
     date_created: string | null;
     date_updated: string | null;
 
+    rank: number | null;
+
     answers: AnswersStoreType | null;
 
 }
@@ -49,6 +51,7 @@ const initialQuestions: QuestionsType = [
         content: "Galaxien entstanden aus Dichteunterschieden im frühen Universum. Sie entwickelten sich weiter durch Gravitationskräfte, die Gas und Staub zusammenzogen. Über Milliarden Jahre bildeten sich verschiedene Galaxientypen durch Kollisionen und Fusionen.",
         date_created: "11:15:40",
         date_updated: "11:16:05",
+        rank: 1,
         answers: null,
     },
     {
@@ -62,6 +65,7 @@ const initialQuestions: QuestionsType = [
         date_created: "11:15:40",
         date_updated: "11:16:05",
         answers: null,
+        rank: 1,
     },
 ]
 
