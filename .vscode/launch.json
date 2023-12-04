@@ -28,6 +28,16 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Yarn run start",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": [
+                "run",
+                "start"
+            ],
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Program",
             "skipFiles": [
                 "<node_internals>/**"

@@ -44,7 +44,7 @@ export default function ModelCard({model_uuid, handleClickEditModel, mode}: { mo
                 <div className={clsx("m-1 overflow-hidden shadow rounded-lg",
                     {
                         // @ts-ignore
-                        ' bg-gray-500': model.uuid === currentModel.uuid,
+                        ' bg-gray-600': model.uuid === currentModel.uuid,
                         // @ts-ignore
                         ' bg-gray-700': model.uuid !== currentModel.uuid,
                     })}

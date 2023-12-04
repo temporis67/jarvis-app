@@ -29,9 +29,10 @@ export default function NavLinks() {
     const pathname = usePathname();
     const {status} = useSession();
 
+
     if (status === 'authenticated') {
         return (
-            <>
+            <div className=' bg-gray-700 text-gray-400'>
                 {links.map((link) => {
                     const LinkIcon = link.icon;
                     return (
@@ -39,9 +40,9 @@ export default function NavLinks() {
                             key={link.name}
                             href={link.href}
                             className={clsx(
-                                'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-700 text-gray-400 p-3 text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
+                                'flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
                                 {
-                                    'bg-gray-500 text-gray-200': pathname === link.href,
+                                    'bg-gray-600 text-gray-200': pathname === link.href,
                                 },
                             )}
                         >
@@ -50,7 +51,7 @@ export default function NavLinks() {
                         </Link>
                     );
                 })}
-            </>
+            </div>
         );
     } else {
         return (<></>)

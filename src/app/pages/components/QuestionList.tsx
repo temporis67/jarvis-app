@@ -20,7 +20,7 @@ const QuestionList = () => {
     const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
     const api_host = JARVIS_API_HOST;
 
-    console.log("************** API host: ", api_host)
+    // console.log("API host: ",  process.env.REACT_APP_JARVIS_API_HOST)
 
 
 
@@ -29,7 +29,7 @@ const QuestionList = () => {
     const user_name = useUserStore.getState().userName;
 
     const setUserUuid = useUserStore(state => state.setUserUuid);
-    console.log("@/app/pages/components/QuestionList start - UUID: " + user_uuid)
+    console.log("@/app/pages/components/QuestionList start - user_uuid: " + user_uuid)
 
     // Use store functions for handling question state
     const questions = useQuestionStore(state => state.questions);
@@ -129,7 +129,7 @@ const QuestionList = () => {
                 throw new Error('Network response was not ok', await response.json());
             }
             const data = await response.json();
-            console.log("Update Question API fetch() data OK: ", data);
+            console.log("QL.api_update_question OK: ", data);
 
             // LATER: Set all fields based on data/question
             question.date_updated = data.date_updated;
@@ -140,7 +140,7 @@ const QuestionList = () => {
 
 
         } catch (error) {
-            console.log("Error fetching data:", error);
+            console.error("ERROR:: QL.api_update_question: ", error);
         }
 
     }
@@ -156,7 +156,7 @@ const QuestionList = () => {
             console.log("Neue Frage wird erstellt")
             // @ts-ignore
             api_new_question().then((new_question: QuestionType) => {
-                console.log("Fresh Question Item: ", new_question);
+                // console.log("Fresh Question Item: ", new_question);
                 if (new_question === undefined) {
                     throw new Error('ERROR: pages/questions/page.tsx/saveQuestion(): Could not create new question uuid is undefined');
                 } else {
@@ -170,7 +170,7 @@ const QuestionList = () => {
                     // update DB via API
                     // @ts-ignore
                     api_update_question(new_question).then(r => {
-                        console.log("api_update_question() SUCCESS:: #", r)
+                        // console.log("api_update_question() SUCCESS:: #", r)
                         new_question.status = "loaded";
                         addQuestion(new_question);
                     })
@@ -257,15 +257,12 @@ const QuestionList = () => {
                 throw new Error('Network response was not ok', await response.json());
             }
             const data = await response.json();
-            console.log("Delete Question API fetch() data OK: ", data);
-
-
-            // console.log("Delete Question API fetch() out_items: ");
+            console.log("Delete Question data OK: ", data);
 
             return;
 
         } catch (error) {
-            console.log("Error fetching data:", error);
+            console.error("Error fetching data:", error);
         }
     }
 
@@ -303,7 +300,6 @@ const QuestionList = () => {
                 throw new Error('Network response was not ok', await response.json());
             }
             const data = await response.json();
-            // console.log(":::: New Question API fetch() data OK: ", data);
 
             let out_items = {};
             Object.keys(data).forEach(key => {
@@ -318,12 +314,12 @@ const QuestionList = () => {
             // @ts-ignore
             out_items['creator'] = session.user.name;
 
-            console.log("New Question API fetch() out_items: ", new_question);
+            console.log("api_new_question OK new_question: ", new_question);
 
             return out_items;
 
         } catch (error) {
-            console.log("Error fetching data:", error);
+            console.error("Error fetching data in api_new_question:", error);
         }
 
 
@@ -333,7 +329,7 @@ const QuestionList = () => {
     const api_get_questions_by_user = async (user_uuid2: string | null) => {
 
         const api_url = (api_host + "/questions");
-        console.log("questions/page/get_questions_by_user() start", user_uuid2)
+        // console.log("questions/page/get_questions_by_user() start", user_uuid2)
 
         if (user_uuid2 === undefined || user_uuid2 === null) {
             throw new Error('ERROR: pages/questions/page.tsx/get_questions_by_user(): user uuid not given:: ' + user_uuid2);
@@ -357,7 +353,7 @@ const QuestionList = () => {
             const out_items = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
 
             // @ts-ignore
-            console.log("get_questions_by_user() date_updated: ", out_items[0]['date_updated']);
+            console.log("get_questions_by_user() creator: ", out_items[0]['creator']);
 
             out_items.sort((a, b) => {
                 // @ts-ignore
@@ -374,10 +370,11 @@ const QuestionList = () => {
                 // console.log("Question: " + q['date_updated']);
                 // @ts-ignore
                 // ToDo: replace creator with user name
-                q['creator'] = user_name;
+                q['creator'] = q['user_name'];
 
 
             }
+            
             // @ts-ignore
             setQuestions(out_items);
             // @ts-ignore
@@ -390,7 +387,7 @@ const QuestionList = () => {
             // @ts-ignore
 
 
-            // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
+            console.log("************ api_get_questions_by_user OK:", out_items);
 
         } catch (error) {
             console.log("Error fetching data:", error);
@@ -550,10 +547,11 @@ const QuestionList = () => {
                         //@ts-ignore
                         onClick={(event) => handleSelectQuestion(event, question.uuid)}
                         className={clsx(
-                            'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md bg-gray-700 text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
+                            'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
                             {
                                 // @ts-ignore
-                                'bg-gray-500': question.uuid === currentQuestionId,
+                                ' bg-gray-600  text-gray-300': question.uuid === currentQuestionId,
+                                ' bg-gray-700 text-gray-400': question.uuid !== currentQuestionId,
                             }
                         )}
                     >
@@ -569,7 +567,7 @@ const QuestionList = () => {
                         <div className="flex min-w-0 gap-x-4">
 
                             <div className="min-w-0 flex-auto">
-                                <p className="text-sm font-semibold leading-6 text-gray-300">{
+                                <p className="text-sm font-semibold leading-6">{
                                     // @ts-ignore
                                     question.creator}:&nbsp;
                                     {/* set id to question.uuid */}
@@ -582,7 +580,7 @@ const QuestionList = () => {
                                 <p id={"content_" +
                                     // @ts-ignore
                                     question.uuid}
-                                   className="mt-1 truncate text-xs leading-5 text-gray-300"
+                                   className="mt-1 truncate text-xs leading-5"
                                    onMouseOver={showFullQuestion}
                                    onMouseOut={showShortQuestion}
 

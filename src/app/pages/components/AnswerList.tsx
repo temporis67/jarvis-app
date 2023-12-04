@@ -48,7 +48,7 @@ const AnswerList = () => {
 
     const current_model = useModelStore(state => state.current_model);
 
-    console.log("AnswerList start - UserId # questionId # answer.len ::" + user_uuid + " # " + currentQuestionId + " # " + answers.length)
+    console.log("AnswerList start, answers: ", answers)
 
 
     // Update Question ModalDialog *******************************************************************************
@@ -497,7 +497,7 @@ const AnswerList = () => {
 // Ende Drag & Drop Handling *******************************************************************************
 
 
-    console.log("AnswerList.tsx Ende: " + user_uuid)
+//     console.log("AnswerList.tsx Ende: " + user_uuid)
 
 // Main Component *************************************************************************************************
     // @ts-ignore
@@ -596,13 +596,13 @@ const AnswerList = () => {
                 answers && (
                     answers.map((answer, index) => (
                             <AnswerCard
-                                key={index}
+                                key2={index}
                                 answer_uuid={answer.uuid}
                                 handleDeleteAnswer={handleDeleteAnswer}
                                 handleClickEditAnswer={handleClickEditAnswer}
                                 dragItem={dragItem}
                                 dragOverItem={dragOverItem}
-                                handleSort={handleSort}
+                                handleSort={handleSort}                                
 
                             />
                         )
