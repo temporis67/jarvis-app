@@ -670,6 +670,7 @@ const AnswerList = () => {
                 answers && (
                     answers.map((answer, index) => (
                             <AnswerCard
+                                key={index}
                                 answer_uuid={answer.uuid}
                                 handleDeleteAnswer={handleDeleteAnswer}
                                 handleClickEditAnswer={handleClickEditAnswer}
