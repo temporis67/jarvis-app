@@ -13,7 +13,7 @@ export default function Home() {
     return (
         <main>
             <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-                Jarvis - LLM Demonstrator :: { status}
+                Jarvis - LLM Demonstrator 
             </h1>
                     <>
                     <p className={"font-semibold"}>Bitte loggen Sie sich ein.</p>
@@ -23,16 +23,5 @@ export default function Home() {
                     </>
         </main>
 
-
-        /*
-
-            <>
-
-
-
-
-
-            </>
-        */
     );
 }
