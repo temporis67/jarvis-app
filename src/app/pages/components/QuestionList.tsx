@@ -447,7 +447,7 @@ const QuestionList = () => {
         }).catch(e => {
             console.error("useEffect get_questions_by_user() ERROR:: #", e, " # ", user_uuid)
         });
-    }, []);
+    }, [api_get_questions_by_user, user_uuid]);
     // console.log("API fetched Questions Ende: ")
 
 
