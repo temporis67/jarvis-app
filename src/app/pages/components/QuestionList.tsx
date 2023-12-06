@@ -10,14 +10,14 @@ import useUserStore from "@/app/store/userStore";
 import useQuestionStore, { QuestionType } from "@/app/store/questionStore";
 import useAnswersStore from "@/app/store/answersStore";
 
+const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
+
 
 const QuestionList = () => {
 
     // Initialisierung
     Moment.locale('de');
     const { data: session, status } = useSession(); // now we have a 'session' and session 'status'
-    const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
-
 
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);
