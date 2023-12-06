@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import clsx from "clsx";
 import { QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
@@ -10,18 +10,13 @@ import useUserStore from "@/app/store/userStore";
 import useQuestionStore, { QuestionType } from "@/app/store/questionStore";
 import useAnswersStore from "@/app/store/answersStore";
 
-import { JARVIS_API_HOST } from "../../../../env_vars";
-
 
 const QuestionList = () => {
 
     // Initialisierung
     Moment.locale('de');
     const { data: session, status } = useSession(); // now we have a 'session' and session 'status'
-    const api_host = JARVIS_API_HOST;
-
-    // console.log("API host: ",  process.env.REACT_APP_JARVIS_API_HOST)
-
+    const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
 
 
     // connect variables to zustand store
@@ -440,14 +435,15 @@ const QuestionList = () => {
 
 
     // execute get_questions_by_user on page load
+    const memoizedApiGetQuestionsByUser = useCallback(api_get_questions_by_user, []);
+
     useEffect(() => {
-        // const user_uuid = useUserStore.getState().userUuid;
-        api_get_questions_by_user(user_uuid).then(r => {
+        memoizedApiGetQuestionsByUser(user_uuid).then(r => {
             // console.log("useEffect get_questions_by_user() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
         }).catch(e => {
             console.error("useEffect get_questions_by_user() ERROR:: #", e, " # ", user_uuid)
         });
-    }, [api_get_questions_by_user, user_uuid]);
+    }, [memoizedApiGetQuestionsByUser, user_uuid]);
     // console.log("API fetched Questions Ende: ")
 
 

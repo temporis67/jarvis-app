@@ -6,7 +6,6 @@ import useUserStore from "@/app/store/userStore";
 import useModelStore from "@/app/store/modelStore";
 import {ModelType} from "@/app/store/modelStore";
 import ModelCard from "@/app/pages/components/ModelCard";
-import {JARVIS_API_HOST} from "../../../../env_vars";
 
 
 const NewQuestionForm = () => {
@@ -35,7 +34,7 @@ const NewQuestionForm = () => {
     const [newContent, setNewContent] = React.useState("");
 
 
-    const api_host = JARVIS_API_HOST;
+    const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;;
 
 
     const new_question = async () => {

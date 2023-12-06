@@ -1,13 +1,12 @@
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials"
-import {JARVIS_API_HOST} from "../env_vars";
 import { NextAuthOptions } from "next-auth";
 
 async function getUser(name: string, password: string): Promise<Response> {
 
     try {
-        const api_host = JARVIS_API_HOST;
+        const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
         const api_url = (api_host + "/user");
 
         let formData = new FormData();

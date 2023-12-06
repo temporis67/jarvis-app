@@ -4,14 +4,13 @@ import {ModelType} from "@/app/store/modelStore";
 
 import ModelCard from "@/app/pages/components/ModelCard";
 import React, {useEffect, useState} from "react";
-import ModelStore from "@/app/store/modelStore";
 import ModalDialog from "@/app/components/ModalDialog";
-import {JARVIS_API_HOST} from "../../../../env_vars";
+
 
 
 const ModelCardList = ({mode}: {mode: string}) => {
 
-    const api_host = JARVIS_API_HOST;
+    const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;;
 
     const models = useModelStore(state => state.models);
     const setModels = useModelStore(state => state.setModels);

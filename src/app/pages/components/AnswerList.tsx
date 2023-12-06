@@ -1,33 +1,27 @@
 import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import clsx from "clsx";
 import {
-    QuestionMarkCircleIcon,
-    TrashIcon,
-    PencilSquareIcon,
-    ExclamationCircleIcon,
     PlusCircleIcon, CalculatorIcon
 } from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import {useSession} from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
-import {useSearchParams} from 'next/navigation'
 import useUserStore from "@/app/store/userStore";
 import useQuestionStore from "@/app/store/questionStore";
 
 import useAnswersStore from "@/app/store/answersStore";
 import {AnswerType} from "@/app/store/answersStore";
 import AnswerCard from "@/app/pages/components/AnswerCard";
-import AskButton from "@/app/pages/components/AskButton";
 import useModelStore from "@/app/store/modelStore";
-import {JARVIS_API_HOST} from "../../../../env_vars";
+
 
 
 const AnswerList = () => {
 
     // Initialisierung
     Moment.locale('de');
-    const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
-    const api_host = JARVIS_API_HOST;
+    
+    const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;;
 
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);

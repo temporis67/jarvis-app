@@ -1,6 +1,4 @@
 "use client"
-import useUserStore from "@/app/store/userStore";
-
 
 const is_client = typeof window !== "undefined";
 
@@ -8,7 +6,7 @@ export default function Page() {
     console.log("Root Page Start :", process.env.GITHUB_SECRET);
 
     if (is_client) {
-        console.log("Root Page Client :", process.env.REACT_APP_JARVIS_API_HOST);
+        console.log("/app/pages/page.tsx is CLIENT");
     }
 
     return (
