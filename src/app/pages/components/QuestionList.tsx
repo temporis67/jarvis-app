@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import clsx from "clsx";
 import { QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
@@ -28,6 +28,9 @@ const QuestionList = () => {
 
     // Use store functions for handling question state
     const questions = useQuestionStore(state => state.questions);
+    console.log("@/app/pages/components/QuestionList start - questions: ", questions)
+
+
     const setQuestions = useQuestionStore(state => state.setQuestions);
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
     const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
@@ -61,8 +64,10 @@ const QuestionList = () => {
 
     const handleSelectQuestion = (event: React.MouseEvent<HTMLElement>, questionId: string) => {
         // @ts-ignore
-        setCurrentQuestion(questions.find(q => q.uuid === questionId));
         setCurrentQuestionId(questionId);
+        // @ts-ignore
+        // setCurrentQuestion(questions.find(q => q.uuid === questionId));
+        
 
     }
 
@@ -327,18 +332,53 @@ const QuestionList = () => {
     };
 
 
-    const api_get_questions_by_user = async (user_uuid2: string | null) => {
+    
+    const api_update_question_rank = async (questionId: string, rank: string) => {
+        console.log("Update Question Rank API fetch() start", questionId, " # ", rank);
+
+        let formData = new FormData();
+        // @ts-ignore
+        formData.append("user_uuid", user_uuid);
+        formData.append("question_uuid", questionId);
+        formData.append("rank", rank.toString());
+
+        const api_url = (api_host + "/update_question_rank");
+
+        try {
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: formData,
+                mode: 'cors',
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok', await response.json());
+            }
+            const data = await response.json();
+            console.log("QL.api_update_question_rank OK: ", data);
+
+            return data;
+
+        } catch (error) {
+            console.error("ERROR:: QL.api_update_question_rank: ", error);
+        }
+
+    }
+
+    const onClose = () => {
+        // console.log("Modal has closed")
+        setShowDialog(false); // ModalDialog schließen
+    }
+
+
+
+    const api_get_questions_by_user = async () => {
 
         const api_url = (api_host + "/questions");
-        // console.log("questions/page/get_questions_by_user() start", user_uuid2)
-
-        if (user_uuid2 === undefined || user_uuid2 === null) {
-            throw new Error('ERROR: pages/questions/page.tsx/get_questions_by_user(): user uuid not given:: ' + user_uuid2);
-        }
+        console.log("questions/page/get_questions_by_user() start", user_uuid)
 
         let formData = new FormData();
         //@ts-ignore
-        formData.append("user_uuid", user_uuid2);
+        formData.append("user_uuid", user_uuid);
 
 
         try {
@@ -390,61 +430,21 @@ const QuestionList = () => {
             // @ts-ignore
 
 
-            console.log("************ api_get_questions_by_user OK:", out_items);
+            console.log("** api_get_questions_by_user OK:", out_items);
 
         } catch (error) {
             console.log("Error fetching data:", error);
         }
     };
 
-    const api_update_question_rank = async (questionId: string, rank: string) => {
-        console.log("Update Question Rank API fetch() start", questionId, " # ", rank);
-
-        let formData = new FormData();
-        // @ts-ignore
-        formData.append("user_uuid", user_uuid);
-        formData.append("question_uuid", questionId);
-        formData.append("rank", rank.toString());
-
-        const api_url = (api_host + "/update_question_rank");
-
-        try {
-            const response = await fetch(api_url, {
-                method: "POST",
-                body: formData,
-                mode: 'cors',
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok', await response.json());
-            }
-            const data = await response.json();
-            console.log("QL.api_update_question_rank OK: ", data);
-
-            return data;
-
-        } catch (error) {
-            console.error("ERROR:: QL.api_update_question_rank: ", error);
-        }
-
-    }
-
-    const onClose = () => {
-        // console.log("Modal has closed")
-        setShowDialog(false); // ModalDialog schließen
-    }
-
 
     // execute get_questions_by_user on page load
-    const memoizedApiGetQuestionsByUser = useCallback(api_get_questions_by_user, []);
-
-    useEffect(() => {
-        memoizedApiGetQuestionsByUser(user_uuid).then(r => {
-            // console.log("useEffect get_questions_by_user() SUCCESS:: #", r, " # ", useUserStore.getState().userUuid)
-        }).catch(e => {
-            console.error("useEffect get_questions_by_user() ERROR:: #", e, " # ", user_uuid)
-        });
-    }, [memoizedApiGetQuestionsByUser, user_uuid]);
-    // console.log("API fetched Questions Ende: ")
+    if (questions === undefined || questions === null || questions.length === 0) {
+        api_get_questions_by_user();
+        console.log("Initially loaded questions for user: ", user_uuid);
+    }
+    
+    console.log("API fetched Questions Ende: ")
 
 
     // Drag & Drop Handling *******************************************************************************

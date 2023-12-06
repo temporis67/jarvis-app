@@ -1,10 +1,10 @@
-import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
+import React, {useState, useEffect} from "react";
 import clsx from "clsx";
 import {
     PlusCircleIcon, CalculatorIcon
 } from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
-import {useSession} from "next-auth/react";
+
 import ModalDialog from "@/app/components/ModalDialog";
 import useUserStore from "@/app/store/userStore";
 import useQuestionStore from "@/app/store/questionStore";
@@ -13,7 +13,6 @@ import useAnswersStore from "@/app/store/answersStore";
 import {AnswerType} from "@/app/store/answersStore";
 import AnswerCard from "@/app/pages/components/AnswerCard";
 import useModelStore from "@/app/store/modelStore";
-
 
 
 const AnswerList = () => {
@@ -37,6 +36,7 @@ const AnswerList = () => {
 
     const questions = useQuestionStore(state => state.questions);
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
+    const [loadedQuestionId, setLoadedQuestionId] = useState(null);
     // console.log("@/app/pages/components/AnswerList currentQuestionId: " + currentQuestionId)
     // const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
@@ -53,6 +53,33 @@ const AnswerList = () => {
     const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
     const [currentAnswerId, setCurrentAnswerId] = useState('');
     const [isLoading, setIsLoading] = useState('');
+
+
+
+    const load_answers = async () => {
+
+        // console.log("load_answers() start: ", currentQuestionId, " # ")
+        if (currentQuestionId === undefined || currentQuestionId === null) {
+            console.log("load_answers() no currentQuestionId given");
+            return;
+        } else {
+            // console.log("load_answers() 2: ", currentQuestionId);
+            await get_answers_by_question(currentQuestionId);
+        }
+
+    }
+
+    
+
+
+    useEffect(() => {
+        if (currentQuestionId !== loadedQuestionId) {
+            load_answers();
+            setLoadedQuestionId(currentQuestionId);
+        }
+    }, [currentQuestionId, loadedQuestionId]);
+
+
 
     // handle title change
     const handleModalTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -442,25 +469,6 @@ const AnswerList = () => {
     };
 
 
-    const load_answers = async () => {
-
-        // console.log("load_answers() start: ", currentQuestionId, " # ")
-        if (currentQuestionId === undefined || currentQuestionId === null) {
-            console.log("load_answers() no currentQuestionId given");
-            return;
-        } else {
-            // console.log("load_answers() 2: ", currentQuestionId);
-            await get_answers_by_question(currentQuestionId);
-        }
-
-    }
-
-
-    useEffect(() => {
-        // console.log("get_answers start UUID: " + currentQuestionId)
-        load_answers();
-
-    }, [currentQuestionId])
 
 
     const handleDeleteAnswer = (answerId: string) => {

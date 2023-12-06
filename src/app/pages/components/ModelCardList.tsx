@@ -46,7 +46,7 @@ const ModelCardList = ({mode}: {mode: string}) => {
                 throw new Error('apiFetch Network response was not ok: ' + await response.json());
             }
             const data = await response.json();
-            console.log("AnswerList.apiFetch() data OK: ", data);
+            console.log("ModelCardList.apiFetch() data OK: ", data);
 
             return data; // Return the whole response data
 
@@ -65,11 +65,11 @@ const ModelCardList = ({mode}: {mode: string}) => {
         // return data;
     }
 
-    useEffect(() => {
-        if (models.length === 0) { // Überprüfen, ob models leer ist
-            apiFetchModels(); // Models abrufen, wenn models leer ist
-        }
-    }, []);
+
+    if (models === undefined || models === null || models.length === 0) {
+        apiFetchModels();
+        
+    }
 
     const onClose = () => {
      //   console.log("Modal has closed")
@@ -130,6 +130,7 @@ const ModelCardList = ({mode}: {mode: string}) => {
         }
         setShowDialog(true); // ModalDialog anzeigen
     }
+
 
     if (models !== undefined && models !== null && models.length > 0) {
         models.sort((a, b) => a.model_label.localeCompare(b.model_label));

@@ -1,15 +1,34 @@
 "use client"
+import useQuestionStore from "../store/questionStore";
+import useUserStore from "../store/userStore";
+import {
+    PlusCircleIcon, CalculatorIcon
+} from "@heroicons/react/24/outline";
+
 
 const is_client = typeof window !== "undefined";
 
-export default function Page() {
-    console.log("Root Page Start :", process.env.GITHUB_SECRET);
+export default function Page(request:any) {
+    console.log("/app/pages/page.tsx Start");
+
+    console.log("/app/pages/page.tsx request: " + JSON.stringify(request));
+    const searchParams = request["searchParams"];
+    const user_uuid = searchParams["uuid"];
+    
+
+    const setUserUuid = useUserStore(state => state.setUserUuid);
+    // const setQuestions = useQuestionStore(state => state.setQuestions);
+    
 
     if (is_client) {
+        console.log("/app/pages/page.tsx setUserUuid: " + JSON.stringify(user_uuid));
+        setUserUuid(user_uuid);
+        // setQuestions([]);
         console.log("/app/pages/page.tsx is CLIENT");
     }
 
     return (
+
         <div className="p-2 text-gray-200">
             <h1 className="p-2 text-2xl">
                 Jarvis
@@ -21,9 +40,12 @@ export default function Page() {
                 Im Folgenden wird die grundlegende Architektur eines autark funktionierenden und erweiterbaren Large Language Models vorgestellt und demonstriert.
             </div>
             <div className="p-2">
-                Gehen Sie auf den Bereich "Fragen", 
-                schreiben Sie eine neue Frage über das Plus-Symbol 
-                und lassen Sie dann das oben ausgewählte Model eine Antwort berechnen über das Taschenrechner-Symbol.            
+                Direkt zum Demo: 
+                <ul className="list-disc ml-8">
+                <li>Gehen Sie links auf den Bereich "Fragen"</li>
+                <li><div className="flex">Schreiben Sie eine neue Frage über das &nbsp; <PlusCircleIcon className="w-[20px]"/>-Symbol</div></li>
+                <li><div className="flex">Berechnen Sie eine Antwort über das &nbsp; <CalculatorIcon  className="w-[20px]"/>-Symbol.</div></li>
+                </ul>
             </div>
 
             <hr className="mt-3"/>

@@ -70,7 +70,7 @@ const initialQuestions: QuestionsType = [
 ]
 
 const questionStore = (set: any) => ({
-    questions: initialQuestions,
+    questions: [],
     setQuestions: (new_questions: QuestionsType) => set({questions: new_questions}),
 
     currentQuestionId: null,

@@ -17,7 +17,7 @@ function AuthButton() {
 
                 <button
                     className="flex h-[44px] grow items-center justify-center gap-2 rounded-md bg-gray-700 text-gray-400 p-3 text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3"
-                    onClick={() => signOut()}
+                    onClick={() => signOut( {callbackUrl: '/'})}
                 >
                     <PowerIcon className="w-6"/>
                     <p className="hidden md:block">Sign Out</p>
@@ -43,9 +43,6 @@ function AuthButton() {
 export default function SideNav() {
 
     const {data: session, status} = useSession(); // now we have a 'session' and session 'status'
-    const user_name = useUserStore(state => state.userName);
-    const user_uuid = useUserStore(state => state.userUuid);
-
 
     if (status === 'authenticated') {
         return (
@@ -58,11 +55,7 @@ export default function SideNav() {
                     <div className="text-gray-400 text-right items-end">
                         <Logo/>
                     </div>
-                    {
-                        user_name ? <div className="text-right text-gray-400"
-                            // @ts-ignore
-                                         title={user_uuid}>for {user_name}</div> : <div>{user_uuid}</div>
-                    }
+
                 </a>
 
 
