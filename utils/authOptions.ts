@@ -52,7 +52,9 @@ export const authOptions: NextAuthOptions = {
             // You can pass any HTML attribute to the <input> tag through the object.
             credentials: {
                 username: {label: "Username", type: "text", placeholder: "Choose a username"},
-                password: {label: "Password", type: "password" }
+                password: {label: "Password", type: "password" },
+                // email: {label: "Email", type: "email" },
+                // uuid: {label: "UUID", type: "hidden" }
             },
             async authorize(credentials, req) {
                 // You need to provide your own logic here that takes the credentials
@@ -64,7 +66,7 @@ export const authOptions: NextAuthOptions = {
 
                 // console.log("credentials: " + JSON.stringify(credentials))
                 // @ts-ignore
-                const res = await getUser(credentials.username, credentials.password);
+                const res = await getUser(credentials.username, credentials.password); // credentials.email
                 const user = await res.json()
 
 

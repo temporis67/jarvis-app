@@ -20,7 +20,7 @@ const AnswerList = () => {
     // Initialisierung
     Moment.locale('de');
     
-    const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;;
+    const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
 
     // connect variables to zustand store
     const user_uuid = useUserStore(state => state.userUuid);
@@ -74,7 +74,9 @@ const AnswerList = () => {
 
     useEffect(() => {
         if (currentQuestionId !== loadedQuestionId) {
+            // here we async load the answers from external API and we have top wait for it
             load_answers();
+
             setLoadedQuestionId(currentQuestionId);
         }
     }, [currentQuestionId, loadedQuestionId]);
