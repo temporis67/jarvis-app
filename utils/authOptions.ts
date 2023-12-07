@@ -37,10 +37,10 @@ export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
 
     providers: [
-        GitHubProvider({
-            clientId: process.env.GITHUB_ID ?? "",
-            clientSecret: process.env.GITHUB_SECRET ?? "",
-        }),
+        // GitHubProvider({
+        //     clientId: process.env.GITHUB_ID ?? "",
+        //     clientSecret: process.env.GITHUB_SECRET ?? "",
+        // }),
 
         // my Credentials provider
         CredentialsProvider({

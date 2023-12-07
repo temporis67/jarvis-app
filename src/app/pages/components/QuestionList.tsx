@@ -52,6 +52,14 @@ const QuestionList = () => {
     const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
 
 
+if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
+    return (
+        <h1>Houston ...</h1>
+    )
+}
+
+
+
     // handle title change
     const handleModalTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setModalTitle(e.target.value);
@@ -437,11 +445,14 @@ const QuestionList = () => {
         }
     };
 
+    const [isLoaded, setIsLoaded] = useState(false);
 
     // execute get_questions_by_user on page load
-    if (questions === undefined || questions === null || questions.length === 0) {
+    if (!isLoaded) {
         api_get_questions_by_user();
+        setIsLoaded(true);
         console.log("Initially loaded questions for user: ", user_uuid);
+
     }
     
     console.log("API fetched Questions Ende: ")
