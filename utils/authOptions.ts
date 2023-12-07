@@ -53,7 +53,7 @@ export const authOptions: NextAuthOptions = {
             credentials: {
                 username: {label: "Username", type: "text", placeholder: "Choose a username"},
                 password: {label: "Password", type: "password" },
-                // email: {label: "Email", type: "email" },
+                email: {label: "Email", type: "email" },
                 // uuid: {label: "UUID", type: "hidden" }
             },
             async authorize(credentials, req) {

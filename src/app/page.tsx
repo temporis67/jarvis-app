@@ -24,7 +24,9 @@ export default async function Home() {
             formData.append("email", email);
         }
         else {
-            throw new Error('ERROR: User not found / No email in Session',);
+            return(
+                redirect("/api/auth/signin")
+            );
         }
 
 
