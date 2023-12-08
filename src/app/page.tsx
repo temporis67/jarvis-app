@@ -62,8 +62,8 @@ export default async function Home() {
         
         const session = await getServerSession();
         if (session){
-            console.log("app/page.tsx session ", session)
-            console.log("app/page.tsx is Logged in Server :: #", session?.user?.email,"#")
+            // console.log("app/page.tsx session ", session)
+            // console.log("app/page.tsx is Logged in Server :: #", session?.user?.email,"#")
             
             let uuid = await getUserByEMail(session);
             return (

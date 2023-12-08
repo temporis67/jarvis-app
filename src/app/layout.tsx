@@ -23,12 +23,12 @@ export default async function RootLayout({
     children: React.ReactNode;
 }) {
 
-    console.log("Root Layout Start",);
+    // console.log("Root Layout Start",);
 
     const session = await getServerSession();
 
 
-    console.info("session", session);
+    // console.info("session", session);
 
     if (!session) {
         return (
