@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
     title: "Jarvis UI",
-    description: "Another React Llama",
+    description: "Another Reactive Llama",
     authors: [{ name: "Temporis" }],
 };
 
