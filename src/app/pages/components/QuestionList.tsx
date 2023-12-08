@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
 
 import useUserStore from "@/app/store/userStore";
-import useQuestionStore, { QuestionType } from "@/app/store/questionStore";
+import useQuestionStore, { QuestionType, QuestionsType } from "@/app/store/questionStore";
 import useAnswersStore from "@/app/store/answersStore";
 
 const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
@@ -349,7 +349,7 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
 
 
     
-    const api_update_question_rank = async (questionId: string, rank: string) => {
+    const api_update_question_rank = async (questionId: string, rank: any) => {
         console.log("Update Question Rank API fetch() start", questionId, " # ", rank);
 
         let formData = new FormData();
@@ -469,6 +469,33 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
     // Drag & Drop Handling *******************************************************************************
 
 
+    const fix_ranking = (questions: QuestionsType) => {
+        console.log("fix_ranking() start: ", questions)
+        // @ts-ignore
+        let _questions = [...questions];
+
+        let offset = 0;
+        for (let i = 0; i < _questions.length; i++) {
+            // when an answer.rank is equal or bigger then the precessor's rank then decrease it to be lower the the rank of precessor
+
+            if (i < _questions.length - 1) // all but last element
+            {
+                // if rank is same or lower than sucessor, hit him
+                // @ts-ignore
+                if (_questions[i].rank === _questions[i + 1].rank || _questions[i].rank < _questions[i + 1].rank) {
+                    // @ts-ignore
+                    _questions[i + 1].rank = _questions[i].rank - 1;
+                    api_update_question_rank(_questions[i + 1].uuid, _questions[i + 1].rank);
+                }
+            }
+
+        }
+        console.log("fix_ranking() end: ", _questions)
+        return _questions;
+
+    }
+
+
     // const handle drag sorting
     const handleSort = () => {
         //duplicate items
@@ -485,11 +512,24 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
 
         console.log("handleSort: dragging  ", draggedItemContent.uuid, " to ", dragOverItemContent?.uuid)
 
-        // calculate new rank. for now set the draffed item to the tagets rank abnd decrease target by one
-        // @ts-ignore
-        draggedItemContent.rank = dragOverItemContent.rank;
-        // @ts-ignore
-        dragOverItemContent.rank = dragOverItemContent.rank - 1;
+
+        if (draggedIndex > dragOverIndex) {
+            // calculate new rank. for now set the draffed item to the tagets rank abnd decrease target by one
+            // @ts-ignore
+            draggedItemContent.rank = Number(dragOverItemContent.rank) + 1;
+            //switch the position
+            _questionsItems.splice(dragOverIndex, 0, draggedItemContent);
+
+            console.log("Moving UP")
+        }
+        else {
+            // @ts-ignore
+            draggedItemContent.rank = dragOverItemContent.rank - 1;
+            _questionsItems.splice(dragOverIndex + 1, 0, draggedItemContent);
+            console.log("Moving DOWN")
+
+        }
+
 
 
         // save the dragged item rank
@@ -497,13 +537,9 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
         api_update_question_rank(draggedItemContent.uuid, draggedItemContent.rank).then(r => {
             // console.log("api_update_question_rank() SUCCESS:: #", r)
         })
-        // @ts-ignore
-        api_update_question_rank(dragOverItemContent.uuid, dragOverItemContent.rank).then(r => {
-            // console.log("api_update_question_rank() SUCCESS:: #", r)
-        })
 
-        //switch the position
-        _questionsItems.splice(dragOverIndex, 0, draggedItemContent);
+        _questionsItems = fix_ranking(_questionsItems);
+
 
         setCurrentQuestionId(draggedItemContent.uuid);
         setCurrentQuestion(draggedItemContent);

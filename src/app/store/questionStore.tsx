@@ -17,13 +17,13 @@ export type QuestionType = {
     date_created: string | null;
     date_updated: string | null;
 
-    rank: number | null;
+    rank: number;
 
     answers: AnswersStoreType | null;
 
 }
 
-type QuestionsType = Array<QuestionType>
+export type QuestionsType = Array<QuestionType>
 
 export type  QuestionStoreType = {
     questions: QuestionsType;

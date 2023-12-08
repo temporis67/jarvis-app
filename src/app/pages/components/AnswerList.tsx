@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import clsx from "clsx";
 import {
     PlusCircleIcon, CalculatorIcon
@@ -10,7 +10,7 @@ import useUserStore from "@/app/store/userStore";
 import useQuestionStore from "@/app/store/questionStore";
 
 import useAnswersStore from "@/app/store/answersStore";
-import {AnswerType} from "@/app/store/answersStore";
+import { AnswerType } from "@/app/store/answersStore";
 import AnswerCard from "@/app/pages/components/AnswerCard";
 import useModelStore from "@/app/store/modelStore";
 
@@ -19,7 +19,7 @@ const AnswerList = () => {
 
     // Initialisierung
     Moment.locale('de');
-    
+
     const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
 
     // connect variables to zustand store
@@ -73,8 +73,8 @@ const AnswerList = () => {
             let formData = new FormData();
             //@ts-ignore
             formData.append("question_uuid", currentQuestionId);
-    
-    
+
+
             try {
                 const response = await fetch(api_url, {
                     method: "POST",
@@ -87,15 +87,15 @@ const AnswerList = () => {
                 const data = await response.json();
                 const out_items: any = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
                 // console.log("::::::::::::: get_answers_by_question() data OK: ", out_items);
-                        // clear answers
+                // clear answers
                 setAnswers([]);
                 if (out_items.length === 0) {
-                    return out_items;                                
+                    return out_items;
                 } // empty list
-    
-    
+
+
                 // sort out_items by 'rank' which is a number
-                out_items.sort((a:number, b:number) => {
+                out_items.sort((a: number, b: number) => {
                     // @ts-ignore
                     const rankA = a['rank'];
                     // @ts-ignore
@@ -104,8 +104,8 @@ const AnswerList = () => {
                     return rankB - rankA;
                 });
                 out_items.reverse();
-    
-    
+
+
                 for (let a of out_items) {
                     let answer: AnswerType = {
                         uuid: a.uuid,
@@ -128,20 +128,20 @@ const AnswerList = () => {
                     // setting answers with data from api
                     addAnswer(answer);
                 }
-    
-                
+
+
                 console.log("get_answers_by_question() SUCCESS:: #", out_items)
                 // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
-    
+
             } catch (error) {
                 console.log("Error fetching data:", error);
             }
-    
+
         }
 
-    },[currentQuestionId,  addAnswer, api_host, setAnswers]);
+    }, [currentQuestionId, addAnswer, api_host, setAnswers]);
 
-    
+
 
 
     useEffect(() => {
@@ -283,7 +283,7 @@ const AnswerList = () => {
             status: "loading",
             // @ts-ignore
             creator_uuid: current_model.uuid,
-            creator_name: current_model?.model_label|| "??",
+            creator_name: current_model?.model_label || "??",
             // @ts-ignore
             user_name: user_name,
             user_uuid: user_uuid,
@@ -336,11 +336,11 @@ const AnswerList = () => {
                 newAnswer.rank = 100;
 
                 let old_one = answers[0]
-                if(old_one !== undefined){
+                if (old_one !== undefined) {
                     // @ts-ignore
                     old_one.rank = old_one.rank - 1;
                     // updateAnswer(old_one);
-                    api_handle_update_answer_rank(old_one.uuid, old_one.rank);
+                    api_update_answer_rank(old_one.uuid, old_one.rank);
 
                 }
 
@@ -488,12 +488,12 @@ const AnswerList = () => {
 
     // Drag & Drop Handling *******************************************************************************
 
-// save reference for dragItem and dragOverItem
+    // save reference for dragItem and dragOverItem
     const dragItem = React.useRef<any>(null);
     const dragOverItem = React.useRef<any>(null);
 
 
-    const api_handle_update_answer_rank = async (answer_uuid: string, rank: number) => {
+    const api_update_answer_rank = async (answer_uuid: string, rank: number) => {
         console.log("Update Answer Rank API fetch() start", answer_uuid, " # ", rank);
 
         let formData = new FormData();
@@ -524,7 +524,36 @@ const AnswerList = () => {
 
     }
 
-// const handle drag sorting
+
+    const fix_ranking = (answers: AnswerType[]) => {
+        console.log("fix_ranking() start: ", answers)
+        // @ts-ignore
+        let _answers = [...answers];
+
+        let offset = 0;
+        for (let i = 0; i < _answers.length; i++) {
+            // when an answer.rank is equal or bigger then the precessor's rank then decrease it to be lower the the rank of precessor
+
+            if (i < _answers.length - 1) // all but last element
+            {
+                // if rank is same or lower than sucessor, hit him
+                // @ts-ignore
+                if (_answers[i].rank === _answers[i + 1].rank || _answers[i].rank < _answers[i + 1].rank) {
+                    // @ts-ignore
+                    _answers[i + 1].rank = _answers[i].rank - 1;
+                    api_update_answer_rank(_answers[i + 1].uuid, _answers[i + 1].rank);
+                }
+            }
+
+        }
+        console.log("fix_ranking() end: ", _answers)
+        return _answers;
+
+    }
+
+
+
+    // const handle drag sorting
     const handleSort = () => {
         //duplicate items
         // @ts-ignore
@@ -533,29 +562,41 @@ const AnswerList = () => {
         console.info("Answers: ", _answers)
 
 
-        const dragOverItemContent = _answers.find(answer => answer.uuid === dragOverItem.current );
+        const dragOverItemContent = _answers.find(answer => answer.uuid === dragOverItem.current);
         const dragItemIndex = _answers.findIndex(item => item.uuid === dragItem.current);
         //remove and save the dragged item content
         const draggedItemContent = _answers.splice(dragItemIndex, 1)[0];
         const dragOverItemIndex = _answers.findIndex(item => item.uuid === dragOverItem.current);
 
-        //switch the position
-        _answers.splice(dragOverItemIndex, 0, draggedItemContent);
 
-        // console.log("handleSort: dragging2  ", draggedItemContent.uuid, " to ", dragOverItemContent?.uuid)
+        if (dragItemIndex > dragOverItemIndex) {
+            // calculate new rank. for now set the draffed item to the tagets rank abnd decrease target by one
+            // @ts-ignore
+            draggedItemContent.rank = Number(dragOverItemContent.rank) + 1;
+            //switch the position
+            _answers.splice(dragOverItemIndex, 0, draggedItemContent);
 
-        // calculate new rank. for now set the draffed item to the tagets rank abnd decrease target by one
-        // @ts-ignore
-        draggedItemContent.rank = dragOverItemContent.rank;
-        // @ts-ignore
-        dragOverItemContent.rank = dragOverItemContent.rank - 1;
+            console.log("Moving UP")
+        }
+        else {
+            // @ts-ignore
+            draggedItemContent.rank = dragOverItemContent.rank - 1;
+            _answers.splice(dragOverItemIndex + 1, 0, draggedItemContent);
+            console.log("Moving DOWN")
+
+        }
+
+
+
 
         // save the rank of the dragged item and the target item
         // @ts-ignore
-        api_handle_update_answer_rank(draggedItemContent.uuid, draggedItemContent.rank);
+        api_update_answer_rank(draggedItemContent.uuid, draggedItemContent.rank);
         // @ts-ignore
-        api_handle_update_answer_rank(dragOverItemContent.uuid, dragOverItemContent.rank);
+        // api_handle_update_answer_rank(dragOverItemContent.uuid, dragOverItemContent.rank);
 
+
+        _answers = fix_ranking(_answers);
 
         //reset the position ref
         dragItem.current = null;
@@ -566,44 +607,44 @@ const AnswerList = () => {
         setAnswers(_answers);
     };
 
-// Ende Drag & Drop Handling *******************************************************************************
+    // Ende Drag & Drop Handling *******************************************************************************
 
 
-//     console.log("AnswerList.tsx Ende: " + user_uuid)
+    //     console.log("AnswerList.tsx Ende: " + user_uuid)
 
-// Main Component *************************************************************************************************
+    // Main Component *************************************************************************************************
     // @ts-ignore
     return (
         <div className={"w-1/2"}>
             {/*********** Answers Header ************/}
             <div className={"flex"}>
-                <div className={"p-2"}>Antworten</div>
+                <div className={"p-2"}>{answers?.length} Antworten</div>
                 <div className={"flex flex row-end-2 p-2"}>
                     <PlusCircleIcon className="w-5 h-5 text-gray-400"
-                                    onClick={() => handleClickNewAnswer()}
-                                    onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                    onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                    title={"Neue Antwort schreiben"}
+                        onClick={() => handleClickNewAnswer()}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Neue Antwort schreiben"}
                     />
 
                     <CalculatorIcon className="w-5 h-5 text-gray-400"
                         // @ts-ignore
-                                    onClick={() => handleAskQuestion(currentQuestionId)}
-                                    onMouseOver={(e) => e.currentTarget.style.color = 'red'}
-                                    onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                    title={"Model fragen"}
+                        onClick={() => handleAskQuestion(currentQuestionId)}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'red'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Model fragen"}
                     />
                     {isLoading === "loading" && (
                         <div className="animate-spin h-5 w-5 text-blue-500"
                             title={"Antwort wird berechnet - Bitte warten Sie geduldig..."}
                         >
                             <svg className="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                 fill="none"
-                                 stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                                 strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
+                                fill="none"
+                                stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
                                 <path
-                                    d="M12 6v6l4 2"/>
+                                    d="M12 6v6l4 2" />
                             </svg>
                         </div>
                     )
@@ -627,15 +668,15 @@ const AnswerList = () => {
                             Kernaussage:
                         </label>
                         <div className="mt-2">
-                                <textarea
-                                    id="modal-title"
-                                    name="modal-title"
-                                    // @ts-ignore
-                                    onChange={handleModalTitleChange}
-                                    rows={2}
-                                    className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                    defaultValue={modalTitle}
-                                />
+                            <textarea
+                                id="modal-title"
+                                name="modal-title"
+                                // @ts-ignore
+                                onChange={handleModalTitleChange}
+                                rows={2}
+                                className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                defaultValue={modalTitle}
+                            />
                         </div>
                     </div>
 
@@ -644,15 +685,15 @@ const AnswerList = () => {
                             Hintergrund:
                         </label>
                         <div className="mt-2">
-                                <textarea
-                                    id="modal-content"
-                                    name="modal-content"
-                                    // @ts-ignore
-                                    onChange={handleModalContentChange}
-                                    rows={6}
-                                    className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                    defaultValue={modalContent}
-                                />
+                            <textarea
+                                id="modal-content"
+                                name="modal-content"
+                                // @ts-ignore
+                                onChange={handleModalContentChange}
+                                rows={6}
+                                className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                defaultValue={modalContent}
+                            />
                         </div>
 
                     </div>
@@ -667,17 +708,17 @@ const AnswerList = () => {
             {
                 answers && (
                     answers.map((answer, index) => (
-                            <AnswerCard
-                                key={index}
-                                answer_uuid={answer.uuid}
-                                handleDeleteAnswer={handleDeleteAnswer}
-                                handleClickEditAnswer={handleClickEditAnswer}
-                                dragItem={dragItem}
-                                dragOverItem={dragOverItem}
-                                handleSort={handleSort}                                
+                        <AnswerCard
+                            key={index}
+                            answer_uuid={answer.uuid}
+                            handleDeleteAnswer={handleDeleteAnswer}
+                            handleClickEditAnswer={handleClickEditAnswer}
+                            dragItem={dragItem}
+                            dragOverItem={dragOverItem}
+                            handleSort={handleSort}
 
-                            />
-                        )
+                        />
+                    )
                     ))
             }
         </div>
