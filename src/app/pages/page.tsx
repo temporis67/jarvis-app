@@ -11,6 +11,9 @@ const is_client = typeof window !== "undefined";
 export default function Page(request:any) {
     console.log("/app/pages/page.tsx Start");
 
+    const is_client = typeof window !== "undefined";
+    console.log("app/pages/page.tsx is_client: " + is_client);
+
     console.log("/app/pages/page.tsx request: " + JSON.stringify(request));
     const searchParams = request["searchParams"];
     const user_uuid = searchParams["uuid"];

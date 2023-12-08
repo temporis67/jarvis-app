@@ -1,6 +1,4 @@
-import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import useUserStore from "./store/userStore";
 import { PowerIcon } from "@heroicons/react/24/outline";
 import { lusitana } from "./lib/fonts";
 import { getServerSession } from "next-auth";
@@ -57,38 +55,8 @@ export default async function Home() {
     }
 
     if (is_client) {
-        const { data: session, status } = useSession(); // now we have a 'session' and session 'status'
+        return (<h1 className="heading block">Houston .... </h1>);
 
-        // page action if authenticated
-        if (status === 'authenticated') {
-
-            const user_uuid = useUserStore(state => state.userUuid);
-
-            console.log("IS CLIENT:", is_client);
-            if (user_uuid === null) {
-                console.log("app/page.tsx /getUserByEMail() start ", session?.user?.email)
-                // get uuid from database by email and set it to useUserStore
-                let new_uuid = await getUserByEMail(session);
-                return (
-                    redirect("/pages/?uuid=" + new_uuid)
-                )
-            }
-            else {
-                return (
-                    redirect("/pages/?uuid=" + user_uuid)
-                )
-            }
-
-        }
-        // maybe status === loading here ...
-        else {
-
-            return (
-                // That's left blank for nowm while the static content is on layout.tsx to remain serverside.
-                <div>Not logged in</div>
-
-            );
-        }
     }
     else {
         

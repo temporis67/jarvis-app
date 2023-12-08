@@ -50,6 +50,13 @@ const QuestionList = () => {
     const [showDialog, setShowDialog] = useState(false);
     const [modalTitle, setModalTitle] = useState(''); // Zustand für Modal-Titel
     const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
+    const [isLoaded, setIsLoaded] = useState(false); // if list is empty, but loaded from api (no questions yet)
+
+    // save reference for dragItem and dragOverItem
+    const dragItem = React.useRef<any>(null);
+    const dragOverItem = React.useRef<any>(null);
+    
+
 
 
 if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
@@ -80,6 +87,7 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
     }
 
     const handleUpdateQuestion = (questionId: string) => {
+        // @ts-ignore
         const question = questions.find(q => q.uuid === questionId);
         if (question) {
             setModalTitle(question.title || ''); // Use nullish coalescing to handle null values
@@ -445,7 +453,7 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
         }
     };
 
-    const [isLoaded, setIsLoaded] = useState(false);
+    
 
     // execute get_questions_by_user on page load
     if (!isLoaded) {
@@ -460,9 +468,6 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
 
     // Drag & Drop Handling *******************************************************************************
 
-    // save reference for dragItem and dragOverItem
-    const dragItem = React.useRef<any>(null);
-    const dragOverItem = React.useRef<any>(null);
 
     // const handle drag sorting
     const handleSort = () => {

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import clsx from "clsx";
 import {
     PlusCircleIcon, CalculatorIcon
@@ -56,18 +56,90 @@ const AnswerList = () => {
 
 
 
-    const load_answers = async () => {
+    const get_answers_by_question = async (question_uuid: string | null) => {
+
+    };
+
+
+
+    const load_answers = useCallback(async () => {
 
         // console.log("load_answers() start: ", currentQuestionId, " # ")
         if (currentQuestionId === undefined || currentQuestionId === null) {
             console.log("load_answers() no currentQuestionId given");
             return;
         } else {
-            // console.log("load_answers() 2: ", currentQuestionId);
-            await get_answers_by_question(currentQuestionId);
+            const api_url = (api_host + "/answers");
+            let formData = new FormData();
+            //@ts-ignore
+            formData.append("question_uuid", currentQuestionId);
+    
+    
+            try {
+                const response = await fetch(api_url, {
+                    method: "POST",
+                    body: formData,
+                    mode: 'cors',
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                const out_items: any = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
+                // console.log("::::::::::::: get_answers_by_question() data OK: ", out_items);
+                        // clear answers
+                setAnswers([]);
+                if (out_items.length === 0) {
+                    return out_items;                                
+                } // empty list
+    
+    
+                // sort out_items by 'rank' which is a number
+                out_items.sort((a:number, b:number) => {
+                    // @ts-ignore
+                    const rankA = a['rank'];
+                    // @ts-ignore
+                    const rankB = b['rank'];
+                    // console.log("rankA: ", rankA, " # rankB: ", rankB);
+                    return rankB - rankA;
+                });
+                out_items.reverse();
+    
+    
+                for (let a of out_items) {
+                    let answer: AnswerType = {
+                        uuid: a.uuid,
+                        creator_uuid: a.creator_uuid,
+                        creator_name: a.creator_name,
+                        user_uuid: a.user_uuid,
+                        user_name: a.username,
+                        source: a.source,
+                        time_elapsed: a.seconds,
+                        question: a.question,
+                        title: a.title,
+                        content: a.content,
+                        quality: a.quality,
+                        trust: a.trust,
+                        date_created: a.date_created,
+                        date_updated: a.date_updated,
+                        rank: a.rank,
+                    }
+                    // console.log("Answer Time Elapsed: " + a.time_elapsed);
+                    // setting answers with data from api
+                    addAnswer(answer);
+                }
+    
+                
+                console.log("get_answers_by_question() SUCCESS:: #", out_items)
+                // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
+    
+            } catch (error) {
+                console.log("Error fetching data:", error);
+            }
+    
         }
 
-    }
+    },[currentQuestionId,  addAnswer, api_host, setAnswers]);
 
     
 
@@ -79,7 +151,7 @@ const AnswerList = () => {
 
             setLoadedQuestionId(currentQuestionId);
         }
-    }, [currentQuestionId, loadedQuestionId]);
+    }, [currentQuestionId, loadedQuestionId, load_answers,]);
 
 
 
@@ -391,84 +463,6 @@ const AnswerList = () => {
         }
     }
 
-
-    const get_answers_by_question = async (question_uuid: string | null) => {
-
-        const api_url = (api_host + "/answers");
-        // console.log("questions/page/get_answers_by_question() start", question_uuid)
-
-
-        if (question_uuid === undefined || question_uuid === null) {
-            throw new Error('ERROR: pages/components/AnswerList/get_answers_by_question(): question_uuid not given:: ' + question_uuid);
-        }
-
-        let formData = new FormData();
-        //@ts-ignore
-        formData.append("question_uuid", question_uuid);
-
-
-        try {
-            const response = await fetch(api_url, {
-                method: "POST",
-                body: formData,
-                mode: 'cors',
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            const out_items: any = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
-            // console.log("::::::::::::: get_answers_by_question() data OK: ", out_items);
-                    // clear answers
-            setAnswers([]);
-            if (out_items.length === 0) {
-                return out_items;                                
-            } // empty list
-
-
-            // sort out_items by 'rank' which is a number
-            out_items.sort((a:number, b:number) => {
-                // @ts-ignore
-                const rankA = a['rank'];
-                // @ts-ignore
-                const rankB = b['rank'];
-                // console.log("rankA: ", rankA, " # rankB: ", rankB);
-                return rankB - rankA;
-            });
-            out_items.reverse();
-
-
-            for (let a of out_items) {
-                let answer: AnswerType = {
-                    uuid: a.uuid,
-                    creator_uuid: a.creator_uuid,
-                    creator_name: a.creator_name,
-                    user_uuid: a.user_uuid,
-                    user_name: a.username,
-                    source: a.source,
-                    time_elapsed: a.seconds,
-                    question: a.question,
-                    title: a.title,
-                    content: a.content,
-                    quality: a.quality,
-                    trust: a.trust,
-                    date_created: a.date_created,
-                    date_updated: a.date_updated,
-                    rank: a.rank,
-                }
-                // console.log("Answer Time Elapsed: " + a.time_elapsed);
-                // setting answers with data from api
-                addAnswer(answer);
-            }
-
-            
-            console.log("get_answers_by_question() SUCCESS:: #", out_items)
-            // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
-
-        } catch (error) {
-            console.log("Error fetching data:", error);
-        }
-    };
 
 
 

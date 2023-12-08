@@ -69,8 +69,10 @@ const initialQuestions: QuestionsType = [
     },
 ]
 
+const emptyQuestions: QuestionsType = []
+
 const questionStore = (set: any) => ({
-    questions: [],
+    questions: emptyQuestions,
     setQuestions: (new_questions: QuestionsType) => set({questions: new_questions}),
 
     currentQuestionId: null,

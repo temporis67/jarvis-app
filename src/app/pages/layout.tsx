@@ -2,7 +2,8 @@ import SideNav from "../components/SideNav";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 
-
+        const is_client = typeof window !== "undefined";
+        console.log("app/pages/layout.tsx is_client: " + is_client);
 
 
         return (
