@@ -298,6 +298,7 @@ const AnswerList = () => {
             trust: 0,
             date_created: now.toString(),
             date_updated: now.toString(),
+            rank: 100,
         }
 
         // @ts-ignore
