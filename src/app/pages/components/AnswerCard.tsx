@@ -2,18 +2,22 @@
 import useAnswersStore from "@/app/store/answersStore";
 import { AnswerType } from "@/app/store/answersStore";
 import clsx from "clsx";
-import { ExclamationCircleIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { ExclamationCircleIcon, PencilSquareIcon, TrashIcon, EyeIcon } from "@heroicons/react/24/outline";
 import Moment from "moment";
 import React from "react";
 
-export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClickEditAnswer, dragItem, dragOverItem, handleSort }: {
-    answer_uuid: string,
-    handleDeleteAnswer: any,
-    handleClickEditAnswer: any,
-    dragItem: any,
-    dragOverItem: any,
-    handleSort: any
-}) {
+export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClickEditAnswer,
+    handleClickViewAnswer, dragItem, dragOverItem, handleSort }:
+    {
+        answer_uuid: string,
+        handleDeleteAnswer: any,
+        handleClickEditAnswer: any,
+        handleClickViewAnswer: any,
+        dragItem: any,
+        dragOverItem: any,
+        handleSort: any
+    }
+) {
 
     const answers = useAnswersStore(state => state.answers);
     const setAnswers = useAnswersStore(state => state.setAnswers);
@@ -41,7 +45,7 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
 
 
     const handleOnClickAnswer = () => {
-        
+
         console.log("handleOnClickAnswer: ", answer.title)
         console.log("handleOnClickAnswer: ", answer.uuid, " current_answer: ", current_answer?.uuid)
 
@@ -96,14 +100,14 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                             <div className="text-xs text-gray-400">
                                 {answer.creator_name}
                             </div>
-                            <div id={"title_" +                                    
-                                    answer.uuid}
-                                    className="mt-1 truncate text-sm leading-5 text-gray-300 "
-                                    
-                                    onMouseOver={showFullAnswer}
-                                    onMouseOut={showShortAnswer}
-                                    
-                                    >
+                            <div id={"title_" +
+                                answer.uuid}
+                                className="mt-1 truncate text-sm leading-5 text-gray-300 "
+
+                                onMouseOver={showFullAnswer}
+                                onMouseOut={showShortAnswer}
+
+                            >
                                 {answer.title}
                             </div>
                         </div>
@@ -118,6 +122,7 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                                 // @ts-ignore
                                 answer.content}</div>
 
+                            {/* Rank, Time elapsed and Date */}
                         <div className="mt-1 text-xs leading-5 text-gray-400 ">
                             Rank: {answer.rank} Dauer: {
 
@@ -151,19 +156,28 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                 </div>
                 {/* Actions */}
                 <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                    <TrashIcon className="w-5 h-5 text-gray-400"
+
+                    <EyeIcon className="w-5 h-5 text-gray-300"
                         // @ts-ignore
-                        onClick={() => handleDeleteAnswer(answer.uuid)}
-                        onMouseOver={(e) => e.currentTarget.style.color = 'red'}
-                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                        title={"Antwort löschen"}
+                        onClick={() => handleClickViewAnswer(answer.uuid)}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'darkblue'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'rgb(209,213,219)'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Antwort ansehen"}
                     />
-                    <PencilSquareIcon className="w-5 h-5 text-gray-400"
+
+                    <PencilSquareIcon className="w-5 h-5 text-gray-300"
                         // @ts-ignore
                         onClick={() => handleClickEditAnswer(answer.uuid)}
-                        onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                        onMouseOver={(e) => e.currentTarget.style.color = 'darkblue'}
+                        onMouseOut={(e) => e.currentTarget.style.color = "rgb(209,213,219)"} // Setzen Sie hier die ursprüngliche Farbe
                         title={"Antwort bearbeiten"}
+                    />
+                    <TrashIcon className="w-5 h-5 text-gray-300"
+                        // @ts-ignore
+                        onClick={() => handleDeleteAnswer(answer.uuid)}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'darkred'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'rgb(209,213,219)'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Antwort löschen"}
                     />
                 </div>
             </div>

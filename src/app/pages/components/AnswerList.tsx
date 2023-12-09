@@ -29,6 +29,7 @@ const AnswerList = () => {
 
     // handle questionsItems via zustand store
     const answers = useAnswersStore(state => state.answers);
+    const current_answer = useAnswersStore(state => state.current_answer);
     const setAnswers = useAnswersStore(state => state.setAnswers);
     const addAnswer = useAnswersStore(state => state.addAnswer);
     const delAnswer = useAnswersStore(state => state.delAnswer);
@@ -47,7 +48,9 @@ const AnswerList = () => {
 
     // Update Question ModalDialog *******************************************************************************
     // Zustand für das Anzeigen des Dialogs
-    const [showDialog, setShowDialog] = useState(false);
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [showViewDialog, setShowViewDialog] = useState(false);
+
     const [modalHeader, setModalHeader] = useState(''); // Zustand für Modal-Header
     const [modalTitle, setModalTitle] = useState(''); // Zustand für Modal-Titel
     const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
@@ -212,7 +215,7 @@ const AnswerList = () => {
         api_new_answer(currentQuestionId, user_uuid, user_uuid).then(new_answer_id => {
             setCurrentAnswerId(new_answer_id)
             setModalHeader("Neue Antwort"); // Setze den Titel des Dialogs
-            setShowDialog(true); // ModalDialog anzeigen
+            setShowEditDialog(true); // ModalDialog anzeigen
         });
     }
 
@@ -228,8 +231,26 @@ const AnswerList = () => {
             setModalContent(answer.content); // Setze den Inhalt der Frage
             setCurrentAnswerId(answerId); // Speichere die aktuelle Frage-ID
         }
-        setShowDialog(true); // ModalDialog anzeigen
+        setShowEditDialog(true); // ModalDialog anzeigen
     }
+
+
+
+    const handleClickViewAnswer = (answerId: string) => {
+        console.log("handleClickViewAnswer start for answer ID: ", answerId);
+        // @ts-ignore
+        const answer = answers.find(a => a.uuid === answerId);
+        if (answer) {
+            setModalHeader("Antwort von " +  answer.creator_name); // Setze den Titel des Dialogs
+            // @ts-ignore
+            setModalTitle(answer.title); // Setze den Titel der Frage
+            // @ts-ignore
+            setModalContent(answer.content); // Setze den Inhalt der Frage
+            setCurrentAnswerId(answerId); // Speichere die aktuelle Frage-ID
+        }
+        setShowViewDialog(true); // ModalDialog anzeigen
+    }
+
 
 
     const apiFetch = async (slug: string, formData: FormData): Promise<any> => {
@@ -395,7 +416,8 @@ const AnswerList = () => {
 
     const onClose = () => {
         console.log("Modal has closed")
-        setShowDialog(false); // ModalDialog schließen
+        setShowEditDialog(false); // ModalDialog schließen
+        setShowViewDialog(false); // ModalDialog schließen
     }
 
     const handleClickUpdateAnswer = () => {
@@ -432,7 +454,7 @@ const AnswerList = () => {
             answer.content = modalContent;
         }
 
-        setShowDialog(false); // ModalDialog schließen
+        setShowEditDialog(false); // ModalDialog schließen
     }
 
 
@@ -617,7 +639,109 @@ const AnswerList = () => {
     // @ts-ignore
     return (
         <div className={"w-1/2"}>
-            {/*********** Answers Header ************/}
+
+            {/********* View Answer ModalDialog Popup *********/}
+            {showViewDialog && (
+                <ModalDialog
+                    title={modalHeader}
+                    onClose={onClose}
+                    onOk={onClose}
+                    showDialog={showViewDialog}
+                >
+                    {/* Rank, Time elapsed and Date */}
+                    <div className="text-xs text-gray-400">
+                            Rank: {current_answer?.rank} Dauer: {
+                                // @ts-ignore
+                                parseFloat(current_answer.time_elapsed).toFixed(1)
+                            } s &nbsp;
+                            {
+                                // @ts-ignore
+                                current_answer.date_updated ? (
+                                    <>
+                                        <time dateTime={
+                                            // @ts-ignore
+                                            current_answer.date_updated}>
+                                            {
+                                                // @ts-ignore
+                                                Moment(current_answer.date_updated).format('DD.MM.yy HH:mm')
+                                            }
+                                        </time>
+                                    </>
+                                ) : (
+                                    <>
+                                        <time dateTime={// @ts-ignore
+                                            current_answer.date_created}>{// @ts-ignore
+                                                Moment(current_answer.date_created).format('DD.MM.yy HH:mm')
+                                            }</time>
+                                    </>
+                                )}
+                        </div>
+                    <div className="">
+                        <div className="mt-2">
+                                {modalTitle}
+                        </div>
+                    </div>
+
+                    <div className="text-sm">
+                        <div className="mt-2">
+                            {modalContent}
+                        </div>
+
+                    </div>
+
+
+                </ModalDialog>
+            )}
+
+            {/********* Edit Answer ModalDialog Popup *********/}
+            {showEditDialog && (
+                <ModalDialog
+                    title={modalHeader}
+                    onClose={onClose}
+                    onOk={handleClickUpdateAnswer}
+                    showDialog={showEditDialog}
+                >
+
+                    <div className="col-span-full text-gray-200">
+                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6">
+                            Kernaussage:
+                        </label>
+                        <div className="mt-2">
+                            <textarea
+                                id="modal-title"
+                                name="modal-title"
+                                // @ts-ignore
+                                onChange={handleModalTitleChange}
+                                rows={2}
+                                className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                defaultValue={modalTitle}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="mt-4 col-span-full">
+                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6">
+                            Hintergrund:
+                        </label>
+                        <div className="mt-2">
+                            <textarea
+                                id="modal-content"
+                                name="modal-content"
+                                // @ts-ignore
+                                onChange={handleModalContentChange}
+                                rows={6}
+                                className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                defaultValue={modalContent}
+                            />
+                        </div>
+
+                    </div>
+
+
+                </ModalDialog>
+            )}
+
+            {/*********** Answer List Header ************/}
             <div className={"flex"}>
                 <div className={"p-2 text-sm  text-gray-400"}>
                     
@@ -661,56 +785,9 @@ const AnswerList = () => {
                 </div>
             </div>
 
-            {/********* ModalDialog Popup *********/}
-            {showDialog && (
-                <ModalDialog
-                    title={modalHeader}
-                    onClose={onClose}
-                    onOk={handleClickUpdateAnswer}
-                    showDialog={showDialog}
-                >
-
-                    <div className="col-span-full text-gray-200">
-                        <label htmlFor="modal-title" className="block text-sm font-medium leading-6">
-                            Kernaussage:
-                        </label>
-                        <div className="mt-2">
-                            <textarea
-                                id="modal-title"
-                                name="modal-title"
-                                // @ts-ignore
-                                onChange={handleModalTitleChange}
-                                rows={2}
-                                className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                defaultValue={modalTitle}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="mt-4 col-span-full">
-                        <label htmlFor="modal-content" className="block text-sm font-medium leading-6">
-                            Hintergrund:
-                        </label>
-                        <div className="mt-2">
-                            <textarea
-                                id="modal-content"
-                                name="modal-content"
-                                // @ts-ignore
-                                onChange={handleModalContentChange}
-                                rows={6}
-                                className="bg-gray-700  p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                defaultValue={modalContent}
-                            />
-                        </div>
-
-                    </div>
 
 
-                </ModalDialog>
-            )}
-
-
-            {/********** Answers List ***********/}
+            {/********** Answers List Box ***********/}
 
             {
                 answers && (
@@ -720,6 +797,7 @@ const AnswerList = () => {
                             answer_uuid={answer.uuid}
                             handleDeleteAnswer={handleDeleteAnswer}
                             handleClickEditAnswer={handleClickEditAnswer}
+                            handleClickViewAnswer={handleClickViewAnswer}
                             dragItem={dragItem}
                             dragOverItem={dragOverItem}
                             handleSort={handleSort}
