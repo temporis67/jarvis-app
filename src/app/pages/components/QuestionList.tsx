@@ -574,9 +574,21 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
     return (
         <div className={"w-1/2"}>
             <div className={"flex items-center"}>
-                <div className={"p-2"}>Fragen</div>
                 <div className={"p-2"}>
-                    <PlusCircleIcon className="w-5 h-5 text-gray-400"
+                    
+                    {(questions?.length > 0) && questions?.length} 
+                    {!(questions?.length > 0) && "Noch keine "}
+
+                    &nbsp;
+                    Fragen</div>
+                <div className={"p-2"}>
+                    <PlusCircleIcon className= {clsx("w-5 h-5 ",
+                        (questions?.length > 0) && "text-gray-400",
+                        (questions?.length === 0) && "text-green-600"
+                    )
+                    }
+
+
                         onClick={() => handleClickNewQuestion()}
                         onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
                         onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
@@ -633,7 +645,7 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
                         </div>
                         <p className="mt-3 text-xs leading-6">
                             Die Hintergrundinformationen beeinflussen die Antwort des Models entscheidend.
-                            Hilfreich sind sprachlich ähnlich Texte aus dem gleichen Themengebiet.<br />
+                            Hilfreich sind sprachlich ähnliche Texte aus dem gleichen Themengebiet.<br />
                             Oder zu berücksichtigende Fakten.
 
                         </p>

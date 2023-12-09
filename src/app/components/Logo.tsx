@@ -7,7 +7,7 @@ export default function AcmeLogo() {
       className={`${lusitana.className} flex flex-row items-center leading-none`}
     >
       <ChatBubbleLeftRightIcon className="h-12 w-12 rotate-[345deg]" />
-      <p className="text-[44px] p-2"> Jarvis</p>
+      <p className="text-[48px] p-2"> PKi</p>
     </div>
   );
 }

@@ -619,7 +619,11 @@ const AnswerList = () => {
         <div className={"w-1/2"}>
             {/*********** Answers Header ************/}
             <div className={"flex"}>
-                <div className={"p-2"}>{answers?.length} Antworten</div>
+                <div className={"p-2"}>
+                    {(answers?.length > 0) && answers?.length} 
+                    {!(answers?.length > 0) && "Noch keine "}
+                    &nbsp;Antworten
+                </div>
                 <div className={"flex flex row-end-2 p-2"}>
                     <PlusCircleIcon className="w-5 h-5 text-gray-400"
                         onClick={() => handleClickNewAnswer()}

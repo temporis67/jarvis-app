@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
-import { PowerIcon } from "@heroicons/react/24/outline";
-import { lusitana } from "./lib/fonts";
+import { PlusCircleIcon, PowerIcon } from "@heroicons/react/24/outline";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 
@@ -13,7 +12,7 @@ export default async function Home() {
         const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
         // api function user expects email as parameter (or name or uuid)
         const api_url = (api_host + "/user");
-        const email = session?.user?.email;        
+        const email = session?.user?.email;
 
         console.log("app/page.tsx /getUserByEMail() start ", email, api_url)
 
@@ -22,7 +21,7 @@ export default async function Home() {
             formData.append("email", email);
         }
         else {
-            return(
+            return (
                 redirect("/api/auth/signin")
             );
         }
@@ -49,7 +48,7 @@ export default async function Home() {
 
         } catch (error) {
             console.error('API Host down? - Failed to fetch user in /app/api/auth.../route.ts/getUser() :', error);
-            throw new Error('Failed to fetch user.' +  error,);
+            throw new Error('Failed to fetch user.' + error,);
         }
 
     }
@@ -59,12 +58,12 @@ export default async function Home() {
 
     }
     else {
-        
+
         const session = await getServerSession();
-        if (session){
+        if (session) {
             // console.log("app/page.tsx session ", session)
             // console.log("app/page.tsx is Logged in Server :: #", session?.user?.email,"#")
-            
+
             let uuid = await getUserByEMail(session);
             return (
                 redirect("/pages/?uuid=" + uuid)
@@ -74,39 +73,58 @@ export default async function Home() {
         // no session
         return (
             // That's left blank for nowm while the static content is on layout.tsx to remain serverside.
-                        // The Welcome Page for new users goes here
-                        <main className="mt-40 ml-40 p-4">
-                        <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
-            Jarvis - LLM Demonstrator
-        </h1>
-        <div>
-            <p className={""}>
-                Bitte loggen Sie sich ein oder <Link href="/register" className="font-bold"> registrieren</Link> Sie sich.
-            </p>
-            <p className={"text-xs text-gray-400"}>
-                Die Angaben werden nicht geprüft. Im Profil werden die Fragen & Antworten gespeichert.
-            </p>
-
-        </div>
-        <div>
-            <div
-                className="mt-5 flex h-[32px] w-[130px] items-center justify-center gap-2 rounded-md bg-gray-700 p-3 text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3"
-
-            >
+            // The Welcome Page for new users goes here
+            <main className="mt-8 ml-40 p-4">
+                <h1 className={"mb-4 text-xl md:text-2xl"}>
+                Preussen KI Demonstrator
+                </h1>
                 <div>
-                    <a href="/api/auth/signin">
-                        <PowerIcon className="w-6" />
-                    </a>
+                <p className="m-2">Beim Preussen KI Demonstrator handelt es sich um eine Machbarkeitsstudie zu den Einsatzmöglichkeiten einer lokalen LLM in der Forschung zu Fragen der Preußischen Geschichte.</p>
+    <p className="m-2">
+        Der Demonstrator erhebt keinen Anspruch auf Vollständigkeit oder fehlerfreies Funktionieren. Der Demonstrator ist zeitlich begrenzt. </p>
+    <p className="m-2">Die verwendeten Daten stammen aus folgender Ressource: <a href=" https://actaborussica.bbaw.de/register/personen/detail.xql?id=P0004671">https://actaborussica.bbaw.de/register/personen/detail.xql?id=P0004671</a></p>
+    <hr className="mt-5 mb-5"/>
+    
+                    <p  className="m-2">
+                        Bitte melden Sie sich an oder registrieren Sie sich.
+                    </p>
+                    <p className={"m-2 text-xs text-gray-400"}>
+                        Die Angaben werden nicht geprüft. Im Profil werden ihre Fragen & Antworten gespeichert.
+                    </p>
+
                 </div>
-                    <div className="hidden md:block">
-                    <a href="/api/auth/signin">Sign In</a>
+                <div className="flex p-6 gap-4">
+
+                    {/* Login Button */}
+                    <div className="p-2 flex h-[32px] w-[120px] items-center justify-center rounded-md bg-gray-700 text-sm font-medium hover:bg-gray-500 md:justify-start">
+                        <div className="mr-2">
+                            <a href="/api/auth/signin">
+                                <PowerIcon className="w-5" />
+                            </a>
+                        </div>
+                        <div className="hidden md:block">
+                            <a href="/api/auth/signin">Anmelden</a>
+
+                        </div>
 
                     </div>
 
-            </div>
-        </div>
+                    {/* Register Button */}
+                    <div className="p-2 flex h-[32px] w-[120px] items-center justify-center rounded-md bg-gray-700 text-sm font-medium hover:bg-gray-500 md:justify-start">                        <div>
+                            <a href="/register">
+                                <PlusCircleIcon className="w-5 mr-2" />
+                            </a>
+                        </div>
+                        <div className="hidden md:block">
+                            <a href="/register">Registrieren</a>
 
-    </main>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </main>
 
 
         );

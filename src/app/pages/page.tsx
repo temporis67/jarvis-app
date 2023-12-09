@@ -34,7 +34,7 @@ export default function Page(request:any) {
 
         <div className="p-2 text-gray-200">
             <h1 className="p-2 text-2xl">
-                Jarvis
+                Preussen Ki
             </h1>
             <div className="p-2">
 
