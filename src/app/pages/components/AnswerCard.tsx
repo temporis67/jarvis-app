@@ -39,6 +39,7 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
         }
     };
 
+
     const handleOnClickAnswer = () => {
         
         console.log("handleOnClickAnswer: ", answer.title)
@@ -89,16 +90,25 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
 
                     <div className="min-w-0 flex-auto">
 
-                        <p className="text-sm truncate font-semibold leading-6 text-gray-300" title={answer.uuid}>
+                        <div className="text-sm font-semibold leading-6 text-gray-300" title={answer.uuid}>
 
 
-                            {answer.creator_name}:&nbsp;
-                            <span id={"title_" +
-                                // @ts-ignore
-                                answer.uuid}>{
-                                    answer.title}</span></p>
+                            <div className="text-xs text-gray-400">
+                                {answer.creator_name}
+                            </div>
+                            <div id={"title_" +                                    
+                                    answer.uuid}
+                                    className="mt-1 truncate text-sm leading-5 text-gray-300 "
+                                    
+                                    onMouseOver={showFullAnswer}
+                                    onMouseOut={showShortAnswer}
+                                    
+                                    >
+                                {answer.title}
+                            </div>
+                        </div>
 
-                        <p id={"content_" +
+                        <div id={"content_" +
                             // @ts-ignore
                             answer.uuid}
                             className="mt-1 truncate text-xs leading-5 text-gray-300"
@@ -106,9 +116,9 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                             onMouseOut={showShortAnswer}
                         >{
                                 // @ts-ignore
-                                answer.content}</p>
+                                answer.content}</div>
 
-                        <p className="mt-1 text-xs leading-5 text-gray-400 ">
+                        <div className="mt-1 text-xs leading-5 text-gray-400 ">
                             Rank: {answer.rank} Dauer: {
 
                                 parseFloat(answer.time_elapsed).toFixed(1)
@@ -134,7 +144,8 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                                             }</time>
                                     </>
                                 )}
-                        </p>
+                        </div>
+
                     </div>
 
                 </div>

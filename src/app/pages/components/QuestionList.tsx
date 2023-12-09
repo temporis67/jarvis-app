@@ -55,15 +55,15 @@ const QuestionList = () => {
     // save reference for dragItem and dragOverItem
     const dragItem = React.useRef<any>(null);
     const dragOverItem = React.useRef<any>(null);
-    
 
 
 
-if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
-    return (
-        <h1>Houston ...</h1>
-    )
-}
+
+    if (user_uuid === undefined || user_uuid === null || user_uuid === '') {
+        return (
+            <h1>Houston ...</h1>
+        )
+    }
 
 
 
@@ -82,7 +82,7 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
         setCurrentQuestionId(questionId);
         // @ts-ignore
         // setCurrentQuestion(questions.find(q => q.uuid === questionId));
-        
+
 
     }
 
@@ -348,7 +348,7 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
     };
 
 
-    
+
     const api_update_question_rank = async (questionId: string, rank: any) => {
         console.log("Update Question Rank API fetch() start", questionId, " # ", rank);
 
@@ -453,7 +453,7 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
         }
     };
 
-    
+
 
     // execute get_questions_by_user on page load
     if (!isLoaded) {
@@ -462,7 +462,7 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
         console.log("Initially loaded questions for user: ", user_uuid);
 
     }
-    
+
     console.log("API fetched Questions Ende: ")
 
 
@@ -574,15 +574,14 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
     return (
         <div className={"w-1/2"}>
             <div className={"flex items-center"}>
-                <div className={"p-2"}>
-                    
-                    {(questions?.length > 0) && questions?.length} 
-                    {!(questions?.length > 0) && "Noch keine "}
+                <div className={"p-2 text-sm text-gray-400"}>
 
-                    &nbsp;
-                    Fragen</div>
+                    {(questions?.length === 0) && "Noch keine Fragen"}
+                    {(questions?.length === 1) && "Eine Frage"}
+                    {(questions?.length > 1) && questions?.length + " Antworten"}
+                </div>
                 <div className={"p-2"}>
-                    <PlusCircleIcon className= {clsx("w-5 h-5 ",
+                    <PlusCircleIcon className={clsx("w-5 h-5 ",
                         (questions?.length > 0) && "text-gray-400",
                         (questions?.length === 0) && "text-green-600"
                     )
@@ -692,17 +691,19 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
                         <div className="flex min-w-0 gap-x-4">
 
                             <div className="min-w-0 flex-auto">
-                                <p className="text-sm font-semibold leading-6">{
+                                <div className="text-xs text-gray-400 font-semibold leading-6">{
                                     // @ts-ignore
-                                    question.creator}:&nbsp;
+                                    question.creator}
                                     {/* set id to question.uuid */}
 
-                                    <span id={"title_" +
+
+                                </div>
+                                <div id={"title_" +
+                                    // @ts-ignore
+                                    question.uuid}>{
                                         // @ts-ignore
-                                        question.uuid}>{
-                                            // @ts-ignore
-                                            question.title}</span></p>
-                                <p id={"content_" +
+                                        question.title}</div>
+                                <div id={"content_" +
                                     // @ts-ignore
                                     question.uuid}
                                     className="mt-1 truncate text-xs leading-5"
@@ -711,51 +712,58 @@ if(user_uuid === undefined || user_uuid === null || user_uuid === '') {
 
                                 >{
                                         // @ts-ignore
-                                        question.content}</p>
-                                        <p className="text-xs">Rank: {question.rank}</p>
-                            </div>
-                        </div>
-                        <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end ">
-                            <p className="text-xs leading-6 text-gray-400 ">
+                                        question.content}</div>
+                                        <div className="flex text-gray-400 mt-1 text-xs leading-5">
+                                <div className="mr-3">Rank: {question.rank}</div>
+                                {/* Date */}
                                 {
-                                    // @ts-ignore
-                                    question.tags ? (
-                                        // @ts-ignore
-                                        question.tags.map((tag: string) => (
-                                            <span key={tag}>
-                                                #{tag}&nbsp;
-                                            </span>
-                                        ))
-                                    ) : (<span>
-                                        #noTag&nbsp;
-                                    </span>
+
+                                    question.date_updated ? (
+                                        
+                                            <time dateTime={
+                                                // @ts-ignore
+                                                question.date_updated}>
+                                                {
+                                                    // @ts-ignore
+                                                    Moment(question.date_updated).format('DD.MM.YY HH:mm')
+                                                }
+                                            </time>
+                                        
+                                    ) : (
+                                        
+                                            <time
+                                                // @ts-ignore
+                                                dateTime={
+                                                    question.date_created}>{// @ts-ignore
+                                                    Moment(question.date_created).format('DD.MM.y HH:mm')
+                                                }</time>
+                                       
                                     )}
 
-                            </p>
-                            {
+                                    </div>
+                            </div>
+                            <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end ">
+                                {/* Tags */}
+                                <div className="text-xs leading-6 text-gray-400 ">
+                                    {
+                                        // @ts-ignore
+                                        question.tags ? (
+                                            // @ts-ignore
+                                            question.tags.map((tag: string) => (
+                                                <span key={tag}>
+                                                    #{tag}&nbsp;
+                                                </span>
+                                            ))
+                                        ) : (<span>
+                                            #noTag&nbsp;
+                                        </span>
+                                        )}
 
-                                question.date_updated ? (
-                                    <p className="mt-1 text-xs leading-5 text-gray-400">
-                                        <time dateTime={
-                                            // @ts-ignore
-                                            question.date_updated}>
-                                            {
-                                                // @ts-ignore
-                                                Moment(question.date_updated).format('DD.MM.YY HH:mm')
-                                            }
-                                        </time>
-                                    </p>
-                                ) : (
-                                    <p className="mt-1 text-xs leading-5 text-gray-500">
-                                        <time
-                                            // @ts-ignore
-                                            dateTime={
-                                                question.date_created}>{// @ts-ignore
-                                                Moment(question.date_created).format('DD.MM.y HH:mm')
-                                            }</time>
-                                    </p>
-                                )}
+                                </div>
+
+                            </div>
                         </div>
+
                         <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
                             <TrashIcon className="w-5 h-5 text-gray-400"
                                 // @ts-ignore
