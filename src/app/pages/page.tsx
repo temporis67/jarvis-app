@@ -43,7 +43,11 @@ export default function Page(request:any) {
                 Im Folgenden wird die grundlegende Architektur eines autark funktionierenden und erweiterbaren Large Language Models vorgestellt und demonstriert.
             </div>
             <div className="p-2">
-                Direkt zum Demo: 
+                Im Demonstrator können Sie Antworten lokaler Models (Mistral 7B, Spicy 13B) mit externen Models von OpenAI.com (GPT-x) vergleichen.
+                Über Prompt, Context und Question kann das Verhalten der Models bestimmt und zusätzliche Fakten können eingebunden werden. 
+            </div>
+            <div className="p-2">
+                <span className="font-bold">Zum Demo:</span>
                 <ul className="list-disc ml-8">
                 <li>Gehen Sie links auf den Bereich "Fragen"</li>
                 <li><div className="flex">Schreiben Sie eine neue Frage über das &nbsp; <PlusCircleIcon className="w-[20px]"/>-Symbol</div></li>
@@ -91,41 +95,58 @@ export default function Page(request:any) {
             <div className="p-2">
                 Das MODEL ist die bin&auml;re Repr&auml;sentation eines Gehirnzustandes. Es bestimmt die Qualit&auml;t der Denkf&auml;higkeit und das Basiswissen inklusive Weltwissen, Sprachen und Fachbereiche. Ebenso gibt es spezielle MODELs f&uuml;r Sehen (Image Recognition), H&ouml;ren (Speech-to-Text), Reden (Text-to-Speech) etc. .
             </div>
+
+
+
             <div className="p-2">
 
             </div>
             <div className="p-2">
-                Vorreiter ist GPT von OpenAI.com - verschiedene Entwicklungsstufen sind im Demonstrator angebunden. Leider ist die Nutzung dieser API kostenpflichtig.
+                Vorreiter ist GPT von <span className="font-bold">OpenAI.com</span> - verschiedene Entwicklungsstufen sind im Demonstrator angebunden. Leider ist die Nutzung dieser API kostenpflichtig.
             </div>
-            <div className="p-2">
+            <div className="p-2 text-sm">
                 Das israelische Ai21.com ist frei verf&uuml;gbar und kann (wahrscheinlich) angebunden werden.
             </div>
-            <div className="p-2">
+            <div className="p-2  text-sm">
                 Das chinesische Alibaba.com T5 ist verf&uuml;gbar und kann (wahrscheinlich) angebunden werden.
             </div>
-            <div className="p-2">
-                Google.com BARD/PaLM2 ist in Europa aus Datenschutzgr&uuml;nden nicht zug&auml;nglich.
+            <div className="p-2  text-sm">
+                Google.com BARD/PaLM2 ist in Europa aus politischen Gründen derzeit nicht zug&auml;nglich.
             </div>
             <div className="p-2">
                 Das Berliner DeepL.com hat ein eigenes, das aber nur f&uuml;r &Uuml;bersetzungen angeboten wird.
             </div>
             <div className="p-2">
-                Andere europ&auml;ische (&ouml;ffentliche) Angebote gibt es derzeit nicht.
+
+            </div>
+            <div className="p-2 font-bold">
+                <span>Facebook</span> hat das Model Llama2 entwickelt und als <span>Open Source</span> bereitgestellt. 
+            </div>
+            <div className="p-2">
+                Llama2 und andere bilden die Grundlage für eine welweite Weiterentwicklung und Evolution der Models. 
+                Zahlreiche dieser MODELs sind als 5-20 GB gro&szlig;e Bin&auml;r-Dateien &uuml;ber <a href="https://huggingface.co/">huggingface.com</a> 
+                mit freien Lizenzen verf&uuml;gbar, auch solche von Microsoft oder eben Facebook, 
+                zahlreicher jedoch Weiterentwicklungen und iterative Ableitungen der jeweils 
+                erfolgreichsten Vorg&auml;nger in vielf&auml;ltigen Spezialisierungen und Themenbereichen.
             </div>
             <div className="p-2">
 
             </div>
             <div className="p-2">
-                Facebook und andere
-                jedoch haben
-                &nbsp;MODELs unter Open Source Lizenzen ver&ouml;ffentlicht, die seitdem weltweit weiterentwickelt werden. Zahlreiche dieser MODELs sind als 5-20 GB gro&szlig;e Bin&auml;r-Dateien &uuml;ber huggingface.com mit freien Lizenzen verf&uuml;gbar, auch solche von Microsoft oder eben Facebook, zahlreicher jedoch Weiterentwicklungen und iterative Ableitungen der jeweils erfolgreichsten Vorg&auml;nger in vielf&auml;ltigen Spezialisierungen und Themenbereichen.
+                Im vorliegenden Demonstrator werden aktuell 
+                
+                <ul className="list-disc m-5">
+                <li>das MODEL <span className="font-bold"><a  href="https://huggingface.co/jondurbin/spicyboros-13b-2.2?not-for-all-audiences=true">Spicyboros 13B 2.2 - GGUF</a></span> </li>
+                <li>und das MODEL <span className="font-bold"><a className="decoration-solid" href="https://huggingface.co/mistralai/Mistral-7B-v0.1">Mistral 7B - GGUF</a></span></li>
+                </ul>
+                
+                 mit einer Gr&ouml;&szlig;e von 13 bzw. 7 Milliarden Parametern
+                lokal auf einem regul&auml;ren Linux-Server betrieben. 
+                Jedes der zahlreichen MODELs auf Huggingface.com kann parallel 
+                oder in Reihe (z.B. Frage &rarr; Antwort &rarr; Schlagworte) angebunden werden - sollte die Hardware reichen.
             </div>
-            <div className="p-2">
-
-            </div>
-            <div className="p-2">
-                Im vorliegenden Demonstrator wird aktuell das MODEL &ldquo;Spicyboros 13B 2.2 - GGUF&rdquo; lokal auf einem regul&auml;ren Linux-Server betrieben. Es ist ein entfernter Nachkomme von Facebooks Llama2 MODEL. &nbsp;Jedes der zahlreichen MODELs auf Huggingface.com kann parallel oder in Reihe (z.B. Frage &rarr; Antwort &rarr; Schlagworte) angebunden werden - sollte die Hardware reichen.
-            </div>
+            <div>Über einfache Konfiguration der Prompts können sowohl die lokalen als auch die externen Models Spezialaufgaben 
+                ausführen wie Verschlagwortung oder Übersetzung. Bspw. "GPT-4 Pirat" und demnächst das automatische Tagging.</div>
             <div className="p-2">
 
             </div>
