@@ -13,6 +13,8 @@ import useAnswersStore from "@/app/store/answersStore";
 import { AnswerType } from "@/app/store/answersStore";
 import AnswerCard from "@/app/pages/components/AnswerCard";
 import useModelStore from "@/app/store/modelStore";
+import Tag from "./tags/Tag";
+import TagList from "./tags/TagList";
 
 
 const AnswerList = () => {
@@ -126,6 +128,7 @@ const AnswerList = () => {
                         date_created: a.date_created,
                         date_updated: a.date_updated,
                         rank: a.rank,
+                        tags: a.tags,
                     }
                     // console.log("Answer Time Elapsed: " + a.time_elapsed);
                     // setting answers with data from api
@@ -241,7 +244,7 @@ const AnswerList = () => {
         // @ts-ignore
         const answer = answers.find(a => a.uuid === answerId);
         if (answer) {
-            setModalHeader("Antwort von " +  answer.creator_name); // Setze den Titel des Dialogs
+            setModalHeader("Antwort von " + answer.creator_name); // Setze den Titel des Dialogs
             // @ts-ignore
             setModalTitle(answer.title); // Setze den Titel der Frage
             // @ts-ignore
@@ -320,6 +323,7 @@ const AnswerList = () => {
             date_created: now.toString(),
             date_updated: now.toString(),
             rank: 100,
+            tags: [],
         }
 
         // @ts-ignore
@@ -444,6 +448,7 @@ const AnswerList = () => {
                 content: modalContent,
                 quality: 50,
                 trust: 100,
+                rank: 100,
                 date_created: Moment().format('YYYY-MM-DD HH:mm:ss'),
                 date_updated: Moment().format('YYYY-MM-DD HH:mm:ss'),
             }
@@ -650,35 +655,42 @@ const AnswerList = () => {
                 >
                     {/* Rank, Time elapsed and Date */}
                     <div className="text-xs text-gray-400">
-                            Rank: {current_answer?.rank} Dauer: {
-                                // @ts-ignore
-                                parseFloat(current_answer.time_elapsed).toFixed(1)
-                            } s &nbsp;
-                            {
-                                // @ts-ignore
-                                current_answer.date_updated ? (
-                                    <>
-                                        <time dateTime={
+                        Rank: {current_answer?.rank} Dauer: {
+                            // @ts-ignore
+                            parseFloat(current_answer.time_elapsed).toFixed(1)
+                        } s &nbsp;
+                        {
+                            // @ts-ignore
+                            current_answer.date_updated ? (
+                                <>
+                                    <time dateTime={
+                                        // @ts-ignore
+                                        current_answer.date_updated}>
+                                        {
                                             // @ts-ignore
-                                            current_answer.date_updated}>
-                                            {
-                                                // @ts-ignore
-                                                Moment(current_answer.date_updated).format('DD.MM.yy HH:mm')
-                                            }
-                                        </time>
-                                    </>
-                                ) : (
-                                    <>
-                                        <time dateTime={// @ts-ignore
-                                            current_answer.date_created}>{// @ts-ignore
-                                                Moment(current_answer.date_created).format('DD.MM.yy HH:mm')
-                                            }</time>
-                                    </>
-                                )}
-                        </div>
+                                            Moment(current_answer.date_updated).format('DD.MM.yy HH:mm')
+                                        }
+                                    </time>
+                                </>
+                            ) : (
+                                <>
+                                    <time dateTime={// @ts-ignore
+                                        current_answer.date_created}>{// @ts-ignore
+                                            Moment(current_answer.date_created).format('DD.MM.yy HH:mm')
+                                        }</time>
+                                </>
+                            )}
+                    </div>
+                    <div className="p-3 text-xs text-gray-400 flex">
+                        
+                        <TagList object_uuid={
+                            // @ts-ignore
+                            current_answer.uuid} 
+                            tags={[{uuid:"123",name:"Tag 1"},]} />
+                    </div>
                     <div className="">
                         <div className="mt-2">
-                                {modalTitle}
+                            {modalTitle}
                         </div>
                     </div>
 
@@ -744,11 +756,11 @@ const AnswerList = () => {
             {/*********** Answer List Header ************/}
             <div className={"flex"}>
                 <div className={"p-2 text-sm  text-gray-400"}>
-                    
+
                     {(answers?.length === 0) && "Noch keine Antworten"}
-                    {(answers?.length === 1) && "Eine Antwort"} 
-                    {(answers?.length > 1) && answers?.length + " Antworten"} 
-                    
+                    {(answers?.length === 1) && "Eine Antwort"}
+                    {(answers?.length > 1) && answers?.length + " Antworten"}
+
                 </div>
                 <div className={"flex flex row-end-2 p-2"}>
                     <PlusCircleIcon className="w-5 h-5 text-gray-400"

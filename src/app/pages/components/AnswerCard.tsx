@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { ExclamationCircleIcon, PencilSquareIcon, TrashIcon, EyeIcon } from "@heroicons/react/24/outline";
 import Moment from "moment";
 import React from "react";
+import TagList from "./tags/TagList";
 
 export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClickEditAnswer,
     handleClickViewAnswer, dragItem, dragOverItem, handleSort }:
@@ -97,8 +98,13 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                         <div className="text-sm font-semibold leading-6 text-gray-300" title={answer.uuid}>
 
 
-                            <div className="text-xs text-gray-400">
-                                {answer.creator_name}
+                            <div className="text-xs text-gray-400 flex">
+                                <div className="mr-4">
+                                {answer.creator_name}</div>
+                                { 
+                                    answer.tags ? <TagList object_uuid={answer.uuid} tags={answer.tags} /> : <TagList object_uuid={answer.uuid} tags={[]} />
+                                
+                                }
                             </div>
                             <div id={"title_" +
                                 answer.uuid}

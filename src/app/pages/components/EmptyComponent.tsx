@@ -1,5 +1,4 @@
-// import React from "react";
-
+// this is a empty component to be used as a template for new components
 const EmptyComponent = ({param1}: {param1: string}) =>{
     return (
         <div>

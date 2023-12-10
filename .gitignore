@@ -10,12 +10,6 @@
 /.gitattributes
 /ToDo.txt
 
-
-
-
-# db config
-/db
-
 # IDE config
 /.vscode
 
