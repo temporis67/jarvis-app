@@ -1,5 +1,5 @@
 import {create} from 'zustand'
-import { TagType } from './TagType';
+import { TagStoreType, TagType } from './tagStore';
 
 //types
 export type AnswerType = {
@@ -26,8 +26,11 @@ export type AnswerType = {
     date_created: string;
     date_updated: string;
 
-    tags: Array<TagType>;
+    tags: string[];
 }
+
+
+// Answer List
 type AnswersType = Array<AnswerType>
 
 export type AnswersStoreType = {
@@ -60,7 +63,7 @@ const initialAnswers: AnswersType = [
         date_created: "11:15:40",
         date_updated: "11:16:05",
         rank: 90,
-        tags: [{uuid: "5e2f3b7a-8810-11ee-a1b8-047c16bbac51", name: "Universum"}, {uuid: "5e2f3b7a-8810-11ee-a1b8-047c16bbac51", name: "Galaxien"}]
+        tags: []
     },
     {
         uuid: "6a4c88ee-8820-11ee-bf22-047c16bbac51",
@@ -79,7 +82,7 @@ const initialAnswers: AnswersType = [
         date_created: "12:30:21",
         date_updated: "12:31:10",
         rank: 80,
-        tags: [{uuid: "5e2f3b7a-8810-11ee-a1b8-047c16bbac51", name: "Universum"}, {uuid: "5e2f3b7a-8810-11ee-a1b8-047c16bbac51", name: "Galaxien"}]
+        tags: []
     },
 ];
 

@@ -1,5 +1,5 @@
 CREATE TABLE tags (
-    uuid uuid NOT NULL,
+    uuid uuid NOT NULL DEFAULT uuid_generate_v1(),
     name varchar(255) NOT NULL,
     PRIMARY KEY (uuid)
 );

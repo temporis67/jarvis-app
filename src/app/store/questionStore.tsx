@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import {AnswersStoreType} from "@/app/store/answersStore";
+import {AnswersStoreType} from "@/app/store/answerStore";
 
 //types
 export type QuestionType = {

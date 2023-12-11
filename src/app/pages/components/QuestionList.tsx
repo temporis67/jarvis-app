@@ -8,7 +8,7 @@ import ModalDialog from "@/app/components/ModalDialog";
 
 import useUserStore from "@/app/store/userStore";
 import useQuestionStore, { QuestionType, QuestionsType } from "@/app/store/questionStore";
-import useAnswersStore from "@/app/store/answersStore";
+import useAnswersStore from "@/app/store/answerStore";
 
 const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
 

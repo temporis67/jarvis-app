@@ -10,7 +10,7 @@ import ModalDialog from "@/app/components/ModalDialog";
 
 const ModelCardList = ({mode}: {mode: string}) => {
 
-    const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;;
+    const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
 
     const models = useModelStore(state => state.models);
     const setModels = useModelStore(state => state.setModels);
@@ -62,6 +62,7 @@ const ModelCardList = ({mode}: {mode: string}) => {
       //  console.log("apiFetchModels() data: ", data);
         const new_models: any = Object.values(data);
         setModels(new_models);
+        setCurrentModel(new_models[0] as ModelType);
         // return data;
     }
 

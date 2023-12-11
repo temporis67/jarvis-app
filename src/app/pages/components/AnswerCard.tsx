@@ -1,11 +1,12 @@
 // this component renders a single answer
-import useAnswersStore from "@/app/store/answersStore";
-import { AnswerType } from "@/app/store/answersStore";
+import useAnswersStore from "@/app/store/answerStore";
+import { AnswerType } from "@/app/store/answerStore";
 import clsx from "clsx";
 import { ExclamationCircleIcon, PencilSquareIcon, TrashIcon, EyeIcon } from "@heroicons/react/24/outline";
 import Moment from "moment";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import TagList from "./tags/TagList";
+
 
 export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClickEditAnswer,
     handleClickViewAnswer, dragItem, dragOverItem, handleSort }:
@@ -28,6 +29,13 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
 
     const current_answer = useAnswersStore(state => state.current_answer);
     const setCurrentAnswer = useAnswersStore(state => state.setCurrentAnswer);
+
+    const [tagListLoaded, setTagListLoaded] = useState(false);
+
+    useEffect(() => {
+        // Diese Funktion wird aufgerufen, wenn sich tagListLoaded ändert
+        // und veranlasst die AnswerCard Komponente neu zu rendern
+    }, [tagListLoaded]);
 
 
     // Display full answer
@@ -90,7 +98,7 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                         title={answer_uuid}
                     />
                 </div>
-                {/* Username, Title, Metadata */}
+                {/* Username, Title, Metadata, Tags */}
                 <div className="flex min-w-0 gap-x-4">
 
                     <div className="min-w-0 flex-auto">
@@ -102,7 +110,7 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                                 <div className="mr-4">
                                 {answer.creator_name}</div>
                                 { 
-                                    answer.tags ? <TagList object_uuid={answer.uuid} tags={answer.tags} /> : <TagList object_uuid={answer.uuid} tags={[]} />
+                                    answer.tags ? <TagList object_uuid={answer.uuid} setTagListLoaded={setTagListLoaded}/> : <TagList object_uuid={answer.uuid} setTagListLoaded={setTagListLoaded} />
                                 
                                 }
                             </div>

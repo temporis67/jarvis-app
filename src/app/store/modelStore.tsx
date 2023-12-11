@@ -67,7 +67,7 @@ const modelStore = (set: any):ModelStoreType => ({
     models: [],
     setModels: (new_models: ModelsType) => set({ models: new_models }),
 
-    current_model: initialModels[0],
+    current_model: null,
     setCurrentModel: (model: ModelType) => set({ current_model: model }),
 
     addModel: (model: ModelType) =>

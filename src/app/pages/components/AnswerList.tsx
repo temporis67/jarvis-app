@@ -9,12 +9,12 @@ import ModalDialog from "@/app/components/ModalDialog";
 import useUserStore from "@/app/store/userStore";
 import useQuestionStore from "@/app/store/questionStore";
 
-import useAnswersStore from "@/app/store/answersStore";
-import { AnswerType } from "@/app/store/answersStore";
+import useAnswersStore from "@/app/store/answerStore";
+import { AnswerType } from "@/app/store/answerStore";
 import AnswerCard from "@/app/pages/components/AnswerCard";
 import useModelStore from "@/app/store/modelStore";
-import Tag from "./tags/Tag";
 import TagList from "./tags/TagList";
+
 
 
 const AnswerList = () => {
@@ -29,7 +29,7 @@ const AnswerList = () => {
     const user_name = useUserStore.getState().userName;
 
 
-    // handle questionsItems via zustand store
+    // handle Items via zustand store
     const answers = useAnswersStore(state => state.answers);
     const current_answer = useAnswersStore(state => state.current_answer);
     const setAnswers = useAnswersStore(state => state.setAnswers);
@@ -37,10 +37,15 @@ const AnswerList = () => {
     const delAnswer = useAnswersStore(state => state.delAnswer);
     const updateAnswer = useAnswersStore(state => state.updateAnswer);
 
+
+
     const questions = useQuestionStore(state => state.questions);
     const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
     const [loadedQuestionId, setLoadedQuestionId] = useState(null);
     // console.log("@/app/pages/components/AnswerList currentQuestionId: " + currentQuestionId)
+
+    const [tagListLoaded, setTagListLoaded] = useState(false);
+
     // const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
     const current_model = useModelStore(state => state.current_model);
@@ -112,6 +117,9 @@ const AnswerList = () => {
 
 
                 for (let a of out_items) {
+                    // HERE
+                    // let tags: TagStoreType = [];
+
                     let answer: AnswerType = {
                         uuid: a.uuid,
                         creator_uuid: a.creator_uuid,
@@ -681,19 +689,22 @@ const AnswerList = () => {
                                 </>
                             )}
                     </div>
+                     {/* Tags */}
                     <div className="p-3 text-xs text-gray-400 flex">
                         
-                        <TagList object_uuid={
-                            // @ts-ignore
-                            current_answer.uuid} 
-                            tags={[{uuid:"123",name:"Tag 1"},]} />
+                        <TagList 
+                        // @ts-ignore
+                        object_uuid={current_answer.uuid} 
+                        setTagListLoaded={setTagListLoaded}
+                   />
                     </div>
+                    {/* Titel */}
                     <div className="">
                         <div className="mt-2">
                             {modalTitle}
                         </div>
                     </div>
-
+                    {/* Content */}
                     <div className="text-sm">
                         <div className="mt-2">
                             {modalContent}
