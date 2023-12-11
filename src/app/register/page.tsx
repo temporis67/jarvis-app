@@ -46,7 +46,7 @@ export default function Page(request: any) {
         let data = await response.json();
         console.log(data);
         if (data["uuid"] != undefined && data["uuid"] != "") {
-            window.location.href = "/api/auth/signin";
+            window.location.href = "/pages";
         }
 
     }

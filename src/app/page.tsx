@@ -47,8 +47,8 @@ export default async function Home() {
             return data['uuid'];
 
         } catch (error) {
-            console.error('API Host down? - Failed to fetch user in /app/api/auth.../route.ts/getUser() :', error);
-            throw new Error('Failed to fetch user.' + error,);
+            console.error('API Host down? - Failed to fetch user in /app/pages.tsx/getUser() :', error);
+            throw new Error('Faild getting UserId - API Host down?' + error,);
         }
 
     }
