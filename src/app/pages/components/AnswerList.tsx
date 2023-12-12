@@ -344,6 +344,7 @@ const AnswerList = () => {
             const formData = new FormData();
             formData.append('question_uuid', questionId);
             formData.append('question', JSON.stringify(question));
+            formData.append('context', JSON.stringify(context));
             // @ts-ignore
             formData.append('model', JSON.stringify(current_model));
             // @ts-ignore

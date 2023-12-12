@@ -11,6 +11,7 @@ import ModalDialog from "@/app/components/ModalDialog";
 const ModelCardList = ({mode}: {mode: string}) => {
 
     const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
+    const default_model_id = "mistral-7b-openorca.Q5_K_M.gguf";
 
     const models = useModelStore(state => state.models);
     const setModels = useModelStore(state => state.setModels);
@@ -62,7 +63,8 @@ const ModelCardList = ({mode}: {mode: string}) => {
       //  console.log("apiFetchModels() data: ", data);
         const new_models: any = Object.values(data);
         setModels(new_models);
-        setCurrentModel(new_models[0] as ModelType);
+        const default_model = new_models.filter((model: ModelType) => model.model_filename === default_model_id)[0];
+        setCurrentModel(default_model as ModelType);
         // return data;
     }
 
@@ -180,7 +182,8 @@ const ModelCardList = ({mode}: {mode: string}) => {
                                     className="bg-gray-700 p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                     defaultValue={modalContent}
                                 />
-                            <div className="mt-3 block text-sm">Je nach Model können oder müssen die Platzhalter {"{question}"} und {"{content}"} benutzt werden.</div>
+                            <div className="mt-3 block text-sm">Bei lokalen Models können oder müssen die Platzhalter {"{question}"} und {"{context}"} benutzt werden.</div>
+                            <div className="mt-3 block text-sm">Bei den externen Models werden Question und Context später an die richtige Stelle Prompt platziert.</div>
                         </div>
 
 

@@ -32,11 +32,12 @@ const QuestionList = () => {
 
 
     const setQuestions = useQuestionStore(state => state.setQuestions);
-    const currentQuestionId = useQuestionStore(state => state.currentQuestionId);
-    const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
+    const editQuestionId = useQuestionStore(state => state.currentQuestionId);
+    const setEditQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
     const currentQuestion = useQuestionStore(state => state.currentQuestion);
     const setCurrentQuestion = useQuestionStore(state => state.setCurrentQuestion);
+
 
     const setAnswers = useAnswersStore(state => state.setAnswers);
 
@@ -79,7 +80,7 @@ const QuestionList = () => {
 
     const handleSelectQuestion = (event: React.MouseEvent<HTMLElement>, questionId: string) => {
         // @ts-ignore
-        setCurrentQuestionId(questionId);
+        setEditQuestionId(questionId);
         // @ts-ignore
         // setCurrentQuestion(questions.find(q => q.uuid === questionId));
 
@@ -92,7 +93,7 @@ const QuestionList = () => {
         if (question) {
             setModalTitle(question.title || ''); // Use nullish coalescing to handle null values
             setModalContent(question.content || '');
-            setCurrentQuestionId(questionId);
+            setEditQuestionId(questionId);
         }
         setShowDialog(true);
     }
@@ -170,7 +171,7 @@ const QuestionList = () => {
 
         // HERE
 
-        if (currentQuestionId === '') {
+        if (editQuestionId === '') {
 
             console.log("Neue Frage wird erstellt")
             // @ts-ignore
@@ -179,7 +180,7 @@ const QuestionList = () => {
                 if (new_question === undefined) {
                     throw new Error('ERROR: pages/questions/page.tsx/saveQuestion(): Could not create new question uuid is undefined');
                 } else {
-                    setCurrentQuestionId(new_question['uuid'])
+                    setEditQuestionId(new_question['uuid'])
                     new_question.uuid = new_question['uuid'];
                     new_question.status = "loading";
                     new_question.title = modalTitle;
@@ -192,22 +193,24 @@ const QuestionList = () => {
                         // console.log("api_update_question() SUCCESS:: #", r)
                         new_question.status = "loaded";
                         addQuestion(new_question);
+                        
                     })
                 }
 
             });
         } else {
 
+            let edit_question = questions.find(q => q.uuid === editQuestionId) || null;
             // update DB via API
-            if (currentQuestion !== null) {
-                console.log("Aktualisiere Frage: ", currentQuestionId, " # ", modalTitle, " # ", modalContent)
+            if (edit_question !== null) {
+                console.log("Aktualisiere Frage: ", editQuestionId, " # ", modalTitle, " # ", modalContent)
                 // @ts-ignore
-                currentQuestion.title = modalTitle;
+                edit_question.title = modalTitle;
                 // @ts-ignore
-                currentQuestion.content = modalContent;
+                edit_question.content = modalContent;
                 // @ts-ignore
-                currentQuestion.date_updated = Moment().format('DD.MM.YYYY HH:mm');
-                api_update_question(currentQuestion).then(r => {
+                edit_question.date_updated = Moment().format('DD.MM.YYYY HH:mm');
+                api_update_question(edit_question).then(r => {
                     // console.log("api_update_question() SUCCESS:: #", r)
                 })
 
@@ -228,7 +231,7 @@ const QuestionList = () => {
             // @ts-ignore
             // console.log("updatedQuestions[i].uuid: ", updatedQuestions[i], " # ", currentQuestionId);
             // @ts-ignore
-            if (updatedQuestions[i].uuid === currentQuestionId) {
+            if (updatedQuestions[i].uuid === editQuestionId) {
                 // console.log("Aktualisiere den Titel und Inhalt der Frage", modalTitle, modalContent);
                 // @ts-ignore
                 updatedQuestions[i].title = modalTitle;
@@ -251,7 +254,7 @@ const QuestionList = () => {
         // console.log("handleClickNewQuestion start");
         setModalTitle(''); // Setze den Titel der Frage
         setModalContent(''); // Setze den Inhalt der Frage
-        setCurrentQuestionId(''); // Keine Id als Signal für 'neue Frage'
+        setEditQuestionId(''); // Keine Id als Signal für 'neue Frage'
         setShowDialog(true); // ModalDialog anzeigen
     }
 
@@ -287,66 +290,6 @@ const QuestionList = () => {
         }
     }
 
-    const api_new_question = async () => {
-        // console.log("New Question API fetch() start")
-        const api_url = (api_host + "/new_question");
-
-        let formData = new FormData();
-        // @ts-ignore
-        formData.append("user_uuid", user_uuid);
-        formData.append("title", "");
-        formData.append("content", "");
-
-        const new_question: QuestionType = {
-            uuid: '',
-            status: '',
-            creator_uuid: '',
-            creator_name: '',
-            time_elapsed: '',
-            title: '',
-            content: '',
-            date_created: '',
-            date_updated: '',
-            rank: 50,
-            answers: null,
-        }
-
-
-        try {
-            const response = await fetch(api_url, {
-                method: "POST",
-                body: formData,
-                mode: 'cors',
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok', await response.json());
-            }
-            const data = await response.json();
-
-            let out_items = {};
-            Object.keys(data).forEach(key => {
-                // @ts-ignore
-                out_items[key] = data[key];
-                if (key in new_question) {
-                    // @ts-ignore
-                    new_question[key] = data[key];
-                }
-
-            });
-            // @ts-ignore
-            out_items['creator'] = session.user.name;
-
-            console.log("api_new_question OK new_question: ", new_question);
-
-            return out_items;
-
-        } catch (error) {
-            console.error("Error fetching data in api_new_question:", error);
-        }
-
-
-    };
-
 
 
     const api_update_question_rank = async (questionId: string, rank: any) => {
@@ -379,6 +322,77 @@ const QuestionList = () => {
         }
 
     }
+
+
+
+    const api_new_question = async () => {
+        // console.log("New Question API fetch() start")
+        const api_url = (api_host + "/new_question");
+
+        let formData = new FormData();
+        // @ts-ignore
+        formData.append("user_uuid", user_uuid);
+        formData.append("title", "");
+        formData.append("content", "");
+
+        const new_question: QuestionType = {
+            uuid: '',
+            status: '',
+            creator_uuid: '',
+            creator_name: '',
+            time_elapsed: '',
+            title: '',
+            content: '',
+            date_created: '',
+            date_updated: '',
+            rank: 0,
+            answers: null,
+        }
+
+
+        try {
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: formData,
+                mode: 'cors',
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok', await response.json());
+            }
+            const data = await response.json();
+
+            let out_items = {};
+            Object.keys(data).forEach(key => {
+                // @ts-ignore
+                out_items[key] = data[key];
+                if (key in new_question) {
+                    // @ts-ignore
+                    new_question[key] = data[key];
+                }
+
+            });
+            // @ts-ignore
+            out_items['creator'] = session.user.name;
+
+            let top_rank = questions[0].rank;
+            // @ts-ignore
+            out_items['rank'] = top_rank + 1;
+            // @ts-ignore
+            api_update_question_rank(out_items['uuid'], out_items['rank']);
+
+
+            console.log("api_new_question OK new_question: ", new_question);
+
+            return out_items;
+
+        } catch (error) {
+            console.error("Error fetching data in api_new_question:", error);
+        }
+
+
+    };
+
+
 
     const onClose = () => {
         // console.log("Modal has closed")
@@ -437,9 +451,9 @@ const QuestionList = () => {
             // @ts-ignore
             setQuestions(out_items);
             // @ts-ignore
-            if (currentQuestionId === null || currentQuestionId === '' && out_items.length > 0) {
+            if (editQuestionId === null || editQuestionId === '' && out_items.length > 0) {
                 // @ts-ignore
-                setCurrentQuestionId(out_items[0].uuid);
+                setEditQuestionId(out_items[0].uuid);
                 // @ts-ignore
                 setCurrentQuestion(out_items[0]);
             }
@@ -541,7 +555,7 @@ const QuestionList = () => {
         _questionsItems = fix_ranking(_questionsItems);
 
 
-        setCurrentQuestionId(draggedItemContent.uuid);
+        setEditQuestionId(draggedItemContent.uuid);
         setCurrentQuestion(draggedItemContent);
 
         //reset the position ref
@@ -674,8 +688,8 @@ const QuestionList = () => {
                             'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
                             {
                                 // @ts-ignore
-                                ' bg-gray-600  text-gray-300': question.uuid === currentQuestionId,
-                                ' bg-gray-700 text-gray-400': question.uuid !== currentQuestionId,
+                                ' bg-gray-600  text-gray-300': question.uuid === editQuestionId,
+                                ' bg-gray-700 text-gray-400': question.uuid !== editQuestionId,
                             }
                         )}
                     >
