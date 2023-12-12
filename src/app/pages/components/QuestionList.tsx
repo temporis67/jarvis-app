@@ -592,7 +592,7 @@ const QuestionList = () => {
 
                     {(questions?.length === 0) && "Noch keine Fragen"}
                     {(questions?.length === 1) && "Eine Frage"}
-                    {(questions?.length > 1) && questions?.length + " Antworten"}
+                    {(questions?.length > 1) && questions?.length + " Fragen"}
                 </div>
                 <div className={"p-2"}>
                     <PlusCircleIcon className={clsx("w-5 h-5 ",
