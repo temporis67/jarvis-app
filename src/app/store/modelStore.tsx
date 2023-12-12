@@ -19,7 +19,7 @@ export type ModelStoreType = {
     updateModel: (model: ModelType) => void
 
     current_model: ModelType | null
-    setCurrentModel: (model: ModelType) => void
+    setCurrentModel: (model: ModelType|null) => void
 
 
 }
@@ -68,7 +68,7 @@ const modelStore = (set: any):ModelStoreType => ({
     setModels: (new_models: ModelsType) => set({ models: new_models }),
 
     current_model: null,
-    setCurrentModel: (model: ModelType) => set({ current_model: model }),
+    setCurrentModel: (model: ModelType|null) => set({ current_model: model }),
 
     addModel: (model: ModelType) =>
         set((state: any) => ({

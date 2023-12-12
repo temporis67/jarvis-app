@@ -1,11 +1,12 @@
 // a component that renders a single card
 import useModelStore from "@/app/store/modelStore";
-import {ModelType} from "@/app/store/modelStore";
+import { ModelType } from "@/app/store/modelStore";
 import React from "react";
 import clsx from "clsx";
-import {PencilSquareIcon} from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-export default function ModelCard({model_uuid, handleClickEditModel, mode}: { model_uuid: string, handleClickEditModel: any, mode: string } ) {
+export default function ModelCard({ model_uuid, handleClickEditModel, mode, handleClickDeleteModel }: 
+    { model_uuid: string, handleClickEditModel: any, mode: string, handleClickDeleteModel: any }) {
 
     const models = useModelStore(state => state.models);
     const setCurrentModel = useModelStore(state => state.setCurrentModel);
@@ -31,7 +32,7 @@ export default function ModelCard({model_uuid, handleClickEditModel, mode}: { mo
     const handleSelectModel = (event: React.MouseEvent<HTMLElement>) => {
         console.log("handleSelectModel: ", model);
         // @ts-ignore
-       // console.log("clsx: ", model.uuid, currentModel.uuid)
+        // console.log("clsx: ", model.uuid, currentModel.uuid)
         setCurrentModel(model);
 
     }
@@ -40,15 +41,15 @@ export default function ModelCard({model_uuid, handleClickEditModel, mode}: { mo
     if (model !== undefined) {
 
         if (mode === "short") {
-            return(
+            return (
                 <div className={clsx("m-1 overflow-hidden shadow rounded-lg",
                     {
                         // @ts-ignore
-                        ' bg-gray-600': model.uuid === currentModel.uuid,
+                        ' bg-gray-600': model.uuid === currentModel?.uuid,
                         // @ts-ignore
-                        ' bg-gray-700': model.uuid !== currentModel.uuid,
+                        ' bg-gray-700': model.uuid !== currentModel?.uuid,
                     })}
-                        onClick={(event) => handleSelectModel(event)}
+                    onClick={(event) => handleSelectModel(event)}
                 >
                     <div className="p-1">
                         <div>
@@ -71,29 +72,36 @@ export default function ModelCard({model_uuid, handleClickEditModel, mode}: { mo
 
             <div className={clsx("w-48 m-2 p-3 overflow-hidden shadow rounded-lg",
                 {
-                      // @ts-ignore
-                    ' bg-gray-500': model.uuid === currentModel.uuid,
                     // @ts-ignore
-                    ' bg-gray-700': model.uuid !== currentModel.uuid,
+                    ' bg-gray-500': model?.uuid === currentModel?.uuid,
+                    // @ts-ignore
+                    ' bg-gray-700': model?.uuid !== currentModel?.uuid,
                 })}
 
 
-                 onClick={(event) => handleSelectModel(event)}
+                onClick={(event) => handleSelectModel(event)}
             >
                 <div className="">
                     <div>
                         <div className="text-sm font-medium">
                             <div className="flex flex-row justify-between">
-                                <div className={""}>
+                                <div className={""} title={model.uuid}>
                                     {model.model_label}
                                 </div>
                                 <div className={""}>
                                     <PencilSquareIcon className="w-5 h-5 text-gray-400"
                                         // @ts-ignore
-                                                      onClick={() => handleClickEditModel(model.uuid)}
-                                                      onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                                                      onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                                      title={"Model bearbeiten"}
+                                        onClick={() => handleClickEditModel(model.uuid)}
+                                        onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                        title={"Model bearbeiten"}
+                                    />
+                                    <TrashIcon className="w-5 h-5 text-gray-300"
+                                        // @ts-ignore
+                                        onClick={() => handleClickDeleteModel(model.uuid)}
+                                        onMouseOver={(e) => e.currentTarget.style.color = 'darkred'}
+                                        onMouseOut={(e) => e.currentTarget.style.color = 'rgb(209,213,219)'} // Setzen Sie hier die ursprüngliche Farbe
+                                        title={"Model löschen"}
                                     />
                                 </div>
                             </div>
@@ -104,8 +112,8 @@ export default function ModelCard({model_uuid, handleClickEditModel, mode}: { mo
                         </div>
                         <div className="mt-1 truncate text-sm text-gray-300"
 
-                             onMouseOver={showFullPrompt}
-                             onMouseOut={showShortPrompt}
+                            onMouseOver={showFullPrompt}
+                            onMouseOut={showShortPrompt}
 
                         >
                             Default Prompt: {model.default_prompt}
