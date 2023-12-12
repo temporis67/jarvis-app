@@ -3,14 +3,14 @@ import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials"
 import { NextAuthOptions } from "next-auth";
 
-async function getUser(name: string, password: string): Promise<Response> {
+async function getUser(email: string, password: string): Promise<Response> {
 
     try {
         const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
-        const api_url = (api_host + "/user");
+        const api_url = (api_host + "/verify_user");
 
         let formData = new FormData();
-        formData.append("name", name);
+        formData.append("email", email);
         formData.append("password", password);
 
 
@@ -51,9 +51,9 @@ export const authOptions: NextAuthOptions = {
             // e.g. domain, username, password, 2FA token, etc.
             // You can pass any HTML attribute to the <input> tag through the object.
             credentials: {
-                username: {label: "Name", type: "text", placeholder: "Choose a username"},
+                //username: {label: "Name", type: "text", placeholder: "Choose a username"},                
+                email: {label: "Email", type: "email" },
                 password: {label: "Passwort", type: "password" },
-                // email: {label: "Email", type: "email" },
                 // uuid: {label: "UUID", type: "hidden" }
             },
             async authorize(credentials, req) {
@@ -66,7 +66,7 @@ export const authOptions: NextAuthOptions = {
 
                 // console.log("credentials: " + JSON.stringify(credentials))
                 // @ts-ignore
-                const res = await getUser(credentials.username, credentials.password); // credentials.email
+                const res = await getUser(credentials.email, credentials.password); // credentials.email
                 const user = await res.json()
 
 

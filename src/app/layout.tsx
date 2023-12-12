@@ -36,7 +36,7 @@ export default async function RootLayout({
                 <body className={`${inter.className} antialiased`} id="root">
       
                         <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
-                            {/*This is the main content area */}
+                            {/*This is the main content area */}                            
                             <div className="flex-grow p-6 md:overflow-y-auto md:p-12">
                                 {children}
                             </div>

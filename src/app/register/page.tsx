@@ -44,9 +44,10 @@ export default function Page(request: any) {
             body: formData
         });
         let data = await response.json();
-        console.log(data);
+        console.log("handleSignUp Response data", data);
+        
         if (data["uuid"] != undefined && data["uuid"] != "") {
-            window.location.href = "/";
+            window.location.href = "/register/success";
         }
 
     }
