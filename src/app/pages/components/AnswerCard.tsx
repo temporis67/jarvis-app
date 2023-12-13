@@ -2,14 +2,14 @@
 import useAnswersStore from "@/app/store/answerStore";
 import { AnswerType } from "@/app/store/answerStore";
 import clsx from "clsx";
-import { ExclamationCircleIcon, PencilSquareIcon, TrashIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { ExclamationCircleIcon, PencilSquareIcon, TrashIcon, EyeIcon, BarsArrowUpIcon } from "@heroicons/react/24/outline";
 import Moment from "moment";
 import React, { useEffect, useState } from "react";
 import TagList from "./tags/TagList";
 
 
 export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClickEditAnswer,
-    handleClickViewAnswer, dragItem, dragOverItem, handleSort }:
+    handleClickViewAnswer, dragItem, dragOverItem, handleSort, handleMoveToTop }:
     {
         answer_uuid: string,
         handleDeleteAnswer: any,
@@ -17,7 +17,8 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
         handleClickViewAnswer: any,
         dragItem: any,
         dragOverItem: any,
-        handleSort: any
+        handleSort: any,
+        handleMoveToTop: any
     }
 ) {
 
@@ -77,13 +78,13 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
             className={clsx(
                 'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
                 {
-                    'bg-gray-600': answer.uuid === current_answer?.uuid,
-                    'bg-gray-700': answer.uuid !== current_answer?.uuid,
+                    'bg-gray-600  text-gray-300': answer.uuid === current_answer?.uuid,
+                    'bg-gray-700  text-gray-400': answer.uuid !== current_answer?.uuid,
                 },
             )}
         >
 
-            <div className={clsx('flex min-w-0 gap-x-4 text-red-500',
+            <div className={clsx('flex min-w-0 gap-x-4',
 
             )}
 
@@ -92,7 +93,7 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
 
                 {/* Icon */}
                 <div className="flex min-w-1 gap-x-4">
-                    <ExclamationCircleIcon className={"w-5 h-5 text-gray-400"}
+                    <ExclamationCircleIcon className={"w-5 h-5  text-gray-400"}
                         onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
                         onMouseOut={(e) => e.currentTarget.style.color = 'gray'}
                         title={answer_uuid}
@@ -103,20 +104,20 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
 
                     <div className="min-w-0 flex-auto">
 
-                        <div className="text-sm font-semibold leading-6 text-gray-300" title={answer.uuid}>
+                        <div className="text-sm font-semibold leading-6 " title={answer.uuid}>
 
 
                             <div className="text-xs text-gray-400 flex">
                                 <div className="mr-4">
-                                {answer.creator_name}</div>
-                                { 
-                                    answer.tags ? <TagList object_uuid={answer.uuid} setTagListLoaded={setTagListLoaded}/> : <TagList object_uuid={answer.uuid} setTagListLoaded={setTagListLoaded} />
-                                
+                                    {answer.creator_name}</div>
+                                {
+                                    answer.tags ? <TagList object_uuid={answer.uuid} setTagListLoaded={setTagListLoaded} /> : <TagList object_uuid={answer.uuid} setTagListLoaded={setTagListLoaded} />
+
                                 }
                             </div>
                             <div id={"title_" +
                                 answer.uuid}
-                                className="mt-1 truncate text-sm leading-5 text-gray-300 "
+                                className="mt-1 truncate text-sm leading-5 "
 
                                 onMouseOver={showFullAnswer}
                                 onMouseOut={showShortAnswer}
@@ -129,19 +130,19 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                         <div id={"content_" +
                             // @ts-ignore
                             answer.uuid}
-                            className="mt-1 truncate text-xs leading-5 text-gray-300"
+                            className="mt-1 truncate text-xs leading-5 "
                             onMouseOver={showFullAnswer}
                             onMouseOut={showShortAnswer}
                         >{
                                 // @ts-ignore
                                 answer.content}</div>
 
-                            {/* Rank, Time elapsed and Date */}
+                        {/* Rank, Time elapsed and Date */}
                         <div className="mt-1 text-xs leading-5 text-gray-400 ">
-                            Rank: {answer.rank} Dauer: {
+                            Rank: {answer.rank} Dauer: <span className="font-bold">{
 
                                 parseFloat(answer.time_elapsed).toFixed(1)
-                            } s &nbsp;
+                            }s</span> &nbsp;
                             {
                                 // @ts-ignore
                                 answer.date_updated ? (
@@ -171,7 +172,15 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                 {/* Actions */}
                 <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
 
-                    <EyeIcon className="w-5 h-5 text-gray-300"
+                    <BarsArrowUpIcon className="w-5 h-5 text-gray-400"
+                        // @ts-ignore
+                        onClick={() => handleMoveToTop(answer.uuid)}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'darkblue'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'rgb(209,213,219)'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Nach ganz oben verschieben"}
+                    />
+
+                    <EyeIcon className="w-5 h-5 text-gray-400"
                         // @ts-ignore
                         onClick={() => handleClickViewAnswer(answer.uuid)}
                         onMouseOver={(e) => e.currentTarget.style.color = 'darkblue'}
@@ -179,14 +188,14 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                         title={"Antwort ansehen"}
                     />
 
-                    <PencilSquareIcon className="w-5 h-5 text-gray-300"
+                    <PencilSquareIcon className="w-5 h-5 text-gray-400"
                         // @ts-ignore
                         onClick={() => handleClickEditAnswer(answer.uuid)}
                         onMouseOver={(e) => e.currentTarget.style.color = 'darkblue'}
                         onMouseOut={(e) => e.currentTarget.style.color = "rgb(209,213,219)"} // Setzen Sie hier die ursprüngliche Farbe
                         title={"Antwort bearbeiten"}
                     />
-                    <TrashIcon className="w-5 h-5 text-gray-300"
+                    <TrashIcon className="w-5 h-5 text-gray-400"
                         // @ts-ignore
                         onClick={() => handleDeleteAnswer(answer.uuid)}
                         onMouseOver={(e) => e.currentTarget.style.color = 'darkred'}

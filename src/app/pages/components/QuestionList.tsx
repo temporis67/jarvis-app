@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import clsx from "clsx";
-import { QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import { QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon, BarsArrowUpIcon } from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import { useSession } from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
@@ -488,6 +488,13 @@ const QuestionList = () => {
         // @ts-ignore
         let _questions = [...questions];
 
+        // sort _answers by _answers[i].rank which is a number
+        _questions.sort((a: any, b: any) => {        
+            const rankA = a['rank'];
+            const rankB = b['rank'];
+            return rankB - rankA;
+        });
+
         let offset = 0;
         for (let i = 0; i < _questions.length; i++) {
             // when an answer.rank is equal or bigger then the precessor's rank then decrease it to be lower the the rank of precessor
@@ -566,6 +573,25 @@ const QuestionList = () => {
         // @ts-ignore
         setQuestions(_questionsItems);
     };
+
+
+        // this function puts the question with the given question_uuid to the top of the questions
+        const handleMoveToTop = (question_uuid: string) => {
+            // @ts-ignore
+            let _questions = [...questions];
+            let _question = _questions.find(a => a.uuid === question_uuid);
+            if (_question) {
+                // @ts-ignore
+                _question.rank = parseInt(_questions[0].rank) + 1;
+    
+                api_update_question_rank(question_uuid, _question.rank);
+                // @ts-ignore
+                _questions = fix_ranking(_questions);
+                // @ts-ignore
+                setQuestions(_questions);
+                
+            }
+        }
 
     // Ende Drag & Drop Handling *******************************************************************************
 
@@ -779,13 +805,16 @@ const QuestionList = () => {
                         </div>
 
                         <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                            <TrashIcon className="w-5 h-5 text-gray-400"
-                                // @ts-ignore
-                                onClick={() => handleDeleteQuestion(question.uuid)}
-                                onMouseOver={(e) => e.currentTarget.style.color = 'red'}
-                                onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                                title={"Frage löschen"}
-                            />
+
+                        <BarsArrowUpIcon className="w-5 h-5 text-gray-400"
+                        // @ts-ignore
+                        onClick={() => handleMoveToTop(question.uuid)}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'darkblue'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'rgb(209,213,219)'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Nach ganz oben verschieben"}
+                    />
+
+
                             <PencilSquareIcon className="w-5 h-5 text-gray-400"
                                 // @ts-ignore
                                 onClick={() => handleUpdateQuestion(question.uuid)}
@@ -793,6 +822,14 @@ const QuestionList = () => {
                                 onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
                                 title={"Frage bearbeiten"}
 
+                            />
+
+<TrashIcon className="w-5 h-5 text-gray-400"
+                                // @ts-ignore
+                                onClick={() => handleDeleteQuestion(question.uuid)}
+                                onMouseOver={(e) => e.currentTarget.style.color = 'red'}
+                                onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                                title={"Frage löschen"}
                             />
                         </div>
                     </div>

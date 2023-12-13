@@ -565,7 +565,16 @@ const AnswerList = () => {
     const fix_ranking = (answers: AnswerType[]) => {
         console.log("fix_ranking() start: ", answers)
         // @ts-ignore
-        let _answers = [...answers];
+        let _answers:AnswerType[] = [...answers];
+
+        // sort _answers by _answers[i].rank which is a number
+        _answers.sort((a: AnswerType, b: AnswerType) => {        
+            const rankA = a['rank'];
+            const rankB = b['rank'];
+            return rankB - rankA;
+        });
+
+
 
         let offset = 0;
         for (let i = 0; i < _answers.length; i++) {
@@ -623,9 +632,6 @@ const AnswerList = () => {
 
         }
 
-
-
-
         // save the rank of the dragged item and the target item
         // @ts-ignore
         api_update_answer_rank(draggedItemContent.uuid, draggedItemContent.rank);
@@ -643,6 +649,24 @@ const AnswerList = () => {
         // @ts-ignore
         setAnswers(_answers);
     };
+
+    // this function puts the answer with the given answer_uuid to the top of the answers
+    const handleMoveToTop = (answer_uuid: string) => {
+        // @ts-ignore
+        let _answers = [...answers];
+        let _answer = _answers.find(a => a.uuid === answer_uuid);
+        if (_answer) {
+            // @ts-ignore
+            _answer.rank = parseInt(answers[0].rank) + 1;
+
+            api_update_answer_rank(answer_uuid, _answer.rank);
+            // @ts-ignore
+            _answers = fix_ranking(_answers);
+            // @ts-ignore
+            setAnswers(_answers);            
+            
+        }
+    }
 
     // Ende Drag & Drop Handling *******************************************************************************
 
@@ -825,6 +849,7 @@ const AnswerList = () => {
                             dragItem={dragItem}
                             dragOverItem={dragOverItem}
                             handleSort={handleSort}
+                            handleMoveToTop={handleMoveToTop}
 
                         />
                     )

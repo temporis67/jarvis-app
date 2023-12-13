@@ -205,7 +205,7 @@ const ModelCardList = ({ mode }: { mode: string }) => {
 
     const handleClickNewModel = () => {
         console.log("handleClickNewModel start");
-        setModalHeader("Neues Model anlegen"); // Setze den Titel des Dialogs
+        setModalHeader("Neues Prompt für ein Model anlegen"); // Setze den Titel des Dialogs
         setModalTitle(""); // Setze den Titel der Frage
         setModalContent(""); // Setze den Inhalt der Frage
         setCurrentModel(null); // Speichere die aktuelle Frage-ID
@@ -217,6 +217,10 @@ const ModelCardList = ({ mode }: { mode: string }) => {
     if (models !== undefined && models !== null && models.length > 0) {
         models.sort((a, b) => a.model_label.localeCompare(b.model_label));
     }
+
+    const filenames = models.map((model: ModelType) => model.model_filename);
+    // remove duplicates from filenames without using Set()
+    const unique_filenames = filenames.filter((v, i, a) => a.indexOf(v) === i);
 
     return (
         <div className={""}>
@@ -240,14 +244,23 @@ const ModelCardList = ({ mode }: { mode: string }) => {
                                         Model Filename
                                     </label>
                                     <div className="mt-2">
-                                        <input
-                                            id="modal-filename"
-                                            name="modal-filename"
-                                            // @ts-ignore
+
+
+                                        <select 
+                                            name="model-filename" id=""
                                             onChange={(e) => setModalFileName(e.target.value)}
-                                            className="bg-gray-700 p-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                            defaultValue={modalFileName}
-                                        />
+                                            className="bg-gray-700 p-2 block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                        >
+                                        <option value="">-- Bitte wählen --</option>
+                                        {
+                                            unique_filenames.map((filename: string, index) => (
+                                            <option key={index} value={filename}>
+                                                {filename}
+                                            </option>
+                                            ))
+                                        }
+                                        </select>
+
                                     </div>
                                 </>
                             ) : null
@@ -298,15 +311,15 @@ const ModelCardList = ({ mode }: { mode: string }) => {
 
 
             {mode !== "short" && (
-            <div className="flex">
-            <h1 className={"m-2"}>Models</h1>
-            <PlusCircleIcon className="w-5 h-5 text-gray-400"
-                onClick={() => handleClickNewModel()}
-                onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                title={"Neues Model anlegen"}
-            />
-            </div>
+                <div className="flex">
+                    <h1 className={"m-2"}>Models</h1>
+                    <PlusCircleIcon className="w-5 h-5 text-gray-400"
+                        onClick={() => handleClickNewModel()}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Neues Model anlegen"}
+                    />
+                </div>
             )}
             <div className="flex flex-wrap">
                 {models.map((model: ModelType) => (
