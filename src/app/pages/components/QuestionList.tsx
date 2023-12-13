@@ -374,7 +374,11 @@ const QuestionList = () => {
             // @ts-ignore
             out_items['creator'] = session.user.name;
 
-            let top_rank = questions[0].rank;
+
+            let top_rank =  100
+            if (questions && questions.length > 0){
+                top_rank = questions[0].rank;
+            }
             // @ts-ignore
             out_items['rank'] = top_rank + 1;
             // @ts-ignore
