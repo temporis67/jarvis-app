@@ -14,6 +14,9 @@ const TagList = ({object_uuid, setTagListLoaded}: {object_uuid: string, setTagLi
 
     const [tags, setTags] = useState<TagType[]>([]);
 
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [loadCount, setLoadCount] = useState(0);
+
     const addTag =(tag: TagType) => {
         
         setTags([...tags, tag]);
@@ -43,7 +46,7 @@ const TagList = ({object_uuid, setTagListLoaded}: {object_uuid: string, setTagLi
                   throw new Error('apiFetch Network response was not ok: ' + await response.json());
               }
               const data = await response.json();
-              console.log("TagList.apiFetch() data OK: ", data);
+              // console.log("TagList.apiFetch() data OK: ", data);
   
               return data; // Return the whole response data
   
@@ -51,9 +54,6 @@ const TagList = ({object_uuid, setTagListLoaded}: {object_uuid: string, setTagLi
               console.log("Error fetching data:", error);
           }
       }
-
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [loadCount, setLoadCount] = useState(0);
 
     if (!isLoaded) {
         // get all tags from the database
@@ -65,13 +65,13 @@ const TagList = ({object_uuid, setTagListLoaded}: {object_uuid: string, setTagLi
             setIsLoaded(true);
             setTagListLoaded(true);
             setLoadCount(loadCount + 1);
-            console.log("loadCount API: ", loadCount )
+            // console.log("loadCount API: ", loadCount )
 
         }).catch((error) => {
             console.log("ERROR: TagList: ", error)
         })
     }
-    console.log("loadCount: ", loadCount )
+    // console.log("loadCount: ", loadCount )
 
     const handleAddTag = () => {
         const tag_input = document.getElementById("taginput_" + object_uuid) as HTMLDivElement
@@ -141,7 +141,8 @@ const TagList = ({object_uuid, setTagListLoaded}: {object_uuid: string, setTagLi
         })
     }
 
-    console.log("*** TagList: ", tags)
+    // ToDo: TagList gets call too often?
+    // console.log("*** TagList: ", tags)
 
     return (
         <div className="flex relative">

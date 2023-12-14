@@ -330,7 +330,7 @@ const AnswerList = () => {
             trust: 0,
             date_created: now.toString(),
             date_updated: now.toString(),
-            rank: 100,
+            rank: 500,
             tags: [],
         }
 
@@ -372,10 +372,13 @@ const AnswerList = () => {
 
                 let old_one = answers[0]
                 if (old_one !== undefined) {
+                    newAnswer.rank = old_one.rank
                     // @ts-ignore
                     old_one.rank = old_one.rank - 1;
                     // updateAnswer(old_one);
+                    api_update_answer_rank(newAnswer.uuid, newAnswer.rank);
                     api_update_answer_rank(old_one.uuid, old_one.rank);
+                    
 
                 }
 
@@ -583,10 +586,13 @@ const AnswerList = () => {
             if (i < _answers.length - 1) // all but last element
             {
                 // if rank is same or lower than sucessor, hit him
+                console.log("Ranks ",_answers[i].rank, " <=? ", _answers[i + 1].rank)
                 // @ts-ignore
-                if (_answers[i].rank === _answers[i + 1].rank || _answers[i].rank < _answers[i + 1].rank) {
+                if (_answers[i].rank <= _answers[i + 1].rank) {
+                    
                     // @ts-ignore
                     _answers[i + 1].rank = _answers[i].rank - 1;
+                    console.log("Fix Rank:: ",_answers[i + 1].rank)
                     api_update_answer_rank(_answers[i + 1].uuid, _answers[i + 1].rank);
                 }
             }
