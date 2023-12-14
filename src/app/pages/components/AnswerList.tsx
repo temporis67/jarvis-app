@@ -301,9 +301,11 @@ const AnswerList = () => {
         const question = questions?.filter((question: any) => question.uuid === questionId)[0].title;
         // @ts-ignore
         const context = questions?.filter((question: any) => question.uuid === questionId)[0].content;
+
+        
         // @ts-ignore
         const prompt = current_model?.default_prompt.replace("{question}", question).replace("{context}", context);
-        // console.log("handleAskQuestion prompt: " + prompt);
+        console.log("handleAskQuestion prompt: " + prompt);
 
 
         // add answer to store with status loading
