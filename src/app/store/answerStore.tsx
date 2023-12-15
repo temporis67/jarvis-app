@@ -95,15 +95,13 @@ const answersStore = (set: any): AnswersStoreType => ({
     setAnswers: (new_answers: AnswersType) => set({answers: new_answers}),
     addAnswer: (answer: AnswerType) => set((state: AnswersStoreType) => ({answers: [answer, ...state.answers]})),
     delAnswer: (uuid: string) => set((state: AnswersStoreType) => ({answers: state.answers.filter(a => a.uuid !== uuid)})),
-    updateAnswer: (answer: AnswerType) => set((state: AnswersStoreType) => ({
-
-        answers: state.answers.map(a => {
-            let _answer = answer
+    updateAnswer: (answer: AnswerType) => set((state: AnswersStoreType) => ({        
+        answers: state.answers.map(a => {            
             if (a.uuid === answer.uuid) {
                 console.log("answerStore.updateAnswer: ", a.uuid)
-                _answer = answer
+                return answer    
             }
-            return _answer
+            return a;            
         })
     }))
     

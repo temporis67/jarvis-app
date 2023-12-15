@@ -35,7 +35,8 @@ const AnswerList = () => {
     const setAnswers = useAnswersStore(state => state.setAnswers);
     const addAnswer = useAnswersStore(state => state.addAnswer);
     const delAnswer = useAnswersStore(state => state.delAnswer);
-    const updateAnswer = useAnswersStore(state => state.updateAnswer);
+    // const updateAnswer = useAnswersStore(state => state.updateAnswer);
+    
 
 
 
@@ -722,15 +723,19 @@ const AnswerList = () => {
                                 </>
                             )}
                     </div>
+
                      {/* Tags */}
-                    <div className="p-3 text-xs text-gray-400 flex">
-                        
-                        <TagList 
-                        // @ts-ignore
-                        object_uuid={current_answer.uuid} 
-                        setTagListLoaded={setTagListLoaded}
-                   />
+                    <div className="p-3 text-xs text-gray-400 flex">                        
+                        { current_answer && (
+                            <TagList 
+                            // @ts-ignore
+                            object_uuid={current_answer.uuid} 
+                            tagParent={current_answer}
+                            setTagListLoaded={setTagListLoaded}
+                            /> 
+                        )}
                     </div>
+
                     {/* Titel */}
                     <div className="">
                         <div className="mt-2">
@@ -806,7 +811,7 @@ const AnswerList = () => {
                     {(answers?.length > 1) && answers?.length + " Antworten"}
 
                 </div>
-                <div className={"flex flex row-end-2 p-2"}>
+                <div className={"flex row-end-2 p-2"}>
                     <PlusCircleIcon className="w-5 h-5 text-gray-400"
                         onClick={() => handleClickNewAnswer()}
                         onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
@@ -857,7 +862,7 @@ const AnswerList = () => {
                             dragItem={dragItem}
                             dragOverItem={dragOverItem}
                             handleSort={handleSort}
-                            handleMoveToTop={handleMoveToTop}
+                            handleMoveToTop={handleMoveToTop}                            
 
                         />
                     )
