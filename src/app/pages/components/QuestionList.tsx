@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import clsx from "clsx";
-import { QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon, BarsArrowUpIcon } from "@heroicons/react/24/outline";
+import { QuestionMarkCircleIcon, TrashIcon, PencilSquareIcon, PlusCircleIcon, BarsArrowUpIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 import { useSession } from "next-auth/react";
 import ModalDialog from "@/app/components/ModalDialog";
@@ -9,6 +9,8 @@ import ModalDialog from "@/app/components/ModalDialog";
 import useUserStore from "@/app/store/userStore";
 import useQuestionStore, { QuestionType, QuestionsType } from "@/app/store/questionStore";
 import useAnswersStore from "@/app/store/answerStore";
+import TagList from "./tags/TagList";
+import { TagParentType } from "./tags/TagList";
 
 const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
 
@@ -56,7 +58,6 @@ const QuestionList = () => {
     // save reference for dragItem and dragOverItem
     const dragItem = React.useRef<any>(null);
     const dragOverItem = React.useRef<any>(null);
-
 
 
 
@@ -613,10 +614,14 @@ const QuestionList = () => {
         }
     };
 
+
+
     // Main Component *************************************************************************************************
     // @ts-ignore
     return (
         <div className={"w-1/2"}>
+
+            {/********* Header w. Count, Create, Filter *********/}
             <div className={"flex items-center"}>
                 <div className={"p-2 text-sm text-gray-400"}>
 
@@ -637,10 +642,7 @@ const QuestionList = () => {
                         onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
                         title={"Neue Frage erstellen"}
                     />
-
                 </div>
-
-
             </div>
 
 

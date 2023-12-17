@@ -5,16 +5,16 @@ import { PlusCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
 import Tag from './Tag';
 import { TagType } from '@/app/store/tagStore';
-import useTagStore, { TagStoreType } from "@/app/store/tagStore";
+// import useTagStore, { TagStoreType } from "@/app/store/tagStore";
 
-type TagParentType = {
-    uuid: string;
+export type TagParentType = {
+    uuid: string | null;
     content: string;
 }
 
 const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
     {
-        object_uuid: string,
+        object_uuid: string | null,
         tagParent: TagParentType | null,
         setTagListLoaded: any,
     }) => {
@@ -69,19 +69,26 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
 
     if (!isLoaded) {
         // get all tags from the database
-        const formData = new FormData();
-        formData.append("object_uuid", object_uuid);
-        apiFetch("get_tags_for_object", formData).then((my_tags) => {
-            setTags(my_tags);
 
-            setIsLoaded(true);
-            setTagListLoaded(true);
-            setLoadCount(loadCount + 1);
-            // console.log("loadCount API: ", loadCount )
+        if (object_uuid === null) {
+                // this should not happen
+                console.error("ERROR: TagList: object_uuid is null")
+        }
+        else {
+            const formData = new FormData();
+            formData.append("object_uuid", object_uuid || "");
+            apiFetch("get_tags_for_object", formData).then((my_tags) => {
+                setTags(my_tags);
 
-        }).catch((error) => {
-            console.log("ERROR: TagList: ", error)
-        })
+                setIsLoaded(true);
+                setTagListLoaded(true);
+                setLoadCount(loadCount + 1);
+                // console.log("loadCount API: ", loadCount )
+
+            }).catch((error) => {
+                console.log("ERROR: TagList: ", error)
+            })
+        }
     }
     // console.log("loadCount: ", loadCount )
 
@@ -129,8 +136,8 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
             // setTagListLoaded(false);
             console.log("handleGenerateTags() end: ", new_tags)
         })
-        
-        
+
+
     };
 
 
@@ -149,7 +156,7 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
         console.log("api_add_tag_to_object(): ", tag)
         const formData = new FormData();
         formData.append("tag", JSON.stringify(tag));
-        formData.append("object_uuid", object_uuid);
+        formData.append("object_uuid", object_uuid || "");
 
         apiFetch("add_tag_to_object", formData).then((my_tag) => {
             return my_tag;
@@ -194,7 +201,7 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
         // remove the tag from the object in the database
         const formData = new FormData();
         formData.append("tag_uuid", JSON.stringify(tag_uuid));
-        formData.append("object_uuid", object_uuid);
+        formData.append("object_uuid", object_uuid || "");
         apiFetch("remove_tag_from_object", formData).then((my_tag) => {
 
             // remove the tag from the list of tags
@@ -209,7 +216,7 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
     // console.log("*** TagList: ", tags)
 
     return (
-        <div className="flex relative text-xs">
+        <div className="flex relative text-xs w-3/4">
             <div className="absolute top-0 left-0">
                 <input type='text' placeholder='Tag hinzufügen' id={"taginput_" + object_uuid}
                     className='hidden bg-gray-600 border-[1px] border-gray-400 ml-1 pl-1 pr-1 rounded-md transition delay-200 hover:text-gray-300'
@@ -234,7 +241,7 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
             />
             <SparklesIcon
                 className="ml-1 p1 h-4 w-4 inline-block hover:text-gray-300" title={"Tags generieren"}
-                onClick={() => handleGenerateTags(object_uuid)}
+                onClick={() => handleGenerateTags(object_uuid || "")}
             />
 
         </div>

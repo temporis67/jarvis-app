@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import clsx from "clsx";
 import {
-    PlusCircleIcon, CalculatorIcon
+    PlusCircleIcon, CalculatorIcon, FunnelIcon
 } from "@heroicons/react/24/outline";
 import Moment from "moment/moment";
 
@@ -13,7 +13,8 @@ import useAnswersStore from "@/app/store/answerStore";
 import { AnswerType } from "@/app/store/answerStore";
 import AnswerCard from "@/app/pages/components/AnswerCard";
 import useModelStore from "@/app/store/modelStore";
-import TagList from "./tags/TagList";
+import TagList, { TagParentType } from "./tags/TagList";
+import { TagType } from "@/app/store/tagStore";
 
 
 
@@ -45,7 +46,11 @@ const AnswerList = () => {
     const [loadedQuestionId, setLoadedQuestionId] = useState(null);
     // console.log("@/app/pages/components/AnswerList currentQuestionId: " + currentQuestionId)
 
-    const [tagListLoaded, setTagListLoaded] = useState(false);
+    const [tagListLoaded, setTagListLoaded] = useState(false); // is the tag list loaded? used to trigger rerender
+    
+    const [filterListLoaded, setFilterListLoaded] = useState(false); // is the filter tag list loaded?
+
+    const [filterAnswers, setFilterAnswers] = useState(true); // on/off filtering answers by tags
 
     // const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
@@ -80,10 +85,14 @@ const AnswerList = () => {
             console.log("load_answers() no currentQuestionId given");
             return;
         } else {
-            const api_url = (api_host + "/answers");
+            const api_url = (api_host + "/get_answers");
             let formData = new FormData();
             //@ts-ignore
             formData.append("question_uuid", currentQuestionId);
+
+            if (filterAnswers){
+                formData.append("filter", "true");
+            }
 
 
             try {
@@ -154,7 +163,7 @@ const AnswerList = () => {
 
         }
 
-    }, [currentQuestionId, addAnswer, api_host, setAnswers]);
+    }, [currentQuestionId, addAnswer, api_host, setAnswers, filterAnswers]);
 
 
 
@@ -166,7 +175,7 @@ const AnswerList = () => {
 
             setLoadedQuestionId(currentQuestionId);
         }
-    }, [currentQuestionId, loadedQuestionId, load_answers,]);
+    }, [currentQuestionId, loadedQuestionId, load_answers,filterAnswers]);
 
 
 
@@ -677,6 +686,25 @@ const AnswerList = () => {
         }
     }
 
+    const user_content: TagParentType = {
+        uuid: user_uuid,
+        content: "Some content to compute filter tags by for the user or current scope", // like interests or summary of list content
+        
+    }
+
+    // this function uses apiFetch() to get a list of answers from the api      
+    const handelClickFilterActive = () => {
+        console.log("get_answers_by_tags() start: ")
+        if (filterAnswers === false) {
+            setFilterAnswers(true);
+            load_answers();
+        } else {
+            setFilterAnswers(false);
+            load_answers();
+        }
+        
+    }
+
     // Ende Drag & Drop Handling *******************************************************************************
 
 
@@ -811,6 +839,23 @@ const AnswerList = () => {
                     {(answers?.length > 1) && answers?.length + " Antworten"}
 
                 </div>
+                <div className={"p-2 flex"}>
+                    <TagList 
+                            object_uuid={currentQuestionId} 
+                            tagParent={user_content}
+                            setTagListLoaded={setFilterListLoaded}
+
+                    />
+                    <FunnelIcon className={clsx("w-5 h-5 ",
+                        (!filterAnswers) && "text-gray-400",
+                        (filterAnswers) && "text-green-600"
+                    )
+                    }
+                        onClick={() => handelClickFilterActive()}
+                        title={"Filter anwenden"}
+                    />
+                </div>
+
                 <div className={"flex row-end-2 p-2"}>
                     <PlusCircleIcon className="w-5 h-5 text-gray-400"
                         onClick={() => handleClickNewAnswer()}
