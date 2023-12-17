@@ -50,7 +50,7 @@ const AnswerList = () => {
     
     const [filterListLoaded, setFilterListLoaded] = useState(false); // is the filter tag list loaded?
 
-    const [filterAnswers, setFilterAnswers] = useState(true); // on/off filtering answers by tags
+    const [filterAnswers, setFilterAnswers] = useState(false); // on/off filtering answers by tags
 
     // const setCurrentQuestionId = useQuestionStore(state => state.setCurrentQuestionId);
 
@@ -154,7 +154,7 @@ const AnswerList = () => {
                 }
 
 
-                console.log("get_answers_by_question() SUCCESS:: #", out_items)
+                console.log("loadAnswers() SUCCESS:: #", out_items)
                 // console.log("Erstes Element:", data[Object.keys(data)[0]].title, data[Object.keys(data)[0]].uuid);
 
             } catch (error) {
@@ -175,7 +175,7 @@ const AnswerList = () => {
 
             setLoadedQuestionId(currentQuestionId);
         }
-    }, [currentQuestionId, loadedQuestionId, load_answers,filterAnswers]);
+    }, [currentQuestionId, loadedQuestionId, load_answers, filterAnswers]);
 
 
 
@@ -686,21 +686,25 @@ const AnswerList = () => {
         }
     }
 
-    const user_content: TagParentType = {
-        uuid: user_uuid,
-        content: "Some content to compute filter tags by for the user or current scope", // like interests or summary of list content
+    const question_content: TagParentType = {
+        uuid: currentQuestionId,
+        content: questions?.filter((question: any) => question.uuid === currentQuestionId)[0]?.content || "",
         
     }
 
     // this function uses apiFetch() to get a list of answers from the api      
     const handelClickFilterActive = () => {
-        console.log("get_answers_by_tags() start: ")
+        console.log("handelClickFilterActive() start: ")
         if (filterAnswers === false) {
             setFilterAnswers(true);
-            load_answers();
+            console.log("handelClickFilterActive() : setFilterAnswers(true)")
+            setLoadedQuestionId(null);
+
         } else {
             setFilterAnswers(false);
-            load_answers();
+            console.log("handelClickFilterActive() : setFilterAnswers(false)");
+            setLoadedQuestionId(null);
+
         }
         
     }
@@ -839,10 +843,10 @@ const AnswerList = () => {
                     {(answers?.length > 1) && answers?.length + " Antworten"}
 
                 </div>
-                <div className={"p-2 flex"}>
+                <div className={"p-2 flex text-xs text-gray-400"}>
                     <TagList 
                             object_uuid={currentQuestionId} 
-                            tagParent={user_content}
+                            tagParent={question_content}
                             setTagListLoaded={setFilterListLoaded}
 
                     />

@@ -47,6 +47,11 @@ const QuestionList = () => {
     const delQuestion = useQuestionStore(state => state.delQuestion); // New function from store
     const updateQuestion = useQuestionStore(state => state.updateQuestion); // New function from store
 
+    const [filterListLoaded, setFilterListLoaded] = useState(false); // is the filter tag list loaded?
+
+    const [filterQuestions, setFilterQuestions] = useState(false); // on/off filtering answers by tags
+
+    const [tagListLoaded, setTagListLoaded] = useState(false); // is the tag list loaded? used to trigger rerender
 
     // Update Question ModalDialog *******************************************************************************
     // Zustand für das Anzeigen des Dialogs
@@ -194,7 +199,7 @@ const QuestionList = () => {
                         // console.log("api_update_question() SUCCESS:: #", r)
                         new_question.status = "loaded";
                         addQuestion(new_question);
-                        
+
                     })
                 }
 
@@ -376,8 +381,8 @@ const QuestionList = () => {
             out_items['creator'] = session.user.name;
 
 
-            let top_rank =  100
-            if (questions && questions.length > 0){
+            let top_rank = 100
+            if (questions && questions.length > 0) {
                 top_rank = questions[0].rank;
             }
             // @ts-ignore
@@ -414,6 +419,9 @@ const QuestionList = () => {
         let formData = new FormData();
         //@ts-ignore
         formData.append("user_uuid", user_uuid);
+        if (filterQuestions) {
+            formData.append("filter", "true");
+        }
 
 
         try {
@@ -494,7 +502,7 @@ const QuestionList = () => {
         let _questions = [...questions];
 
         // sort _answers by _answers[i].rank which is a number
-        _questions.sort((a: any, b: any) => {        
+        _questions.sort((a: any, b: any) => {
             const rankA = a['rank'];
             const rankB = b['rank'];
             return rankB - rankA;
@@ -580,23 +588,23 @@ const QuestionList = () => {
     };
 
 
-        // this function puts the question with the given question_uuid to the top of the questions
-        const handleMoveToTop = (question_uuid: string) => {
+    // this function puts the question with the given question_uuid to the top of the questions
+    const handleMoveToTop = (question_uuid: string) => {
+        // @ts-ignore
+        let _questions = [...questions];
+        let _question = _questions.find(a => a.uuid === question_uuid);
+        if (_question) {
             // @ts-ignore
-            let _questions = [...questions];
-            let _question = _questions.find(a => a.uuid === question_uuid);
-            if (_question) {
-                // @ts-ignore
-                _question.rank = parseInt(_questions[0].rank) + 1;
-    
-                api_update_question_rank(question_uuid, _question.rank);
-                // @ts-ignore
-                _questions = fix_ranking(_questions);
-                // @ts-ignore
-                setQuestions(_questions);
-                
-            }
+            _question.rank = parseInt(_questions[0].rank) + 1;
+
+            api_update_question_rank(question_uuid, _question.rank);
+            // @ts-ignore
+            _questions = fix_ranking(_questions);
+            // @ts-ignore
+            setQuestions(_questions);
+
         }
+    }
 
     // Ende Drag & Drop Handling *******************************************************************************
 
@@ -614,6 +622,26 @@ const QuestionList = () => {
         }
     };
 
+    // Filter Handling ******************************************************************************************
+    const user_content: TagParentType = {
+        uuid: user_uuid,
+        content: "Ich bin Peter und interessiere mich für Informatik, Physik und Politik.",
+
+    }
+
+    // this function uses apiFetch() to get a list of answers from the api      
+    const handelClickFilterActive = () => {
+        console.log("get_answers_by_tags() start: ")
+        if (filterQuestions === false) {
+            setFilterQuestions(true);
+            setIsLoaded(false);
+        } else {
+            setFilterQuestions(false);
+            setIsLoaded(false);
+        }
+
+    }
+
 
 
     // Main Component *************************************************************************************************
@@ -629,6 +657,25 @@ const QuestionList = () => {
                     {(questions?.length === 1) && "Eine Frage"}
                     {(questions?.length > 1) && questions?.length + " Fragen"}
                 </div>
+
+                <div className={"p-2 flex"}>
+                    <TagList
+                        object_uuid={user_uuid}
+                        tagParent={user_content}
+                        setTagListLoaded={setFilterListLoaded}
+
+                    />
+                    <FunnelIcon className={clsx("w-5 h-5 ",
+                        (!filterQuestions) && "text-gray-400",
+                        (filterQuestions) && "text-green-600"
+                    )
+                    }
+                        onClick={() => handelClickFilterActive()}
+                        title={"Filter anwenden"}
+                    />
+                </div>
+
+
                 <div className={"p-2"}>
                     <PlusCircleIcon className={clsx("w-5 h-5 ",
                         (questions?.length > 0) && "text-gray-400",
@@ -736,11 +783,25 @@ const QuestionList = () => {
                         </div>
                         <div className="flex min-w-0 gap-x-4">
 
-                            <div className="min-w-0 flex-auto">
-                                <div className="text-xs text-gray-400 font-semibold leading-6">{
-                                    // @ts-ignore
-                                    question.creator}
-                                    {/* set id to question.uuid */}
+                            <div className="min-w-0 text-sx">
+                                <div className="text-gray-400 flex">
+                                    <div>
+                                        {
+                                            // @ts-ignore
+                                            question.creator}
+                                    </div>
+                                    {/* Tags */}
+                                    <div className="text-xs text-gray-400 flex">
+                                        <TagList
+                                            object_uuid={question.uuid}
+                                            tagParent={question}
+                                            setTagListLoaded={setTagListLoaded}
+
+                                        />
+
+                                    </div>
+
+
 
 
                                 </div>
@@ -759,13 +820,13 @@ const QuestionList = () => {
                                 >{
                                         // @ts-ignore
                                         question.content}</div>
-                                        <div className="flex text-gray-400 mt-1 text-xs leading-5">
-                                <div className="mr-3">Rank: {question.rank}</div>
-                                {/* Date */}
-                                {
+                                <div className="flex text-gray-400 mt-1 text-xs leading-5">
+                                    <div className="mr-3">Rank: {question.rank}</div>
+                                    {/* Date */}
+                                    {
 
-                                    question.date_updated ? (
-                                        
+                                        question.date_updated ? (
+
                                             <time dateTime={
                                                 // @ts-ignore
                                                 question.date_updated}>
@@ -774,51 +835,31 @@ const QuestionList = () => {
                                                     Moment(question.date_updated).format('DD.MM.YY HH:mm')
                                                 }
                                             </time>
-                                        
-                                    ) : (
-                                        
+
+                                        ) : (
+
                                             <time
                                                 // @ts-ignore
                                                 dateTime={
                                                     question.date_created}>{// @ts-ignore
                                                     Moment(question.date_created).format('DD.MM.y HH:mm')
                                                 }</time>
-                                       
-                                    )}
 
-                                    </div>
-                            </div>
-                            <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end ">
-                                {/* Tags */}
-                                <div className="text-xs leading-6 text-gray-400 ">
-                                    {
-                                        // @ts-ignore
-                                        question.tags ? (
-                                            // @ts-ignore
-                                            question.tags.map((tag: string) => (
-                                                <span key={tag}>
-                                                    #{tag}&nbsp;
-                                                </span>
-                                            ))
-                                        ) : (<span>
-                                            #noTag&nbsp;
-                                        </span>
                                         )}
 
                                 </div>
-
                             </div>
                         </div>
 
                         <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
 
-                        <BarsArrowUpIcon className="w-5 h-5 text-gray-400"
-                        // @ts-ignore
-                        onClick={() => handleMoveToTop(question.uuid)}
-                        onMouseOver={(e) => e.currentTarget.style.color = 'darkblue'}
-                        onMouseOut={(e) => e.currentTarget.style.color = 'rgb(209,213,219)'} // Setzen Sie hier die ursprüngliche Farbe
-                        title={"Nach ganz oben verschieben"}
-                    />
+                            <BarsArrowUpIcon className="w-5 h-5 text-gray-400"
+                                // @ts-ignore
+                                onClick={() => handleMoveToTop(question.uuid)}
+                                onMouseOver={(e) => e.currentTarget.style.color = 'darkblue'}
+                                onMouseOut={(e) => e.currentTarget.style.color = 'rgb(209,213,219)'} // Setzen Sie hier die ursprüngliche Farbe
+                                title={"Nach ganz oben verschieben"}
+                            />
 
 
                             <PencilSquareIcon className="w-5 h-5 text-gray-400"
@@ -830,7 +871,7 @@ const QuestionList = () => {
 
                             />
 
-<TrashIcon className="w-5 h-5 text-gray-400"
+                            <TrashIcon className="w-5 h-5 text-gray-400"
                                 // @ts-ignore
                                 onClick={() => handleDeleteQuestion(question.uuid)}
                                 onMouseOver={(e) => e.currentTarget.style.color = 'red'}

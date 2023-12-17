@@ -9,7 +9,7 @@ import { TagType } from '@/app/store/tagStore';
 
 export type TagParentType = {
     uuid: string | null;
-    content: string;
+    content: string | null;
 }
 
 const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
@@ -72,7 +72,7 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
 
         if (object_uuid === null) {
                 // this should not happen
-                console.error("ERROR: TagList: object_uuid is null")
+                console.info("ERROR: TagList: object_uuid is null")
         }
         else {
             const formData = new FormData();
@@ -216,7 +216,7 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
     // console.log("*** TagList: ", tags)
 
     return (
-        <div className="flex relative text-xs w-3/4">
+        <div className="flex relative">
             <div className="absolute top-0 left-0">
                 <input type='text' placeholder='Tag hinzufügen' id={"taginput_" + object_uuid}
                     className='hidden bg-gray-600 border-[1px] border-gray-400 ml-1 pl-1 pr-1 rounded-md transition delay-200 hover:text-gray-300'
