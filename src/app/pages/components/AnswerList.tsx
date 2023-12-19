@@ -689,6 +689,7 @@ const AnswerList = () => {
     const question_content: TagParentType = {
         uuid: currentQuestionId,
         content: questions?.filter((question: any) => question.uuid === currentQuestionId)[0]?.content || "",
+        filter_uuid: questions?.filter((question: any) => question.uuid === currentQuestionId)[0]?.filter_uuid || "",
         
     }
 
@@ -757,7 +758,7 @@ const AnswerList = () => {
                     </div>
 
                      {/* Tags */}
-                    <div className="p-3 text-xs text-gray-400 flex">                        
+                    <div className="p-3 text-xs text-gray-400 flex">
                         { current_answer && (
                             <TagList 
                             // @ts-ignore
@@ -845,7 +846,7 @@ const AnswerList = () => {
                 </div>
                 <div className={"p-2 flex text-xs text-gray-400"}>
                     <TagList 
-                            object_uuid={currentQuestionId} 
+                            parent_uuid={currentQuestionId} 
                             tagParent={question_content}
                             setTagListLoaded={setFilterListLoaded}
 

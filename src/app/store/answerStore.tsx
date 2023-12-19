@@ -27,6 +27,8 @@ export type AnswerType = {
     date_updated: string;
 
     tags: string[];
+
+    filter_uuid?: string | null;
 }
 
 

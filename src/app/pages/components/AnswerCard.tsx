@@ -111,7 +111,7 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                                 <div className="mr-4">
                                     {answer.creator_name}</div>
                                 {
-                                    answer.tags ? <TagList object_uuid={answer.uuid} tagParent={answer} setTagListLoaded={setTagListLoaded} /> : <TagList object_uuid={answer.uuid} tagParent={answer} setTagListLoaded={setTagListLoaded} />
+                                    answer.tags ? <TagList parent_uuid={answer.uuid} tagParent={answer} setTagListLoaded={setTagListLoaded} /> : <TagList parent_uuid={answer.uuid} tagParent={answer} setTagListLoaded={setTagListLoaded} />
 
                                 }
                             </div>

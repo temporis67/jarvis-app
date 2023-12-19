@@ -21,6 +21,7 @@ const ModelCardList = ({ mode }: { mode: string }) => {
     const updateModel = useModelStore(state => state.updateModel);
     const addModel = useModelStore(state => state.addModel);
     const delModel = useModelStore(state => state.delModel);
+    
 
     // Update Model ModalDialog *******************************************************************************
     // Zustand für das Anzeigen des Dialogs
@@ -30,7 +31,14 @@ const ModelCardList = ({ mode }: { mode: string }) => {
     const [modalContent, setModalContent] = useState(''); // Zustand für Modal-Inhalt
     const [modalFileName, setModalFileName] = useState(''); // Zustand für Modal-Inhalt
 
-    console.log("ModelCardList Start: ", models);
+    const [modelsAreLoaded, setModelsAreLoaded] = useState(false); // Zustand für Modells sind geladen
+
+    if (models.length > 0 ) {
+    console.log("ModelCardList Start Models: ", models.length);
+    }
+    else {
+        console.log("ModelCardList Start Model: models are empty");
+    }
 
     const apiFetch = async (slug: string, formData: FormData): Promise<any> => {
         //  console.log("API fetch() start", slug);
@@ -74,7 +82,10 @@ const ModelCardList = ({ mode }: { mode: string }) => {
 
 
     if (models === undefined || models === null || models.length === 0) {
-        apiFetchModels();
+        if(!modelsAreLoaded){
+            apiFetchModels();
+            setModelsAreLoaded(true);
+        }
 
     }
 

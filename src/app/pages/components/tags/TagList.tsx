@@ -10,13 +10,16 @@ import { TagType } from '@/app/store/tagStore';
 export type TagParentType = {
     uuid: string | null;
     content: string | null;
+    filter_uuid?: string | null;
 }
 
-const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
+const TagList = ({ parent_uuid, tagParent, setTagListLoaded }:
     {
-        object_uuid: string | null,
+
+        parent_uuid: string | null,
         tagParent: TagParentType | null,
         setTagListLoaded: any,
+
     }) => {
 
     const test = { "max-items": "3", "tags": [{ "name": "Kaiser Friedrich Wilhelm II.", "score": 100 }, { "name": "Preußen", "score": 85 }, { "name": "Reformierung", "score": 76 },] }
@@ -70,13 +73,14 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
     if (!isLoaded) {
         // get all tags from the database
 
-        if (object_uuid === null) {
+        if (parent_uuid === null || parent_uuid === undefined || parent_uuid === "") {
                 // this should not happen
-                console.info("ERROR: TagList: object_uuid is null")
+                console.info("ERROR: TagList: parent_uuid is null")
+                return (<> </>)
         }
         else {
             const formData = new FormData();
-            formData.append("object_uuid", object_uuid || "");
+            formData.append("object_uuid", parent_uuid || "");
             apiFetch("get_tags_for_object", formData).then((my_tags) => {
                 setTags(my_tags);
 
@@ -141,17 +145,14 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
     };
 
 
-
-
-
     const handleAddTag = () => {
-        const tag_input = document.getElementById("taginput_" + object_uuid) as HTMLDivElement
+        const tag_input = document.getElementById("taginput_" + parent_uuid) as HTMLDivElement
         tag_input.style.display = "block"
         console.log("handleAddTag")
     }
 
     // this function adds a tag to the object of object_uuid in the database
-    const api_add_tag_to_object = async (tag: TagType): Promise<any> => {
+    const api_add_tag_to_object = async (object_uuid: string|null, tag: TagType): Promise<any> => {
 
         console.log("api_add_tag_to_object(): ", tag)
         const formData = new FormData();
@@ -170,16 +171,15 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
         console.log("handleSaveTag")
         // get the tag from the input field
 
-        const tag_input = document.getElementById("taginput_" + object_uuid) as HTMLInputElement
+        const tag_input = document.getElementById("taginput_" + parent_uuid) as HTMLInputElement
         tag_input.style.display = "none"
 
-        const tag: TagType = { name: tag_input.value, uuid: "uuidv1()" }
-
-        // ToDo: save the tag to the database
+        const tag: TagType = { name: tag_input.value, uuid: "uuidv1()" } //this uuid always needs to be set by the api
+        
         const formData = new FormData();
         formData.append("tag", JSON.stringify(tag));
         apiFetch("get_tag_by_name", formData).then((my_tag) => {
-            api_add_tag_to_object(my_tag)
+            api_add_tag_to_object(parent_uuid, my_tag)
             console.log("my_tag: ", my_tag)
 
             // add the tag to the list of tags
@@ -201,7 +201,7 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
         // remove the tag from the object in the database
         const formData = new FormData();
         formData.append("tag_uuid", JSON.stringify(tag_uuid));
-        formData.append("object_uuid", object_uuid || "");
+        formData.append("object_uuid", parent_uuid || "");
         apiFetch("remove_tag_from_object", formData).then((my_tag) => {
 
             // remove the tag from the list of tags
@@ -212,13 +212,26 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
         })
     }
 
+    
+    // this function add the tag to the parents filter
+    const handleClickAddTagToParentFilter = (tag: TagType) => {
+        console.log("handleClickAddTagToParentFilter() start: ", tag)
+        // via api & update
+        api_add_tag_to_object(tagParent?.filter_uuid || "", tag).then((my_tag) => {
+            console.log("handleClickAddTagToParentFilter() end: ", my_tag)
+            setIsLoaded(false);
+        })
+        
+    }
+
     // ToDo: TagList gets call too often?
     // console.log("*** TagList: ", tags)
 
+    if (tags) {
     return (
         <div className="flex relative">
             <div className="absolute top-0 left-0">
-                <input type='text' placeholder='Tag hinzufügen' id={"taginput_" + object_uuid}
+                <input type='text' placeholder='Tag hinzufügen' id={"taginput_" + parent_uuid}
                     className='hidden bg-gray-600 border-[1px] border-gray-400 ml-1 pl-1 pr-1 rounded-md transition delay-200 hover:text-gray-300'
                     // when the key enter is pressed, save the tag
                     onKeyDown={(e) => {
@@ -232,20 +245,25 @@ const TagList = ({ object_uuid, tagParent, setTagListLoaded }:
             {
                 // @ts-check
                 tags.map((tag, index) => {
-                    return <Tag key={index} name={tag.name} uuid={tag.uuid} removeHandler={handleRemoveTag} />
+                    return <Tag key={index} name={tag.name} uuid={tag.uuid} removeHandler={handleRemoveTag} 
+                    onClickHandler={handleClickAddTagToParentFilter} />
                 })
             }
             <PlusCircleIcon
-                className="ml-1 p1 h-4 w-4 inline-block hover:text-gray-300" title={"Tag hinzufügen"}
+                className="ml-1 p1 h-4 w-4 inline-block hover:text-gray-300" title={"Tag hinzufügen zu " + parent_uuid}
                 onClick={handleAddTag}
             />
             <SparklesIcon
                 className="ml-1 p1 h-4 w-4 inline-block hover:text-gray-300" title={"Tags generieren"}
-                onClick={() => handleGenerateTags(object_uuid || "")}
+                onClick={() => handleGenerateTags(parent_uuid || "")}
             />
 
         </div>
     )
+        }
+        else {
+            return (<div>no Tags</div>)
+        }
 }
 
 export default TagList;

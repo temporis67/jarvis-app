@@ -11,6 +11,7 @@ import useQuestionStore, { QuestionType, QuestionsType } from "@/app/store/quest
 import useAnswersStore from "@/app/store/answerStore";
 import TagList from "./tags/TagList";
 import { TagParentType } from "./tags/TagList";
+import { TagType } from "@/app/store/tagStore";
 
 const api_host = process.env.NEXT_PUBLIC_JARVIS_API_HOST;
 
@@ -30,8 +31,10 @@ const QuestionList = () => {
 
     // Use store functions for handling question state
     const questions = useQuestionStore(state => state.questions);
-    console.log("@/app/pages/components/QuestionList start - questions: ", questions)
-
+    console.log( questions.length, " questions")
+    if (questions.length > 0) {
+        console.log("First question: ", questions[0])
+    }
 
     const setQuestions = useQuestionStore(state => state.setQuestions);
 
@@ -47,11 +50,13 @@ const QuestionList = () => {
     const delQuestion = useQuestionStore(state => state.delQuestion); // New function from store
     const updateQuestion = useQuestionStore(state => state.updateQuestion); // New function from store
 
-    const [filterListLoaded, setFilterListLoaded] = useState(false); // is the filter tag list loaded?
+    const [filterListLoaded, setFilterListLoaded] = useState(false); // is the filter tag list loaded? 
 
-    const [filterQuestions, setFilterQuestions] = useState(false); // on/off filtering answers by tags
+    const [filterQuestions, setFilterQuestions] = useState(false); // on/off filtering questions by tags
 
-    const [tagListLoaded, setTagListLoaded] = useState(false); // is the tag list loaded? used to trigger rerender
+    const [tagListLoaded, setTagListLoaded] = useState(false); // is the tag list loaded? used to trigger rerender - given to TagList Children
+
+    const [filterId, setFilterId] = useState(''); // filter by tag id
 
     // Update Question ModalDialog *******************************************************************************
     // Zustand für das Anzeigen des Dialogs
@@ -126,6 +131,44 @@ const QuestionList = () => {
             console.log("Frage Löschung abgebrochen für ID: ", questionId);
         }
     }
+
+
+
+    const api_get_user_filter = async () => {
+
+        const api_url = (api_host + "/get_user_filter");
+        console.log("questions/page/get_user_filter() start", user_uuid)
+
+        let formData = new FormData();
+        //@ts-ignore
+        formData.append("user_uuid", user_uuid);
+
+        try {
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: formData,
+                mode: 'cors',
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            const filter_uuid = data; // grrrr.... bad gpt... bad bad bad
+
+            // @ts-ignore
+            console.log("QL.get_user_filter(): ", filter_uuid);
+            // @ts-ignore
+            setFilterId(filter_uuid);
+            // setFilterQuestions(true);
+            
+            return filter_uuid
+
+
+        } catch (error) {
+            console.log("Error fetching data:", error);
+        }
+    }
+
 
 
     const api_update_question = async (question: QuestionType) => {
@@ -353,6 +396,7 @@ const QuestionList = () => {
             date_updated: '',
             rank: 0,
             answers: null,
+            filter_uuid: null,
         }
 
 
@@ -380,7 +424,7 @@ const QuestionList = () => {
             // @ts-ignore
             out_items['creator'] = session.user.name;
 
-
+            // FIXME: get the top rank from the questions list
             let top_rank = 100
             if (questions && questions.length > 0) {
                 top_rank = questions[0].rank;
@@ -414,13 +458,17 @@ const QuestionList = () => {
     const api_get_questions_by_user = async () => {
 
         const api_url = (api_host + "/questions");
-        console.log("questions/page/get_questions_by_user() start", user_uuid)
+        console.log("questions/page/api_get_questions_by_user() start", user_uuid)
 
         let formData = new FormData();
         //@ts-ignore
         formData.append("user_uuid", user_uuid);
         if (filterQuestions) {
             formData.append("filter", "true");
+            console.log("Filtering questions by tags filterId: ", filterId)
+        }
+        else {
+            console.log("NOT Filtering questions by tags")
         }
 
 
@@ -437,7 +485,13 @@ const QuestionList = () => {
             const out_items = Object.values(data); // Wandelt das Objekt in ein Array von Werten um
 
             // @ts-ignore
-            console.log("*** get_questions_by_user(): ", out_items);
+            if (out_items.length === 0) {
+                // @ts-ignore
+                console.log("No questions found for user: ", user_uuid);
+                setQuestions([]);
+                return;
+            }
+
 
 
             // sort out_items by 'rank' which is a number
@@ -471,9 +525,8 @@ const QuestionList = () => {
                 setCurrentQuestion(out_items[0]);
             }
             // @ts-ignore
-
-
-            console.log("** api_get_questions_by_user OK:", out_items);
+            console.log("** api_get_questions_by_user() OK: ", out_items.length);
+            
 
         } catch (error) {
             console.log("Error fetching data:", error);
@@ -481,16 +534,24 @@ const QuestionList = () => {
     };
 
 
+    // execute get_user_filter on page load
+    if (!filterListLoaded) {
+        // @ts-ignore
+        api_get_user_filter();
+        setFilterListLoaded(true);
+    }
 
     // execute get_questions_by_user on page load
-    if (!isLoaded) {
+    if (filterListLoaded && !isLoaded) {
+        // @ts-ignore
         api_get_questions_by_user();
         setIsLoaded(true);
+
         console.log("Initially loaded questions for user: ", user_uuid);
 
     }
 
-    console.log("API fetched Questions Ende: ")
+
 
 
     // Drag & Drop Handling *******************************************************************************
@@ -622,20 +683,29 @@ const QuestionList = () => {
         }
     };
 
+
     // Filter Handling ******************************************************************************************
+    // soooo .. we define a filter that belongs to the user to filter the visible questions
+    // it should belong to somthing lesse fixed than the user, but for now it is ok
+    // if you want to auto generate tags in this filter, some text to extract tags off is needed.
     const user_content: TagParentType = {
-        uuid: user_uuid,
+        uuid: filterId, // in other cases this is the answer/question uuid, the taglist belongs to
         content: "Ich bin Peter und interessiere mich für Informatik, Physik und Politik.",
+        filter_uuid: filterId, // this always is the active filter to be reachable by tags onClick
 
     }
 
+    // this function gets the filter_uuid by the user_uuid
+
     // this function uses apiFetch() to get a list of answers from the api      
-    const handelClickFilterActive = () => {
-        console.log("get_answers_by_tags() start: ")
+    const handelClickFilterActive = () => {        
         if (filterQuestions === false) {
+            console.log("handelClickFilterActive() ON")
+            setFilterListLoaded(false)
             setFilterQuestions(true);
             setIsLoaded(false);
         } else {
+            console.log("handelClickFilterActive() OFF")
             setFilterQuestions(false);
             setIsLoaded(false);
         }
@@ -643,55 +713,10 @@ const QuestionList = () => {
     }
 
 
-
     // Main Component *************************************************************************************************
     // @ts-ignore
     return (
         <div className={"w-1/2"}>
-
-            {/********* Header w. Count, Create, Filter *********/}
-            <div className={"flex items-center"}>
-                <div className={"p-2 text-sm text-gray-400"}>
-
-                    {(questions?.length === 0) && "Noch keine Fragen"}
-                    {(questions?.length === 1) && "Eine Frage"}
-                    {(questions?.length > 1) && questions?.length + " Fragen"}
-                </div>
-
-                <div className={"p-2 flex"}>
-                    <TagList
-                        object_uuid={user_uuid}
-                        tagParent={user_content}
-                        setTagListLoaded={setFilterListLoaded}
-
-                    />
-                    <FunnelIcon className={clsx("w-5 h-5 ",
-                        (!filterQuestions) && "text-gray-400",
-                        (filterQuestions) && "text-green-600"
-                    )
-                    }
-                        onClick={() => handelClickFilterActive()}
-                        title={"Filter anwenden"}
-                    />
-                </div>
-
-
-                <div className={"p-2"}>
-                    <PlusCircleIcon className={clsx("w-5 h-5 ",
-                        (questions?.length > 0) && "text-gray-400",
-                        (questions?.length === 0) && "text-green-600"
-                    )
-                    }
-
-
-                        onClick={() => handleClickNewQuestion()}
-                        onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
-                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
-                        title={"Neue Frage erstellen"}
-                    />
-                </div>
-            </div>
-
 
             {/********* ModalDialog Popup *********/}
             {showDialog && (
@@ -748,6 +773,50 @@ const QuestionList = () => {
             )}
 
 
+            {/********* Header w. Count, Create, Filter *********/}
+            <div className={"flex items-center"}>
+                <div className={"p-2 text-sm text-gray-400"}>
+
+                    {(questions?.length === 0) && "Noch keine Fragen"}
+                    {(questions?.length === 1) && "Eine Frage"}
+                    {(questions?.length > 1) && questions?.length + " Fragen"}
+                </div>
+
+                {filterId && (<div className={"p-2 flex text-gray-400 text-xs"}>
+                    <TagList
+                        // the initial filter belongs to the user
+                        parent_uuid={filterId}
+                        tagParent={user_content}
+                        setTagListLoaded={setFilterListLoaded}
+                    />
+                    <FunnelIcon className={clsx("w-5 h-5 ",
+                        (!filterQuestions) && "text-gray-400",
+                        (filterQuestions) && "text-green-600"
+                    )
+                    }
+                        onClick={() => handelClickFilterActive()}
+                        title={"Filter anwenden"}
+                    />
+                </div>)
+                }
+
+
+                <div className={"p-2"}>
+                    <PlusCircleIcon className={clsx("w-5 h-5 ",
+                        (questions?.length > 0) && "text-gray-400",
+                        (questions?.length === 0) && "text-green-600"
+                    )
+                    }
+
+
+                        onClick={() => handleClickNewQuestion()}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'blue'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'gray'} // Setzen Sie hier die ursprüngliche Farbe
+                        title={"Neue Frage erstellen"}
+                    />
+                </div>
+            </div>
+
             {/*Questions*/}
 
             {questions && (
@@ -793,7 +862,7 @@ const QuestionList = () => {
                                     {/* Tags */}
                                     <div className="text-xs text-gray-400 flex">
                                         <TagList
-                                            object_uuid={question.uuid}
+                                            parent_uuid={question.uuid}
                                             tagParent={question}
                                             setTagListLoaded={setTagListLoaded}
 
@@ -884,6 +953,7 @@ const QuestionList = () => {
 
                 ))
             )}
+
 
 
         </div>
