@@ -89,7 +89,10 @@ export default async function Home() {
                         Bitte melden Sie sich an oder registrieren Sie sich.
                     </p>
                     <p className={"m-2 text-xs text-gray-400"}>
-                        Die Angaben werden nicht geprüft. Im Profil werden ihre Fragen & Antworten gespeichert.
+                        Im Profil werden ihre Fragen & Antworten zu dem angegebenen Namen gespeichert.
+                    </p>
+                    <p className={"m-2 text-xs text-gray-400"}>
+                        E-Mail und Passwort benötigen sie zum LogIn.
                     </p>
 
                 </div>

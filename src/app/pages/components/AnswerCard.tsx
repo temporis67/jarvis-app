@@ -9,7 +9,7 @@ import TagList from "./tags/TagList";
 
 
 export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClickEditAnswer,
-    handleClickViewAnswer, dragItem, dragOverItem, handleSort, handleMoveToTop }:
+    handleClickViewAnswer, dragItem, dragOverItem, handleSort, handleMoveToTop, filter_uuid, }:
     {
         answer_uuid: string,
         handleDeleteAnswer: any,
@@ -19,6 +19,8 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
         dragOverItem: any,
         handleSort: any,
         handleMoveToTop: any,
+        filter_uuid: string | null,
+
     }
 ) {
 
@@ -76,7 +78,7 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
             onDragOver={(e) => e.preventDefault()}
             onClick={handleOnClickAnswer}
             className={clsx(
-                'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
+                'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-gray-600 md:flex-none md:justify-start md:p-2 md:px-3',
                 {
                     'bg-gray-600  text-gray-300': answer.uuid === current_answer?.uuid,
                     'bg-gray-700  text-gray-400': answer.uuid !== current_answer?.uuid,
@@ -111,8 +113,20 @@ export default function AnswerCard({ answer_uuid, handleDeleteAnswer, handleClic
                                 <div className="mr-4">
                                     {answer.creator_name}</div>
                                 {
-                                    answer.tags ? <TagList parent_uuid={answer.uuid} tagParent={answer} setTagListLoaded={setTagListLoaded} /> : <TagList parent_uuid={answer.uuid} tagParent={answer} setTagListLoaded={setTagListLoaded} />
-
+                                    answer.tags ? 
+                                    <TagList 
+                                    parent_uuid={answer.uuid} 
+                                    tagParent={answer} 
+                                    setTagListLoaded={setTagListLoaded} 
+                                    filter_uuid={filter_uuid}
+                                    /> : 
+                                    
+                                    <TagList 
+                                    parent_uuid={answer.uuid} 
+                                    tagParent={answer} 
+                                    setTagListLoaded={setTagListLoaded} 
+                                    filter_uuid={filter_uuid} 
+                                    />
                                 }
                             </div>
                             <div id={"title_" +

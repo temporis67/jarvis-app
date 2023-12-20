@@ -71,6 +71,14 @@ const AnswerList = () => {
     const [isLoading, setIsLoading] = useState('');
 
 
+    const question_content: TagParentType = {
+        uuid: "596ea358-99b2-11ee-b005-047c16bbac51",
+        content: questions?.filter((question: any) => question.uuid === currentQuestionId)[0]?.content || "",
+        filter_uuid: "596ea358-99b2-11ee-b005-047c16bbac51",
+        
+    }
+
+
 
     const get_answers_by_question = async (question_uuid: string | null) => {
 
@@ -92,6 +100,11 @@ const AnswerList = () => {
 
             if (filterAnswers){
                 formData.append("filter", "true");
+                if (question_content.uuid !== null) {
+                    formData.append("filter_uuid", question_content.uuid);
+                } else {
+                    formData.append("filter_uuid", "");
+                }
             }
 
 
@@ -163,19 +176,19 @@ const AnswerList = () => {
 
         }
 
-    }, [currentQuestionId, addAnswer, api_host, setAnswers, filterAnswers]);
+    }, [currentQuestionId, api_host, setAnswers, addAnswer, filterAnswers, question_content.uuid]);
 
 
 
 
     useEffect(() => {
-        if (currentQuestionId !== loadedQuestionId) {
+        if (currentQuestionId !== loadedQuestionId || !filterListLoaded) {
             // here we async load the answers from external API and we have top wait for it
             load_answers();
-
+            setFilterListLoaded(true);
             setLoadedQuestionId(currentQuestionId);
         }
-    }, [currentQuestionId, loadedQuestionId, load_answers, filterAnswers]);
+    }, [currentQuestionId, loadedQuestionId, load_answers, filterAnswers, filterListLoaded]);
 
 
 
@@ -686,12 +699,6 @@ const AnswerList = () => {
         }
     }
 
-    const question_content: TagParentType = {
-        uuid: currentQuestionId,
-        content: questions?.filter((question: any) => question.uuid === currentQuestionId)[0]?.content || "",
-        filter_uuid: questions?.filter((question: any) => question.uuid === currentQuestionId)[0]?.filter_uuid || "",
-        
-    }
 
     // this function uses apiFetch() to get a list of answers from the api      
     const handelClickFilterActive = () => {
@@ -782,7 +789,8 @@ const AnswerList = () => {
                         </div>
 
                     </div>
-
+                    <div className="mt-4 text-gray-600 text-sm">{current_answer?.uuid}</div>
+                        
 
                 </ModalDialog>
             )}
@@ -839,18 +847,21 @@ const AnswerList = () => {
             <div className={"flex"}>
                 <div className={"p-2 text-sm  text-gray-400"}>
 
-                    {(answers?.length === 0) && "Noch keine Antworten"}
+                    {(answers?.length === 0) && "Keine Antworten"}
                     {(answers?.length === 1) && "Eine Antwort"}
                     {(answers?.length > 1) && answers?.length + " Antworten"}
 
                 </div>
                 <div className={"p-2 flex text-xs text-gray-400"}>
+                    {filterAnswers && (
                     <TagList 
-                            parent_uuid={currentQuestionId} 
+                            parent_uuid={question_content.uuid} 
                             tagParent={question_content}
                             setTagListLoaded={setFilterListLoaded}
+                            filter_uuid={null} // no add filter for tags of the filterlist. obvioulsy.
 
                     />
+                    )}
                     <FunnelIcon className={clsx("w-5 h-5 ",
                         (!filterAnswers) && "text-gray-400",
                         (filterAnswers) && "text-green-600"
@@ -912,7 +923,8 @@ const AnswerList = () => {
                             dragItem={dragItem}
                             dragOverItem={dragOverItem}
                             handleSort={handleSort}
-                            handleMoveToTop={handleMoveToTop}                            
+                            handleMoveToTop={handleMoveToTop}
+                            filter_uuid={question_content.filter_uuid ?? null}
 
                         />
                     )

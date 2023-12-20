@@ -539,6 +539,7 @@ const QuestionList = () => {
         // @ts-ignore
         api_get_user_filter();
         setFilterListLoaded(true);
+        setIsLoaded(false);
     }
 
     // execute get_questions_by_user on page load
@@ -777,18 +778,25 @@ const QuestionList = () => {
             <div className={"flex items-center"}>
                 <div className={"p-2 text-sm text-gray-400"}>
 
-                    {(questions?.length === 0) && "Noch keine Fragen"}
+                    {(questions?.length === 0) && "Keine Fragen"}
                     {(questions?.length === 1) && "Eine Frage"}
                     {(questions?.length > 1) && questions?.length + " Fragen"}
                 </div>
 
                 {filterId && (<div className={"p-2 flex text-gray-400 text-xs"}>
-                    <TagList
-                        // the initial filter belongs to the user
-                        parent_uuid={filterId}
-                        tagParent={user_content}
-                        setTagListLoaded={setFilterListLoaded}
-                    />
+                    {filterQuestions && 
+                    (
+                        <TagList
+                            // the initial filter belongs to the user
+                            parent_uuid={filterId}
+                            tagParent={user_content}
+                            setTagListLoaded={setFilterListLoaded}
+                            filter_uuid={null}
+                        />
+                        )
+                    }
+                    
+
                     <FunnelIcon className={clsx("w-5 h-5 ",
                         (!filterQuestions) && "text-gray-400",
                         (filterQuestions) && "text-green-600"
@@ -833,7 +841,7 @@ const QuestionList = () => {
                         //@ts-ignore
                         onClick={(event) => handleSelectQuestion(event, question.uuid)}
                         className={clsx(
-                            'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-gray-500 md:flex-none md:justify-start md:p-2 md:px-3',
+                            'm-1 p-3 flex grow items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-gray-600 md:flex-none md:justify-start md:p-2 md:px-3',
                             {
                                 // @ts-ignore
                                 ' bg-gray-600  text-gray-300': question.uuid === editQuestionId,
@@ -865,6 +873,7 @@ const QuestionList = () => {
                                             parent_uuid={question.uuid}
                                             tagParent={question}
                                             setTagListLoaded={setTagListLoaded}
+                                            filter_uuid={filterId}
 
                                         />
 

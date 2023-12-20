@@ -20,7 +20,7 @@ const Tag = ({name, uuid, removeHandler, onClickHandler}:
             >{name}</div>
             <XCircleIcon className="ml-1 h-4 w-4 inline-block hover:text-red-800" 
                 onClick={() => removeHandler(uuid)}
-                title={"Tag entfernen"} />
+                title={"Tag entfernen " + uuid} />
         </div>
     )
 }

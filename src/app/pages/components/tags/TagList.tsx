@@ -13,12 +13,13 @@ export type TagParentType = {
     filter_uuid?: string | null;
 }
 
-const TagList = ({ parent_uuid, tagParent, setTagListLoaded }:
+const TagList = ({ parent_uuid, tagParent, setTagListLoaded, filter_uuid }:
     {
 
         parent_uuid: string | null,
         tagParent: TagParentType | null,
         setTagListLoaded: any,
+        filter_uuid: string | null,
 
     }) => {
 
@@ -154,7 +155,7 @@ const TagList = ({ parent_uuid, tagParent, setTagListLoaded }:
     // this function adds a tag to the object of object_uuid in the database
     const api_add_tag_to_object = async (object_uuid: string|null, tag: TagType): Promise<any> => {
 
-        console.log("api_add_tag_to_object(): ", tag)
+        console.log("api_add_tag_to_object(): ", object_uuid, " ", tag)
         const formData = new FormData();
         formData.append("tag", JSON.stringify(tag));
         formData.append("object_uuid", object_uuid || "");
@@ -174,7 +175,7 @@ const TagList = ({ parent_uuid, tagParent, setTagListLoaded }:
         const tag_input = document.getElementById("taginput_" + parent_uuid) as HTMLInputElement
         tag_input.style.display = "none"
 
-        const tag: TagType = { name: tag_input.value, uuid: "uuidv1()" } //this uuid always needs to be set by the api
+        const tag: TagType = { name: tag_input.value, uuid: "" } //this uuid always needs to be set by the api
         
         const formData = new FormData();
         formData.append("tag", JSON.stringify(tag));
@@ -185,6 +186,7 @@ const TagList = ({ parent_uuid, tagParent, setTagListLoaded }:
             // add the tag to the list of tags
             addTag(my_tag)
             console.log("tags: ", tags)
+            setTagListLoaded(false);
 
         }).catch((error) => {
             console.log("ERROR: handleSaveTag(): ", error)
@@ -206,6 +208,7 @@ const TagList = ({ parent_uuid, tagParent, setTagListLoaded }:
 
             // remove the tag from the list of tags
             delTag(tag_uuid)
+            setTagListLoaded(false);
             return my_tag;
         }).catch((error) => {
             console.log("ERROR: handleRemoveTag(): ", error)
@@ -216,10 +219,13 @@ const TagList = ({ parent_uuid, tagParent, setTagListLoaded }:
     // this function add the tag to the parents filter
     const handleClickAddTagToParentFilter = (tag: TagType) => {
         console.log("handleClickAddTagToParentFilter() start: ", tag)
+        console.log("handleClickAddTagToParentFilter() filter_uuid: ", filter_uuid)
         // via api & update
-        api_add_tag_to_object(tagParent?.filter_uuid || "", tag).then((my_tag) => {
+        api_add_tag_to_object(filter_uuid || "", tag).then((my_tag) => {
+
             console.log("handleClickAddTagToParentFilter() end: ", my_tag)
             setIsLoaded(false);
+            setTagListLoaded(false);
         })
         
     }
