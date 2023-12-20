@@ -2,13 +2,13 @@
 import useQuestionStore from "../store/questionStore";
 import useUserStore from "../store/userStore";
 import {
-    PlusCircleIcon, CalculatorIcon
+    PlusCircleIcon, CalculatorIcon, SparklesIcon, FunnelIcon
 } from "@heroicons/react/24/outline";
 
 
 const is_client = typeof window !== "undefined";
 
-export default function Page(request:any) {
+export default function Page(request: any) {
     // console.log("/app/pages/page.tsx Start");
 
     const is_client = typeof window !== "undefined";
@@ -17,11 +17,11 @@ export default function Page(request:any) {
     // console.log("/app/pages/page.tsx request: " + JSON.stringify(request));
     const searchParams = request["searchParams"];
     const user_uuid = searchParams["uuid"];
-    
+
 
     const setUserUuid = useUserStore(state => state.setUserUuid);
     // const setQuestions = useQuestionStore(state => state.setQuestions);
-    
+
 
     if (is_client) {
         // console.log("/app/pages/page.tsx setUserUuid: " + JSON.stringify(user_uuid));
@@ -44,18 +44,42 @@ export default function Page(request:any) {
             </div>
             <div className="p-2">
                 Im Demonstrator können Sie Antworten lokaler Models (Mistral 7B, Spicy 13B) mit externen Models von OpenAI.com (GPT-x) vergleichen.
-                Über Prompt, Context und Question kann das Verhalten der Models bestimmt und zusätzliche Fakten können eingebunden werden. 
+                Über Prompt, Context und Question kann das Verhalten der Models bestimmt und zusätzliche Fakten können eingebunden werden.
             </div>
             <div className="p-2">
                 <span className="font-bold">Zum Demo:</span>
                 <ul className="list-disc ml-8">
-                <li>Gehen Sie links auf den Bereich "Fragen"</li>
-                <li><div className="flex">Schreiben Sie eine neue Frage über das &nbsp; <PlusCircleIcon className="w-[20px]"/>-Symbol</div></li>
-                <li><div className="flex">Berechnen Sie eine Antwort über das &nbsp; <CalculatorIcon  className="w-[20px]"/>-Symbol.</div></li>
+                    <li>Gehen Sie links auf den Bereich "Fragen"</li>
+                    <li><div className="flex">Schreiben Sie eine neue Frage über das &nbsp; <PlusCircleIcon className="w-[20px] text-green-600" />-Symbol</div></li>
+                    <li><div className="flex">Berechnen Sie eine Antwort über das grüne &nbsp; <CalculatorIcon className="w-[20px]" />-Symbol.</div></li>
+                    <li><div className="flex">Wählen Sie ein anderes Model und/oder geben Sie Context zur Frage ein.</div></li>
+                    <li><div className="flex">Berechnen Sie eine zweite Antwort über das &nbsp; <CalculatorIcon className="w-[20px]" />-Symbol.</div></li>
+                    <li><div className="flex text-xs text-gray-400">Fragen und Antworten können auch manuell erstellt und bearbeitet/verbessert werden.</div></li>
+                    <li><div className="flex">Vergleichen und sortieren (bewerten) Sie die Antworten mit Drag&Drop.</div></li>
+                    <li><div className="flex">Berechnen Sie Tags für eine Antwort über das &nbsp; <SparklesIcon className="w-[20px]" />-Symbol.</div></li>
+                    <li><div className="flex text-xs text-gray-400">Um Tags für eine Frage zu berechnen muss ihr Context gefüllt sein.</div></li>
+                    <li><div className="flex">Klicken Sie einen Tag an, um ihn als Filter zu setzen.</div></li>
+                    <li><div className="flex">Klicken Sie auf das  &nbsp; <FunnelIcon className="w-[20px]" />-Symbol um Filter ein- und auszuschalten.</div></li>
                 </ul>
             </div>
 
-            <hr className="mt-3"/>
+            <hr className="mt-3" />
+
+            <div className="p-2 text-xl mt-4">Abstract</div>
+            <div className="p-2">
+
+            </div>
+            <div className="p-2">
+                Gezeigt werden die Antworten verschiedener Large Language Models.<br/>
+                Mehrere dieser Models werden lokal betrieben und können als WebServices mit internen Daten verbunden werden.<br/>
+                Ihr Verhalten und Informationsstand kann durch Context und Prompts manipuliert und getestet werden.<br/>
+                Mit der Frage & Antwort UI wird die Bewertung von Ergebnissen für ein RLHF Training ermöglicht.<br/>
+                Neben den größeren lokalen Models und OpenAI e.a. läuft im Hintergund parallel 
+                ein (noch untraininertes) TinyLlama Model, das die automatische Verschlagwortung übernimmt.<br/>
+                Durch einfachen Datei-Upload (des Admins) können ein weitere lokale Modelle im GGUF Format hinzugefügt und getestet werden.<br/>
+            </div>
+
+            <hr className="mt-3" />
 
             <div className="p-2 text-xl mt-4">Hintergrund</div>
 
@@ -99,8 +123,33 @@ export default function Page(request:any) {
 
 
             <div className="p-2">
+                Im vorliegenden Demonstrator werden aktuell
+
+                <ul className="list-disc m-5">
+                    <li>das MODEL <span className="font-bold"><a href="https://huggingface.co/jondurbin/spicyboros-13b-2.2?not-for-all-audiences=true">Spicyboros 13B 2.2 - GGUF</a></span> </li>
+                    <li>und das MODEL <span className="font-bold"><a className="decoration-solid" href="https://huggingface.co/mistralai/Mistral-7B-v0.1">Mistral 7B - GGUF</a></span></li>
+                </ul>
+
+                mit einer Gr&ouml;&szlig;e von 13 bzw. 7 Milliarden Parametern
+                lokal auf einem regul&auml;ren Linux-Server betrieben. 
+                Sie werden zur Laufzeit geladen, wenn der Nutzer im UI ein anderes Model ausw&auml;hlt.
+
 
             </div>
+            <div className="p-2">
+                Zusätzlich wird als Hintergrund-Prozess ein lokales <span className="font-bold"><a href="https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v0.6">TinyLlama Model</a></span> mit 1 Mrd Parametern benutzt, das die automatische Verschlagwortung übernimmt.
+            </div>
+
+            <div className="p-2">
+                Jedes der zahlreichen MODELs auf Huggingface.com kann parallel
+                oder in Reihe (z.B. Frage &rarr; Antwort &rarr; Schlagworte) angebunden werden - sollte die Hardware reichen.
+            </div>
+
+            <div className="p-2">
+
+            </div>
+
+
             <div className="p-2">
                 Vorreiter ist GPT von <span className="font-bold">OpenAI.com</span> - verschiedene Entwicklungsstufen sind im Demonstrator angebunden. Leider ist die Nutzung dieser API kostenpflichtig.
             </div>
@@ -120,36 +169,31 @@ export default function Page(request:any) {
 
             </div>
             <div className="p-2 font-bold">
-                <span>Facebook</span> hat das Model Llama2 entwickelt und als <span>Open Source</span> bereitgestellt. 
+                <span>Facebook</span> hat das Model Llama2 entwickelt und als <span>Open Source</span> bereitgestellt.
             </div>
             <div className="p-2">
-                Llama2 und andere bilden die Grundlage für eine welweite Weiterentwicklung und Evolution der Models. 
-                Zahlreiche dieser MODELs sind als 5-20 GB gro&szlig;e Bin&auml;r-Dateien &uuml;ber <a href="https://huggingface.co/">huggingface.com</a> 
-                mit freien Lizenzen verf&uuml;gbar, auch solche von Microsoft oder eben Facebook, 
-                zahlreicher jedoch Weiterentwicklungen und iterative Ableitungen der jeweils 
+                Llama2 und andere bilden die Grundlage für eine welweite Weiterentwicklung und Evolution der Models.
+                Zahlreiche dieser MODELs sind als 5-20 GB gro&szlig;e Bin&auml;r-Dateien &uuml;ber <a href="https://huggingface.co/">huggingface.com</a>
+                mit freien Lizenzen verf&uuml;gbar, auch solche von Microsoft oder eben Facebook,
+                zahlreicher jedoch Weiterentwicklungen und iterative Ableitungen der jeweils
                 erfolgreichsten Vorg&auml;nger in vielf&auml;ltigen Spezialisierungen und Themenbereichen.
             </div>
             <div className="p-2">
 
             </div>
-            <div className="p-2">
-                Im vorliegenden Demonstrator werden aktuell 
-                
-                <ul className="list-disc m-5">
-                <li>das MODEL <span className="font-bold"><a  href="https://huggingface.co/jondurbin/spicyboros-13b-2.2?not-for-all-audiences=true">Spicyboros 13B 2.2 - GGUF</a></span> </li>
-                <li>und das MODEL <span className="font-bold"><a className="decoration-solid" href="https://huggingface.co/mistralai/Mistral-7B-v0.1">Mistral 7B - GGUF</a></span></li>
-                </ul>
-                
-                 mit einer Gr&ouml;&szlig;e von 13 bzw. 7 Milliarden Parametern
-                lokal auf einem regul&auml;ren Linux-Server betrieben. 
-                Jedes der zahlreichen MODELs auf Huggingface.com kann parallel 
-                oder in Reihe (z.B. Frage &rarr; Antwort &rarr; Schlagworte) angebunden werden - sollte die Hardware reichen.
-            </div>
-            <div>Über einfache Konfiguration der Prompts können sowohl die lokalen als auch die externen Models Spezialaufgaben 
-                ausführen wie Verschlagwortung oder Übersetzung. Bspw. "GPT-4 Pirat" und demnächst das automatische Tagging.</div>
-            <div className="p-2">
 
+
+            <div>
+                Über die Konfiguration der Prompts als WebServices können sowohl die lokalen als auch die externen Models Spezialaufgaben
+                ausführen wie Verschlagwortung oder Übersetzung. Bspw. "GPT-4 Pirat" und beim automatischen Tagging.
             </div>
+
+
+
+
+
+
+
             <div className="p-2">
                 <div className="p-2">
                     <div className="p-2 text-xl">
@@ -231,7 +275,7 @@ export default function Page(request:any) {
             </div>
             <div className="p-2">
                 oder eine Frage wie <span className="italic text-gray-400 text-sm">
-                &ldquo;Wer war bei Friedrich Wilhelm dem IV., als er starb?&rdquo;</span>
+                    &ldquo;Wer war bei Friedrich Wilhelm dem IV., als er starb?&rdquo;</span>
                 zu beantworten, dann braucht es Beispiele, anhand derer es lernen kann.
             </div>
             <div className="p-2">
