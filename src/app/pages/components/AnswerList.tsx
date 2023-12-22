@@ -249,6 +249,8 @@ const AnswerList = () => {
         api_new_answer(currentQuestionId, user_uuid, user_uuid).then(new_answer_id => {
             setCurrentAnswerId(new_answer_id)
             setModalHeader("Neue Antwort"); // Setze den Titel des Dialogs
+            setModalTitle(""); // Setze den Titel der Frage
+            setModalContent(""); // Setze den Inhalt der Frage
             setShowEditDialog(true); // ModalDialog anzeigen
         });
     }
